@@ -1,6 +1,7 @@
 package host
 
 import (
+	"fmt"
 	"log"
 	"plugin"
 
@@ -8,43 +9,57 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/chabad360/covey/host/types"
 	"github.com/gorilla/mux"
 )
 
 var (
-	hosts []Host
+	hosts []types.Host
 )
 
-// NewHost adds a new host using the specified plugin.
-func NewHost(w http.ResponseWriter, r *http.Request) {
-	var host NewHostInfo
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	json.Unmarshal(reqBody, &host)
-
+func pluginNewHost(host *types.NewHostInfo) (*types.Host, error) {
 	p, err := plugin.Open("./plugins/host/" + host.Plugin + ".so")
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	n, err := p.Lookup("Plugin")
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	var s HostPlugin
-	s, ok := n.(HostPlugin)
+	var s types.HostPlugin
+	s, ok := n.(types.HostPlugin)
 	if !ok {
-		log.Fatal(host.Plugin, "does not provide a HostPlugin")
+		return nil, fmt.Errorf(host.Plugin, " does not provide a HostPlugin")
 	}
 
-	h, err := s.NewHost(&host)
+	h, err := s.NewHost(host)
+	if err != nil {
+		return nil, err
+	}
+
+	return &h, nil
+}
+
+// NewHost adds a new host using the specified plugin.
+func NewHost(w http.ResponseWriter, r *http.Request) {
+	var host types.NewHostInfo
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(reqBody, &host)
+
+	h, err := pluginNewHost(&host)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	hosts = append(hosts, h)
+	hosts = append(hosts, *h)
 	// fmt.Fprintf(w, host.server)
-	json.NewEncoder(w).Encode(host)
+	j, err := json.MarshalIndent(h, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Fprintf(w, string(j))
 }
 
 // AddHandlers adds the mux handlers for the host module.

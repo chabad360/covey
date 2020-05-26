@@ -1,4 +1,4 @@
-package host
+package types
 
 import "bytes"
 
@@ -6,6 +6,9 @@ import "bytes"
 type HostPlugin interface {
 	// NewHost returns a new host
 	NewHost(newHostInfo *NewHostInfo) (Host, error)
+
+	// LoadHost loads the json representation of each host host
+	LoadHost(hostJSON []byte) (Host, error)
 }
 
 // NewHostInfo contains the info about a new host and is passed to the specified plugin
@@ -22,13 +25,11 @@ type NewHostInfo struct {
 type HostInfo struct {
 	Name   string
 	Server string
+	Plugin string
 }
 
 // Host defines the generic host
 type Host interface {
 	// Run a command on the host
 	Run(args []string) (*bytes.Buffer, error)
-
-	// Returns the name of the plugin that handles it
-	Plugin() string
 }
