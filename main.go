@@ -16,12 +16,18 @@ func registerHandlers(r *mux.Router) {
 
 	apiRouter.HandleFunc("/version", getVersion)
 
-	host.AddHandlers(apiRouter.PathPrefix("/host").Subrouter())
+	host.RegisterHandlers(apiRouter.PathPrefix("/host").Subrouter())
 }
  
+func loadConfig() {
+	host.LoadConfig()
+}
+
 func main() {
 	r := mux.NewRouter()
 	registerHandlers(r)
+
+	loadConfig()
 	
 	http.ListenAndServe(":8080", r)
 }

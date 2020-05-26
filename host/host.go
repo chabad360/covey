@@ -3,6 +3,7 @@ package host
 import (
 	"fmt"
 	"log"
+	"os"
 	"plugin"
 
 	"encoding/json"
@@ -17,8 +18,8 @@ var (
 	hosts []types.Host
 )
 
-func pluginNewHost(host *types.NewHostInfo) (*types.Host, error) {
-	p, err := plugin.Open("./plugins/host/" + host.Plugin + ".so")
+func loadPlugin(pluginName string) (types.HostPlugin, error) {
+	p, err := plugin.Open("./plugins/host/" + pluginName + ".so")
 	if err != nil {
 		return nil, err
 	}
@@ -31,15 +32,10 @@ func pluginNewHost(host *types.NewHostInfo) (*types.Host, error) {
 	var s types.HostPlugin
 	s, ok := n.(types.HostPlugin)
 	if !ok {
-		return nil, fmt.Errorf(host.Plugin, " does not provide a HostPlugin")
+		return nil, fmt.Errorf(pluginName, " does not provide a HostPlugin")
 	}
 
-	h, err := s.NewHost(host)
-	if err != nil {
-		return nil, err
-	}
-
-	return &h, nil
+	return s, nil
 }
 
 // NewHost adds a new host using the specified plugin.
@@ -48,21 +44,78 @@ func NewHost(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(reqBody, &host)
 
-	h, err := pluginNewHost(&host)
+	p, err := loadPlugin(host.Plugin)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	hosts = append(hosts, *h)
+	h, err := p.NewHost(&host)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	hosts = append(hosts, h)
+	j, err := json.MarshalIndent(hosts, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	f, err := os.Create("./config/hosts.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	if err = f.Chmod(0600); err != nil {
+		log.Fatal(err)
+	}
+	if _, err = f.Write(j); err != nil {
+		log.Fatal(err)
+	}
+
 	// fmt.Fprintf(w, host.server)
-	j, err := json.MarshalIndent(h, "", "  ")
+	j, err = json.MarshalIndent(h, "", "  ")
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Fprintf(w, string(j))
 }
 
-// AddHandlers adds the mux handlers for the host module.
-func AddHandlers(r *mux.Router) {
+// RegisterHandlers adds the mux handlers for the host module.
+func RegisterHandlers(r *mux.Router) {
 	r.HandleFunc("/add", NewHost).Methods("POST")
+}
+
+// LoadConfig loads up the stored hosts
+func LoadConfig() {
+	log.Println("Loading Host Config")
+	f, err := os.Open("./config/hosts.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	var h []json.RawMessage
+	if err = json.NewDecoder(f).Decode(&h); err != nil {
+		log.Fatal(err)
+	}
+
+	for _, host := range h {
+		var z types.HostInfo
+		j, err := host.MarshalJSON()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err := json.Unmarshal(j, &z); err != nil {
+			log.Fatal(err)
+		}
+		p, err := loadPlugin(z.Plugin)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		t, err := p.LoadHost(j)
+		if err != nil {
+			log.Fatal(err)
+		}
+		hosts = append(hosts, t)
+	}
 }

@@ -134,6 +134,7 @@ func (p *plugin) NewHost(NewHostInfo *types.NewHostInfo) (types.Host, error) {
 func (p *plugin) LoadHost(hostJSON []byte) (types.Host, error) {
 	var h SSHHost
 	json.Unmarshal(hostJSON, &h)
+	log.Println("Loading", h.Name)
 
 	signer, err := ssh.ParsePrivateKey(h.PrivateKey)
 	if err != nil {
