@@ -71,7 +71,6 @@ func NewHost(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	// fmt.Fprintf(w, host.server)
 	j, err = json.MarshalIndent(h, "", "  ")
 	if err != nil {
 		log.Fatal(err)
@@ -98,6 +97,13 @@ func LoadConfig() {
 		log.Fatal(err)
 	}
 
+	var plugins = make(map[string]types.HostPlugin)
+	p, err := loadPlugin("ssh")
+	if err != nil {
+		log.Fatal(err)
+	}
+	plugins["ssh"] = p
+
 	for _, host := range h {
 		var z types.HostInfo
 		j, err := host.MarshalJSON()
@@ -107,15 +113,18 @@ func LoadConfig() {
 		if err := json.Unmarshal(j, &z); err != nil {
 			log.Fatal(err)
 		}
-		p, err := loadPlugin(z.Plugin)
-		if err != nil {
-			log.Fatal(err)
-		}
 
-		t, err := p.LoadHost(j)
+		t, err := plugins[z.Plugin].LoadHost(j)
 		if err != nil {
 			log.Fatal(err)
 		}
 		hosts = append(hosts, t)
+
+		r, err := t.Run([]string{"echo", "Hello World"})
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(r)
+
 	}
 }

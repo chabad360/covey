@@ -19,12 +19,12 @@ import (
 // SSHHost implements host.Host and host.HostInfo
 type SSHHost struct {
 	types.HostInfo
-	client     *ssh.Client
 	PrivateKey []byte
 	PublicKey  []byte
 	HostKey    []byte
 	Username   string
 	Port       string
+	Config     *ssh.ClientConfig
 }
 
 type plugin struct{}
@@ -35,8 +35,13 @@ var Plugin plugin
 // Run runs a command on the server.
 func (h *SSHHost) Run(args []string) (*bytes.Buffer, error) {
 	var b bytes.Buffer
-
-	session, err := h.client.NewSession()
+	// Create an initial connection
+	client, err := ssh.Dial("tcp", h.Server+":"+h.Port, h.Config)
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+	session, err := client.NewSession()
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +91,7 @@ func (p *plugin) NewHost(NewHostInfo *types.NewHostInfo) (types.Host, error) {
 	if _, err := sshRun(client, fmt.Sprint("echo '", string(h.PublicKey), "' | tee -a .ssh/authorized_keys")); err != nil {
 		return nil, err
 	}
-	// log.Println("Appended key to authorized_keys")
+	client.Close()
 
 	signer, err := ssh.ParsePrivateKey(h.PrivateKey)
 	if err != nil {
@@ -117,6 +122,7 @@ func (p *plugin) NewHost(NewHostInfo *types.NewHostInfo) (types.Host, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer client.Close()
 	output, err = sshRun(client, "/usr/bin/whoami")
 	if err != nil {
 		return nil, err
@@ -126,7 +132,7 @@ func (p *plugin) NewHost(NewHostInfo *types.NewHostInfo) (types.Host, error) {
 	if string(output) != h.Username {
 		return nil, fmt.Errorf("%v is not %v", string(output), h.Username)
 	}
-	h.client = client
+	h.Config = config
 
 	return &h, nil
 }
@@ -168,7 +174,8 @@ func (p *plugin) LoadHost(hostJSON []byte) (types.Host, error) {
 	if string(output) != h.Username {
 		return nil, fmt.Errorf("%v is not %v", string(output), h.Username)
 	}
-	h.client = client
+	client.Close()
+	h.Config = config
 
 	return &h, nil
 }
