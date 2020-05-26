@@ -44,45 +44,54 @@ func NewHost(w http.ResponseWriter, r *http.Request) {
 	var host types.HostInfo
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	if err := json.Unmarshal(reqBody, &host); err != nil {
-		log.Fatal(err)
+		errorWriter(w, err)
+		return
 	}
 
 	for _, h := range hosts {
-		if h.Name == host.Name {
+		if h.GetName() == host.Name {
 			errorWriter(w, fmt.Errorf("Duplicate host: %v", host.Name))
+			return
 		}
 	}
 
 	p, err := loadPlugin(host.Plugin)
 	if err != nil {
-		log.Fatal(err)
+		errorWriter(w, err)
+		return
 	}
 
 	h, err := p.NewHost(reqBody)
 	if err != nil {
-		log.Fatal(err)
+		errorWriter(w, err)
+		return
 	}
 
 	hosts = append(hosts, h)
 	j, err := json.MarshalIndent(hosts, "", "  ")
 	if err != nil {
-		log.Fatal(err)
+		errorWriter(w, err)
+		return
 	}
 	f, err := os.Create("./config/hosts.json")
 	if err != nil {
-		log.Fatal(err)
+		errorWriter(w, err)
+		return
 	}
 	defer f.Close()
 	if err = f.Chmod(0600); err != nil {
-		log.Fatal(err)
+		errorWriter(w, err)
+		return
 	}
 	if _, err = f.Write(j); err != nil {
-		log.Fatal(err)
+		errorWriter(w, err)
+		return
 	}
 
 	j, err = json.MarshalIndent(h, "", "  ")
 	if err != nil {
-		log.Fatal(err)
+		errorWriter(w, err)
+		return
 	}
 	fmt.Fprintf(w, string(j))
 }

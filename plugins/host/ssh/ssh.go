@@ -41,6 +41,11 @@ type plugin struct{}
 // Plugin is the plugin for managing SSH based hosts.
 var Plugin plugin
 
+// GetName returns the name of the Host
+func (h *SSHHost) GetName() string {
+	return h.Name
+}
+
 // Run runs a command on the server.
 func (h *SSHHost) Run(args []string) (*bytes.Buffer, error) {
 	var b bytes.Buffer

@@ -22,4 +22,7 @@ type HostInfo struct {
 type Host interface {
 	// Run a command on the host
 	Run(args []string) (*bytes.Buffer, error)
+
+	// GetName returns the name of the host
+	GetName() string
 }
