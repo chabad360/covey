@@ -2,7 +2,6 @@ package node
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"plugin"
@@ -19,26 +18,6 @@ var (
 	nodes = make(map[string]types.Node)
 )
 
-func loadPlugin(pluginName string) (types.NodePlugin, error) {
-	p, err := plugin.Open("./plugins/node/" + pluginName + ".so")
-	if err != nil {
-		return nil, err
-	}
-
-	n, err := p.Lookup("Plugin")
-	if err != nil {
-		return nil, err
-	}
-
-	var s types.NodePlugin
-	s, ok := n.(types.NodePlugin)
-	if !ok {
-		return nil, fmt.Errorf(pluginName, " does not provide a NodePlugin")
-	}
-
-	return s, nil
-}
-
 // NewNode adds a new node using the specified plugin.
 func NewNode(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -49,11 +28,9 @@ func NewNode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for h := range nodes {
-		if h == node.Name {
-			errorWriter(w, fmt.Errorf("Duplicate node: %v", node.Name))
-			return
-		}
+	if _, ok := nodes[node.Name]; ok {
+		errorWriter(w, fmt.Errorf("Duplicate node: %v", node.Name))
+		return
 	}
 
 	p, err := loadPlugin(node.Plugin)
@@ -62,13 +39,13 @@ func NewNode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h, err := p.NewNode(reqBody)
+	t, err := p.NewNode(reqBody)
 	if err != nil {
 		errorWriter(w, err)
 		return
 	}
 
-	nodes[h.GetName()] = h
+	nodes[t.GetName()] = t
 	j, err := json.MarshalIndent(nodes, "", "  ")
 	if err != nil {
 		errorWriter(w, err)
@@ -89,17 +66,73 @@ func NewNode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	j, err = json.MarshalIndent(h, "", "  ")
+	j, err = json.MarshalIndent(t, "", "  ")
 	if err != nil {
 		errorWriter(w, err)
 		return
 	}
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Location", "/api/v1/nodes/"+t.GetName())
 	fmt.Fprintf(w, string(j))
+}
+
+// RunNode runs a command the specified node, POST /api/v1/node/{node}
+func RunNode(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	n, ok := nodes[vars["node"]]
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "404 %s not found", vars["node"])
+		return
+	}
+	w.Header().Add("Content-Type", "application/json")
+
+	var s struct {
+		Cmd []string
+	}
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	if err := json.Unmarshal(reqBody, &s); err != nil {
+		errorWriter(w, err)
+		return
+	}
+	if len(s.Cmd) == 0 {
+		errorWriter(w, fmt.Errorf("Missing command"))
+	}
+
+	b, err := n.Run(s.Cmd)
+	if err != nil {
+		errorWriter(w, err)
+		return
+	}
+	fmt.Fprintf(w, b.String())
+}
+
+// GetNode returns a JSON representation of the specified node, GET /api/v1/node/{node}
+func GetNode(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	n, ok := nodes[vars["node"]]
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "404 %s not found", vars["node"])
+		return
+	}
+	w.Header().Add("Content-Type", "application/json")
+
+	j, err := json.MarshalIndent(n, "", "  ")
+	if err != nil {
+		errorWriter(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, string(j))
+
 }
 
 // RegisterHandlers adds the mux handlers for the node module.
 func RegisterHandlers(r *mux.Router) {
-	r.HandleFunc("/add", NewNode).Methods("POST")
+	r.HandleFunc("/new", NewNode).Methods("POST")
+	r.HandleFunc("/{node}", RunNode).Methods("POST")
+	r.HandleFunc("/{node}", GetNode).Methods("GET")
 }
 
 // LoadConfig loads up the stored nodes
@@ -150,6 +183,27 @@ func LoadConfig() {
 	}
 }
 
-func errorWriter(w io.Writer, err error) {
+func errorWriter(w http.ResponseWriter, err error) {
+	w.WriteHeader(http.StatusBadRequest)
 	fmt.Fprintf(w, "{'error':'%s'}", err)
+}
+
+func loadPlugin(pluginName string) (types.NodePlugin, error) {
+	p, err := plugin.Open("./plugins/node/" + pluginName + ".so")
+	if err != nil {
+		return nil, err
+	}
+
+	n, err := p.Lookup("Plugin")
+	if err != nil {
+		return nil, err
+	}
+
+	var s types.NodePlugin
+	s, ok := n.(types.NodePlugin)
+	if !ok {
+		return nil, fmt.Errorf(pluginName, " does not provide a NodePlugin")
+	}
+
+	return s, nil
 }

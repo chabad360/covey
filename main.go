@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/chabad360/covey/node"
@@ -27,6 +28,7 @@ func loadConfig() {
 func main() {
 	r := mux.NewRouter()
 	registerHandlers(r)
+	r.Use(loggingMiddleware)
 
 	loadConfig()
 
@@ -35,4 +37,11 @@ func main() {
 
 func getVersion(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, version)
+}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("API called", r.RequestURI)
+		next.ServeHTTP(w, r)
+	})
 }
