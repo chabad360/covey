@@ -12,22 +12,22 @@ import (
 	"net"
 	"strings"
 
-	"github.com/chabad360/covey/host/types"
+	"github.com/chabad360/covey/node/types"
 	"golang.org/x/crypto/ssh"
 )
 
-// SSHHost implements host.Host and host.HostInfo
-type SSHHost struct {
-	types.HostInfo
+// SSHNode implements node.Node and node.NodeInfo
+type SSHNode struct {
+	types.NodeInfo
 	PrivateKey []byte
 	PublicKey  []byte
-	HostKey    []byte
+	NodeKey    []byte
 	Username   string
 	Port       string
 	config     *ssh.ClientConfig
 }
 
-type newHostInfo struct {
+type newNodeInfo struct {
 	Server   string
 	Port     string
 	Username string
@@ -38,16 +38,16 @@ type newHostInfo struct {
 
 type plugin struct{}
 
-// Plugin is the plugin for managing SSH based hosts.
+// Plugin is the plugin for managing SSH based nodes.
 var Plugin plugin
 
-// GetName returns the name of the Host
-func (h *SSHHost) GetName() string {
+// GetName returns the name of the Node
+func (h *SSHNode) GetName() string {
 	return h.Name
 }
 
 // Run runs a command on the server.
-func (h *SSHHost) Run(args []string) (*bytes.Buffer, error) {
+func (h *SSHNode) Run(args []string) (*bytes.Buffer, error) {
 	var b bytes.Buffer
 	// Create an initial connection
 	client, err := ssh.Dial("tcp", h.Server+":"+h.Port, h.config)
@@ -68,25 +68,25 @@ func (h *SSHHost) Run(args []string) (*bytes.Buffer, error) {
 	return &b, nil
 }
 
-// NewHost creates an SSHHost
-func (p *plugin) NewHost(hostJSON []byte) (types.Host, error) {
-	h := SSHHost{}
+// NewNode creates an SSHNode
+func (p *plugin) NewNode(nodeJSON []byte) (types.Node, error) {
+	h := SSHNode{}
 
-	var hostInfo newHostInfo
-	if err := json.Unmarshal(hostJSON, &hostInfo); err != nil {
+	var nodeInfo newNodeInfo
+	if err := json.Unmarshal(nodeJSON, &nodeInfo); err != nil {
 		return nil, err
 	}
 
 	config := &ssh.ClientConfig{
-		User: hostInfo.Username,
+		User: nodeInfo.Username,
 		Auth: []ssh.AuthMethod{
-			ssh.Password(hostInfo.Password),
+			ssh.Password(nodeInfo.Password),
 		},
 		HostKeyCallback: hostKeyCallback(&h),
 	}
 
 	// Create an initial connection
-	client, err := ssh.Dial("tcp", hostInfo.Server+":"+hostInfo.Port, config)
+	client, err := ssh.Dial("tcp", nodeInfo.Server+":"+nodeInfo.Port, config)
 	if err != nil {
 		return nil, err
 	}
@@ -97,8 +97,8 @@ func (p *plugin) NewHost(hostJSON []byte) (types.Host, error) {
 	}
 	// Verify that everything has gone right
 	output = output[0 : len(output)-1]
-	if string(output) != hostInfo.Username {
-		return nil, fmt.Errorf("%v is not %v", string(output), hostInfo.Username)
+	if string(output) != nodeInfo.Username {
+		return nil, fmt.Errorf("%v is not %v", string(output), nodeInfo.Username)
 	}
 	log.Println("Successfully logged into server")
 	// Generate SSH Keys add add the public key to the authorized_keys file.
@@ -112,34 +112,34 @@ func (p *plugin) NewHost(hostJSON []byte) (types.Host, error) {
 	}
 	client.Close()
 
-	h.Name = hostInfo.Name
-	h.Username = hostInfo.Username
-	h.Server = hostInfo.Server
-	h.Port = hostInfo.Port
+	h.Name = nodeInfo.Name
+	h.Username = nodeInfo.Username
+	h.Server = nodeInfo.Server
+	h.Port = nodeInfo.Port
 	h.Plugin = "ssh"
 
-	if err := hostFactory(&h); err != nil {
+	if err := nodeFactory(&h); err != nil {
 		return nil, err
 	}
 
 	return &h, nil
 }
 
-func (p *plugin) LoadHost(hostJSON []byte) (types.Host, error) {
-	var h SSHHost
-	if err := json.Unmarshal(hostJSON, &h); err != nil {
+func (p *plugin) LoadNode(nodeJSON []byte) (types.Node, error) {
+	var h SSHNode
+	if err := json.Unmarshal(nodeJSON, &h); err != nil {
 		return nil, err
 	}
 	log.Println("Loading", h.Name)
 
-	if err := hostFactory(&h); err != nil {
+	if err := nodeFactory(&h); err != nil {
 		return nil, err
 	}
 
 	return &h, nil
 }
 
-func generateKeysAndAddKeys(h *SSHHost) error {
+func generateKeysAndAddKeys(h *SSHNode) error {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
 		return err
@@ -173,33 +173,33 @@ func sshRun(client *ssh.Client, command string) ([]byte, error) {
 	return output, nil
 }
 
-func hostKeyCallback(h *SSHHost) ssh.HostKeyCallback {
-	return func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-		if len(h.HostKey) <= 0 {
-			h.HostKey = key.Marshal()
+func hostKeyCallback(h *SSHNode) ssh.HostKeyCallback {
+	return func(nodename string, remote net.Addr, key ssh.PublicKey) error {
+		if len(h.NodeKey) <= 0 {
+			h.NodeKey = key.Marshal()
 		}
 		return nil
 	}
 }
 
-func hostFactory(h *SSHHost) error {
+func nodeFactory(h *SSHNode) error {
 	signer, err := ssh.ParsePrivateKey(h.PrivateKey)
 	if err != nil {
 		return err
 	}
 
-	hostKey, err := ssh.ParsePublicKey(h.HostKey)
+	nodeKey, err := ssh.ParsePublicKey(h.NodeKey)
 	if err != nil {
 		return err
 	}
-	// log.Printf("loaded host key")
+	// log.Printf("loaded node key")
 
 	config := &ssh.ClientConfig{
 		User: h.Username,
 		Auth: []ssh.AuthMethod{
 			ssh.PublicKeys(signer),
 		},
-		HostKeyCallback: ssh.FixedHostKey(hostKey),
+		NodeKeyCallback: ssh.FixedNodeKey(nodeKey),
 	}
 
 	// Create an initial connection
@@ -219,6 +219,6 @@ func hostFactory(h *SSHHost) error {
 	client.Close()
 	h.config = config
 
-	// log.Printf("Created Host")
+	// log.Printf("Created Node")
 	return nil
 }

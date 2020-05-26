@@ -1,4 +1,4 @@
-package host
+package node
 
 import (
 	"fmt"
@@ -11,16 +11,16 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/chabad360/covey/host/types"
+	"github.com/chabad360/covey/node/types"
 	"github.com/gorilla/mux"
 )
 
 var (
-	hosts []types.Host
+	nodes = make(map[string]types.Node)
 )
 
-func loadPlugin(pluginName string) (types.HostPlugin, error) {
-	p, err := plugin.Open("./plugins/host/" + pluginName + ".so")
+func loadPlugin(pluginName string) (types.NodePlugin, error) {
+	p, err := plugin.Open("./plugins/node/" + pluginName + ".so")
 	if err != nil {
 		return nil, err
 	}
@@ -30,50 +30,51 @@ func loadPlugin(pluginName string) (types.HostPlugin, error) {
 		return nil, err
 	}
 
-	var s types.HostPlugin
-	s, ok := n.(types.HostPlugin)
+	var s types.NodePlugin
+	s, ok := n.(types.NodePlugin)
 	if !ok {
-		return nil, fmt.Errorf(pluginName, " does not provide a HostPlugin")
+		return nil, fmt.Errorf(pluginName, " does not provide a NodePlugin")
 	}
 
 	return s, nil
 }
 
-// NewHost adds a new host using the specified plugin.
-func NewHost(w http.ResponseWriter, r *http.Request) {
-	var host types.HostInfo
+// NewNode adds a new node using the specified plugin.
+func NewNode(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var node types.NodeInfo
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	if err := json.Unmarshal(reqBody, &host); err != nil {
+	if err := json.Unmarshal(reqBody, &node); err != nil {
 		errorWriter(w, err)
 		return
 	}
 
-	for _, h := range hosts {
-		if h.GetName() == host.Name {
-			errorWriter(w, fmt.Errorf("Duplicate host: %v", host.Name))
+	for h := range nodes {
+		if h == node.Name {
+			errorWriter(w, fmt.Errorf("Duplicate node: %v", node.Name))
 			return
 		}
 	}
 
-	p, err := loadPlugin(host.Plugin)
+	p, err := loadPlugin(node.Plugin)
 	if err != nil {
 		errorWriter(w, err)
 		return
 	}
 
-	h, err := p.NewHost(reqBody)
+	h, err := p.NewNode(reqBody)
 	if err != nil {
 		errorWriter(w, err)
 		return
 	}
 
-	hosts = append(hosts, h)
-	j, err := json.MarshalIndent(hosts, "", "  ")
+	nodes[h.GetName()] = h
+	j, err := json.MarshalIndent(nodes, "", "  ")
 	if err != nil {
 		errorWriter(w, err)
 		return
 	}
-	f, err := os.Create("./config/hosts.json")
+	f, err := os.Create("./config/nodes.json")
 	if err != nil {
 		errorWriter(w, err)
 		return
@@ -96,35 +97,37 @@ func NewHost(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(j))
 }
 
-// RegisterHandlers adds the mux handlers for the host module.
+// RegisterHandlers adds the mux handlers for the node module.
 func RegisterHandlers(r *mux.Router) {
-	r.HandleFunc("/add", NewHost).Methods("POST")
+	r.HandleFunc("/add", NewNode).Methods("POST")
 }
 
-// LoadConfig loads up the stored hosts
+// LoadConfig loads up the stored nodes
 func LoadConfig() {
-	log.Println("Loading Host Config")
-	f, err := os.Open("./config/hosts.json")
+	log.Println("Loading Node Config")
+	f, err := os.Open("./config/nodes.json")
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Error loading node config")
+		return
 	}
 	defer f.Close()
 
-	var h []json.RawMessage
+	var h map[string]json.RawMessage
 	if err = json.NewDecoder(f).Decode(&h); err != nil {
 		log.Fatal(err)
 	}
 
-	var plugins = make(map[string]types.HostPlugin)
+	// Make this dynamic
+	var plugins = make(map[string]types.NodePlugin)
 	p, err := loadPlugin("ssh")
 	if err != nil {
 		log.Fatal(err)
 	}
 	plugins["ssh"] = p
 
-	for _, host := range h {
-		var z types.HostInfo
-		j, err := host.MarshalJSON()
+	for _, node := range h {
+		var z types.NodeInfo
+		j, err := node.MarshalJSON()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -132,11 +135,11 @@ func LoadConfig() {
 			log.Fatal(err)
 		}
 
-		t, err := plugins[z.Plugin].LoadHost(j)
+		t, err := plugins[z.Plugin].LoadNode(j)
 		if err != nil {
 			log.Fatal(err)
 		}
-		hosts = append(hosts, t)
+		nodes[t.GetName()] = t
 
 		r, err := t.Run([]string{"echo", "Hello World"})
 		if err != nil {

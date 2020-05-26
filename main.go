@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/chabad360/covey/node"
 	"github.com/gorilla/mux"
-	"github.com/chabad360/covey/host"
 )
 
 const (
@@ -16,11 +17,11 @@ func registerHandlers(r *mux.Router) {
 
 	apiRouter.HandleFunc("/version", getVersion)
 
-	host.RegisterHandlers(apiRouter.PathPrefix("/host").Subrouter())
+	node.RegisterHandlers(apiRouter.PathPrefix("/node").Subrouter())
 }
- 
+
 func loadConfig() {
-	host.LoadConfig()
+	node.LoadConfig()
 }
 
 func main() {
@@ -28,7 +29,7 @@ func main() {
 	registerHandlers(r)
 
 	loadConfig()
-	
+
 	http.ListenAndServe(":8080", r)
 }
 
