@@ -24,7 +24,16 @@ type SSHHost struct {
 	HostKey    []byte
 	Username   string
 	Port       string
-	Config     *ssh.ClientConfig
+	config     *ssh.ClientConfig
+}
+
+type newHostInfo struct {
+	Server   string
+	Port     string
+	Username string
+	Password string
+	Name     string
+	Plugin   string
 }
 
 type plugin struct{}
@@ -36,7 +45,7 @@ var Plugin plugin
 func (h *SSHHost) Run(args []string) (*bytes.Buffer, error) {
 	var b bytes.Buffer
 	// Create an initial connection
-	client, err := ssh.Dial("tcp", h.Server+":"+h.Port, h.Config)
+	client, err := ssh.Dial("tcp", h.Server+":"+h.Port, h.config)
 	if err != nil {
 		return nil, err
 	}
@@ -55,19 +64,24 @@ func (h *SSHHost) Run(args []string) (*bytes.Buffer, error) {
 }
 
 // NewHost creates an SSHHost
-func (p *plugin) NewHost(NewHostInfo *types.NewHostInfo) (types.Host, error) {
+func (p *plugin) NewHost(hostJSON []byte) (types.Host, error) {
 	h := SSHHost{}
 
+	var hostInfo newHostInfo
+	if err := json.Unmarshal(hostJSON, &hostInfo); err != nil {
+		return nil, err
+	}
+
 	config := &ssh.ClientConfig{
-		User: NewHostInfo.Username,
+		User: hostInfo.Username,
 		Auth: []ssh.AuthMethod{
-			ssh.Password(NewHostInfo.Password),
+			ssh.Password(hostInfo.Password),
 		},
 		HostKeyCallback: hostKeyCallback(&h),
 	}
 
 	// Create an initial connection
-	client, err := ssh.Dial("tcp", NewHostInfo.Server+":"+NewHostInfo.Port, config)
+	client, err := ssh.Dial("tcp", hostInfo.Server+":"+hostInfo.Port, config)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +92,8 @@ func (p *plugin) NewHost(NewHostInfo *types.NewHostInfo) (types.Host, error) {
 	}
 	// Verify that everything has gone right
 	output = output[0 : len(output)-1]
-	if string(output) != NewHostInfo.Username {
-		return nil, fmt.Errorf("%v is not %v", string(output), NewHostInfo.Username)
+	if string(output) != hostInfo.Username {
+		return nil, fmt.Errorf("%v is not %v", string(output), hostInfo.Username)
 	}
 	log.Println("Successfully logged into server")
 	// Generate SSH Keys add add the public key to the authorized_keys file.
@@ -93,89 +107,29 @@ func (p *plugin) NewHost(NewHostInfo *types.NewHostInfo) (types.Host, error) {
 	}
 	client.Close()
 
-	signer, err := ssh.ParsePrivateKey(h.PrivateKey)
-	if err != nil {
-		return nil, err
-	}
-
-	hostKey, err := ssh.ParsePublicKey(h.HostKey)
-	if err != nil {
-		return nil, err
-	}
-
-	h.Name = NewHostInfo.Name
-	h.Username = NewHostInfo.Username
-	h.Server = NewHostInfo.Server
-	h.Port = NewHostInfo.Port
+	h.Name = hostInfo.Name
+	h.Username = hostInfo.Username
+	h.Server = hostInfo.Server
+	h.Port = hostInfo.Port
 	h.Plugin = "ssh"
 
-	config = &ssh.ClientConfig{
-		User: h.Username,
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		},
-		HostKeyCallback: ssh.FixedHostKey(hostKey),
-	}
-
-	// Create an initial connection
-	client, err = ssh.Dial("tcp", h.Server+":"+h.Port, config)
-	if err != nil {
+	if err := hostFactory(&h); err != nil {
 		return nil, err
 	}
-	defer client.Close()
-	output, err = sshRun(client, "/usr/bin/whoami")
-	if err != nil {
-		return nil, err
-	}
-	// Verify that everything has gone right
-	output = output[0 : len(output)-1]
-	if string(output) != h.Username {
-		return nil, fmt.Errorf("%v is not %v", string(output), h.Username)
-	}
-	h.Config = config
 
 	return &h, nil
 }
 
 func (p *plugin) LoadHost(hostJSON []byte) (types.Host, error) {
 	var h SSHHost
-	json.Unmarshal(hostJSON, &h)
+	if err := json.Unmarshal(hostJSON, &h); err != nil {
+		return nil, err
+	}
 	log.Println("Loading", h.Name)
 
-	signer, err := ssh.ParsePrivateKey(h.PrivateKey)
-	if err != nil {
+	if err := hostFactory(&h); err != nil {
 		return nil, err
 	}
-
-	hostKey, err := ssh.ParsePublicKey(h.HostKey)
-	if err != nil {
-		return nil, err
-	}
-
-	config := &ssh.ClientConfig{
-		User: h.Username,
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		},
-		HostKeyCallback: ssh.FixedHostKey(hostKey),
-	}
-
-	// Create an initial connection
-	client, err := ssh.Dial("tcp", h.Server+":"+h.Port, config)
-	if err != nil {
-		return nil, err
-	}
-	output, err := sshRun(client, "/usr/bin/whoami")
-	if err != nil {
-		return nil, err
-	}
-	// Verify that everything has gone right
-	output = output[0 : len(output)-1]
-	if string(output) != h.Username {
-		return nil, fmt.Errorf("%v is not %v", string(output), h.Username)
-	}
-	client.Close()
-	h.Config = config
 
 	return &h, nil
 }
@@ -221,4 +175,45 @@ func hostKeyCallback(h *SSHHost) ssh.HostKeyCallback {
 		}
 		return nil
 	}
+}
+
+func hostFactory(h *SSHHost) error {
+	signer, err := ssh.ParsePrivateKey(h.PrivateKey)
+	if err != nil {
+		return err
+	}
+
+	hostKey, err := ssh.ParsePublicKey(h.HostKey)
+	if err != nil {
+		return err
+	}
+	// log.Printf("loaded host key")
+
+	config := &ssh.ClientConfig{
+		User: h.Username,
+		Auth: []ssh.AuthMethod{
+			ssh.PublicKeys(signer),
+		},
+		HostKeyCallback: ssh.FixedHostKey(hostKey),
+	}
+
+	// Create an initial connection
+	client, err := ssh.Dial("tcp", h.Server+":"+h.Port, config)
+	if err != nil {
+		return err
+	}
+	output, err := sshRun(client, "/usr/bin/whoami")
+	if err != nil {
+		return err
+	}
+	// Verify that everything has gone right
+	output = output[0 : len(output)-1]
+	if string(output) != h.Username {
+		return fmt.Errorf("%v is not %v", string(output), h.Username)
+	}
+	client.Close()
+	h.config = config
+
+	// log.Printf("Created Host")
+	return nil
 }

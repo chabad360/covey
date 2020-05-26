@@ -2,6 +2,7 @@ package host
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"plugin"
@@ -40,16 +41,24 @@ func loadPlugin(pluginName string) (types.HostPlugin, error) {
 
 // NewHost adds a new host using the specified plugin.
 func NewHost(w http.ResponseWriter, r *http.Request) {
-	var host types.NewHostInfo
+	var host types.HostInfo
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	json.Unmarshal(reqBody, &host)
+	if err := json.Unmarshal(reqBody, &host); err != nil {
+		log.Fatal(err)
+	}
+
+	for _, h := range hosts {
+		if h.Name == host.Name {
+			errorWriter(w, fmt.Errorf("Duplicate host: %v", host.Name))
+		}
+	}
 
 	p, err := loadPlugin(host.Plugin)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	h, err := p.NewHost(&host)
+	h, err := p.NewHost(reqBody)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -127,4 +136,8 @@ func LoadConfig() {
 		fmt.Println(r)
 
 	}
+}
+
+func errorWriter(w io.Writer, err error) {
+	fmt.Fprintf(w, "{'error':'%s'}", err)
 }
