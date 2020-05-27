@@ -1,7 +1,6 @@
 package task
 
 import (
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,14 +8,15 @@ import (
 	"net/http"
 	"os"
 	"plugin"
-	"strings"
 
+	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/task/types"
 	"github.com/gorilla/mux"
 )
 
 var (
-	tasks = make(map[string]types.ITask)
+	tasks     = make(map[string]types.ITask)
+	taskShort = make(map[string]string)
 )
 
 // NewTask creates and starts a new task.
@@ -24,51 +24,50 @@ func NewTask(w http.ResponseWriter, r *http.Request) {
 	var task types.Task
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	if err := json.Unmarshal(reqBody, &task); err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 
 	p, err := loadPlugin(task.Plugin)
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 
 	t, err := p.NewTask(reqBody)
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
-	x := t.GetID()
-	tasks[hex.EncodeToString(x[:])] = t
+	tasks[t.GetID()] = t
+	taskShort[t.GetIDShort()] = t.GetID()
 	j, err := json.MarshalIndent(tasks, "", "  ")
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	f, err := os.Create("./config/tasks.json")
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	defer f.Close()
 	if err = f.Chmod(0600); err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	if _, err = f.Write(j); err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 
 	j, err = json.MarshalIndent(t, "", "\t")
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	xs := t.GetIDShort()
-	w.Header().Set("Location", "/api/v1/tasks/"+hex.EncodeToString(xs[:]))
+	w.Header().Set("Location", "/api/v1/tasks/"+t.GetIDShort())
 	fmt.Fprintf(w, string(j))
 }
 
@@ -77,20 +76,11 @@ func RegisterHandlers(r *mux.Router) {
 	log.Println("Registering Task module API handlers...")
 	r.HandleFunc("/new", NewTask).Methods("POST")
 
-	err := r.Walk(walk)
+	err := r.Walk(common.Walk)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println()
-}
-
-func walk(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-	path, err := route.GetPathTemplate()
-	methods, err := route.GetMethods()
-	if err == nil {
-		fmt.Println("Route:", strings.Join(methods, ","), "\t", string(path))
-	}
-	return nil
 }
 
 func loadPlugin(pluginName string) (types.TaskPlugin, error) {
@@ -107,13 +97,8 @@ func loadPlugin(pluginName string) (types.TaskPlugin, error) {
 	var s types.TaskPlugin
 	s, ok := n.(types.TaskPlugin)
 	if !ok {
-		return nil, fmt.Errorf(pluginName, " does not provide a NodePlugin")
+		return nil, fmt.Errorf(pluginName, " does not provide a TaskPlugin")
 	}
 
 	return s, nil
-}
-
-func errorWriter(w http.ResponseWriter, err error) {
-	w.WriteHeader(http.StatusBadRequest)
-	fmt.Fprintf(w, "{'error':'%s'}", err)
 }

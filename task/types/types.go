@@ -1,6 +1,10 @@
 package types
 
-import "bytes"
+import (
+	"bytes"
+	"encoding/hex"
+	"time"
+)
 
 // TaskPlugin defines the interface for Task module plugins.
 type TaskPlugin interface {
@@ -17,25 +21,26 @@ type ITask interface {
 	GetUnread() []string
 
 	// GetID returns the ID of the task.
-	GetID() [32]byte
+	GetID() string
 
 	// GetIDShort returns the first 16 bytes of the task ID.
-	GetIDShort() [8]byte
+	GetIDShort() string
 }
 
 // Task defines the information of a task.
 type Task struct {
 	State   int           `json:"state,omitempty"`
 	Plugin  string        `json:"plugin,omitempty"`
-	ID      [32]byte      `json:"id,omitempty"`
+	ID      string        `json:"id,omitempty"`
 	Node    string        `json:"node,omitempty"`
 	Details interface{}   `json:"details,omitempty"`
 	Log     []string      `json:"log,omitempty"`
+	Time    time.Time     `json:"time,omitempty"`
 	Buffer  *bytes.Buffer `json:"-"`
 }
 
 // GetID returns the ID of the task.
-func (t *Task) GetID() [32]byte { return t.ID }
+func (t *Task) GetID() string { return t.ID }
 
 // GetIDShort returns the first 8 bytes of the task ID.
-func (t *Task) GetIDShort() [8]byte { var x [8]byte; copy(x[:], t.ID[:8]); return x }
+func (t *Task) GetIDShort() string { x, _ := hex.DecodeString(t.ID); return hex.EncodeToString(x[:8]) }

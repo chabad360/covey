@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"encoding/json"
+	"fmt"
+	"time"
 
+	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/node"
 	"github.com/chabad360/covey/task/types"
 )
@@ -20,12 +22,13 @@ type newTaskInfo struct {
 }
 
 type ShellTask struct {
-	Command []string `json:"command,omitempty"`
+	Command    []string `json:"command,omitempty"`
+	ExitStatus int      `json:"exit_status,omitempty"`
 }
 
 type Task struct {
 	types.Task
-	Details *ShellTask `json:"details,omitempty"`
+	Details ShellTask `json:"details,omitempty"`
 }
 
 func (t *Task) GetUnread() []string {
@@ -44,9 +47,12 @@ func (p *plugin) NewTask(taskJSON []byte) (types.ITask, error) {
 	if err := json.Unmarshal(taskJSON, &taskInfo); err != nil {
 		return nil, err
 	}
+	if taskInfo.Command == nil {
+		return nil, fmt.Errorf("Missing command")
+	}
 
 	t := Task{
-		Details: &ShellTask{
+		Details: ShellTask{
 			Command: taskInfo.Command,
 		},
 	}
@@ -54,6 +60,7 @@ func (p *plugin) NewTask(taskJSON []byte) (types.ITask, error) {
 	t.Log = []string{}
 	t.Plugin = taskInfo.Plugin
 	t.State = types.StateStarting
+	t.Time = time.Now()
 
 	b, err := runTask(&t)
 	if err != nil {
@@ -61,11 +68,11 @@ func (p *plugin) NewTask(taskJSON []byte) (types.ITask, error) {
 	}
 	t.Buffer = b
 
-	x, err := json.Marshal(t.Details)
+	id, err := common.GenerateID(t)
 	if err != nil {
 		return nil, err
 	}
-	t.ID = sha256.Sum256(x)
+	t.ID = *id
 
 	return &t, nil
 }
@@ -76,13 +83,22 @@ func runTask(t *Task) (*bytes.Buffer, error) {
 		return nil, err
 	}
 
-	b, err := n.Run(t.Details.Command)
+	b, c, err := n.Run(t.Details.Command)
 	if err != nil {
 		return nil, err
 	}
 
-	return b, nil
+	go func() {
+		e := <-c
+		if e == 0 {
+			t.State = types.StateDone
+		} else {
+			t.State = types.StateError
+			t.Details.ExitStatus = e
+		}
+	}()
 
+	return b, nil
 }
 
 func proccessBytes(t *Task, b []byte) []string {

@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
+	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/node/types"
 	"github.com/gorilla/mux"
 )
@@ -23,51 +23,51 @@ func NodeNew(w http.ResponseWriter, r *http.Request) {
 	var node types.Node
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	if err := json.Unmarshal(reqBody, &node); err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 
 	if _, ok := nodes[node.Name]; ok {
-		errorWriter(w, fmt.Errorf("Duplicate node: %v", node.Name))
+		common.ErrorWriter(w, fmt.Errorf("Duplicate node: %v", node.Name))
 		return
 	}
 
 	p, err := loadPlugin(node.Plugin)
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 
 	t, err := p.NewNode(reqBody)
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 
 	nodes[t.GetName()] = t
 	j, err := json.MarshalIndent(nodes, "", "  ")
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	f, err := os.Create("./config/nodes.json")
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	defer f.Close()
 	if err = f.Chmod(0600); err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	if _, err = f.Write(j); err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 
 	j, err = json.MarshalIndent(t, "", "  ")
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
@@ -91,16 +91,16 @@ func NodeRun(w http.ResponseWriter, r *http.Request) {
 	}
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	if err := json.Unmarshal(reqBody, &s); err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	if len(s.Cmd) == 0 {
-		errorWriter(w, fmt.Errorf("Missing command"))
+		common.ErrorWriter(w, fmt.Errorf("Missing command"))
 	}
 
-	b, err := n.Run(s.Cmd)
+	b, _, err := n.Run(s.Cmd)
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	j := new(struct {
@@ -133,7 +133,7 @@ func NodeGet(w http.ResponseWriter, r *http.Request) {
 
 	j, err := json.MarshalIndent(n, "", "\t")
 	if err != nil {
-		errorWriter(w, err)
+		common.ErrorWriter(w, err)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -149,23 +149,9 @@ func RegisterHandlers(r *mux.Router) {
 	r.HandleFunc("/{node}", NodeRun).Methods("POST")
 	r.HandleFunc("/{node}", NodeGet).Methods("GET")
 
-	err := r.Walk(walk)
+	err := r.Walk(common.Walk)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println()
-}
-
-func errorWriter(w http.ResponseWriter, err error) {
-	w.WriteHeader(http.StatusBadRequest)
-	fmt.Fprintf(w, "{'error':'%s'}", err)
-}
-
-func walk(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-	path, err := route.GetPathTemplate()
-	methods, err := route.GetMethods()
-	if err == nil {
-		fmt.Println("Route:", strings.Join(methods, ","), "\t", string(path))
-	}
-	return nil
 }

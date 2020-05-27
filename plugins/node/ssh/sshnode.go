@@ -13,26 +13,31 @@ func (n *Node) GetName() string {
 }
 
 // Run runs a command on the server.
-func (n *Node) Run(args []string) (*bytes.Buffer, error) {
+func (n *Node) Run(args []string) (*bytes.Buffer, chan int, error) {
 	var b bytes.Buffer
 	// Create an initial connection
 	client, err := ssh.Dial("tcp", n.Details.Server+":"+n.Details.Port, n.Details.config)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer client.Close()
 	session, err := client.NewSession()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	defer session.Close()
+	c := make(chan int)
 
 	session.Stdout = &b
-	go func() error {
-		if err := session.Run(strings.Join(args, " ")); err != nil {
-			return err
+	go func() {
+		session.Start(strings.Join(args, " "))
+		if err := session.Wait(); err != nil {
+			if msg, ok := err.(*ssh.ExitError); ok {
+				c <- msg.ExitStatus()
+			}
+		} else {
+			c <- 0
 		}
-		return nil
+		close(c)
 	}()
-	return &b, nil
+	return &b, c, nil
 }
