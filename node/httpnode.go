@@ -17,8 +17,8 @@ var (
 	nodes = make(map[string]types.INode)
 )
 
-// NewNode adds a new node using the specified plugin.
-func NewNode(w http.ResponseWriter, r *http.Request) {
+// NodeNew adds a new node using the specified plugin.
+func NodeNew(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var node types.Node
 	reqBody, _ := ioutil.ReadAll(r.Body)
@@ -75,8 +75,8 @@ func NewNode(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(j))
 }
 
-// RunNode runs a command the specified node, POST /api/v1/node/{node}
-func RunNode(w http.ResponseWriter, r *http.Request) {
+// NodeRun runs a command the specified node, POST /api/v1/node/{node}
+func NodeRun(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	n, ok := nodes[vars["node"]]
 	if !ok {
@@ -120,8 +120,8 @@ func RunNode(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(j)
 }
 
-// GetNode returns a JSON representation of the specified node, GET /api/v1/node/{node}
-func GetNode(w http.ResponseWriter, r *http.Request) {
+// NodeGet returns a JSON representation of the specified node, GET /api/v1/node/{node}
+func NodeGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	n, ok := nodes[vars["node"]]
 	if !ok {
@@ -145,9 +145,9 @@ func GetNode(w http.ResponseWriter, r *http.Request) {
 func RegisterHandlers(r *mux.Router) {
 	log.Println("Registering Node module API handlers...")
 
-	r.HandleFunc("/new", NewNode).Methods("POST")
-	r.HandleFunc("/{node}", RunNode).Methods("POST")
-	r.HandleFunc("/{node}", GetNode).Methods("GET")
+	r.HandleFunc("/new", NodeNew).Methods("POST")
+	r.HandleFunc("/{node}", NodeRun).Methods("POST")
+	r.HandleFunc("/{node}", NodeGet).Methods("GET")
 
 	err := r.Walk(walk)
 	if err != nil {

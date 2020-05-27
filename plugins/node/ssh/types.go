@@ -23,12 +23,12 @@ type Node struct {
 }
 
 type newNodeInfo struct {
-	Server   string
-	Port     string
-	Username string
-	Password string
-	Name     string
-	Plugin   string
+	Server   string `json:"server,omitempty"`
+	Port     string `json:"port,omitempty"`
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Plugin   string `json:"plugin,omitempty"`
 }
 
 type plugin struct{}

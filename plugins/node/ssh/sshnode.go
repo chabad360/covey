@@ -28,8 +28,11 @@ func (n *Node) Run(args []string) (*bytes.Buffer, error) {
 	defer session.Close()
 
 	session.Stdout = &b
-	if err := session.Run(strings.Join(args, " ")); err != nil {
-		return nil, err
-	}
+	go func() error {
+		if err := session.Run(strings.Join(args, " ")); err != nil {
+			return err
+		}
+		return nil
+	}()
 	return &b, nil
 }
