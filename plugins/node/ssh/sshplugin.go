@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/chabad360/covey/node/types"
+	"github.com/chabad360/covey/node"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -13,24 +13,32 @@ import (
 var Plugin plugin
 
 // NewNode creates an SSHNode
-func (p *plugin) NewNode(nodeJSON []byte) (types.Node, error) {
-	n := SSHNode{}
-
+func (p *plugin) NewNode(nodeJSON []byte) (node.INode, error) {
 	var nodeInfo newNodeInfo
 	if err := json.Unmarshal(nodeJSON, &nodeInfo); err != nil {
 		return nil, err
 	}
+
+	x := Node{
+		Details: &SSHNode{
+			Username: nodeInfo.Username,
+			Server:   nodeInfo.Server,
+			Port:     nodeInfo.Port,
+		},
+	}
+	x.Plugin = "ssh"
+	x.Name = nodeInfo.Name
 
 	config := &ssh.ClientConfig{
 		User: nodeInfo.Username,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(nodeInfo.Password),
 		},
-		HostKeyCallback: hostKeyCallback(&n),
+		HostKeyCallback: hostKeyCallback(x.Details),
 	}
 
 	// Create an initial connection
-	client, err := ssh.Dial("tcp", nodeInfo.Server+":"+nodeInfo.Port, config)
+	client, err := ssh.Dial("tcp", x.Details.Server+":"+x.Details.Port, config)
 	if err != nil {
 		return nil, err
 	}
@@ -46,37 +54,31 @@ func (p *plugin) NewNode(nodeJSON []byte) (types.Node, error) {
 	}
 	log.Println("Successfully logged into server")
 	// Generate SSH Keys add add the public key to the authorized_keys file.
-	err = generateKeysAndAddKeys(&n)
+	err = generateKeysAndAddKeys(x.Details)
 	if err != nil {
 		return nil, err
 	}
 	// log.Println("Generated SSH keys")
-	if _, err := sshRun(client, fmt.Sprint("echo '", string(n.PublicKey), "' | tee -a .ssh/authorized_keys")); err != nil {
+	if _, err := sshRun(client, fmt.Sprint("echo '", string(x.Details.PublicKey), "' | tee -a .ssh/authorized_keys")); err != nil {
 		return nil, err
 	}
 	client.Close()
 
-	n.Name = nodeInfo.Name
-	n.Username = nodeInfo.Username
-	n.Server = nodeInfo.Server
-	n.Port = nodeInfo.Port
-	n.Plugin = "ssh"
-
-	if err := nodeFactory(&n); err != nil {
+	if err := nodeFactory(x.Details); err != nil {
 		return nil, err
 	}
 
-	return &n, nil
+	return &x, nil
 }
 
-func (p *plugin) LoadNode(nodeJSON []byte) (types.Node, error) {
-	var n SSHNode
+func (p *plugin) LoadNode(nodeJSON []byte) (node.INode, error) {
+	var n Node
 	if err := json.Unmarshal(nodeJSON, &n); err != nil {
 		return nil, err
 	}
 	log.Println("Loading", n.Name)
 
-	if err := nodeFactory(&n); err != nil {
+	if err := nodeFactory(n.Details); err != nil {
 		return nil, err
 	}
 
