@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	version = "0.1"
+	version = "v0.1"
 )
 
 // GetVersion returns the current version of Covey
@@ -21,13 +21,14 @@ func GetVersion(w http.ResponseWriter, r *http.Request) {
 
 // RegisterHandlers registers the core Covey API handlers
 func RegisterHandlers(r *mux.Router) {
+	log.Println("Registering Core module API handlers...")
 	r.HandleFunc("/version", GetVersion)
 }
 
-func registerHandlers(r *mux.Router) {
+func loadHandlers(r *mux.Router) {
 	apiRouter := r.PathPrefix("/api/v1").Subrouter()
 
-	registerHandlers(apiRouter)
+	RegisterHandlers(apiRouter)
 	node.RegisterHandlers(apiRouter.PathPrefix("/node").Subrouter())
 }
 
@@ -36,19 +37,24 @@ func loadConfig() {
 }
 
 func main() {
+	log.Printf("Starting up Covey %s", version)
 	r := mux.NewRouter()
-	r.Use(loggingMiddleware)
-	registerHandlers(r)
+	loadHandlers(r)
 
+	r.Use(loggingMiddleware)
+
+	fmt.Println()
 	err := r.Walk(walk)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	fmt.Println()
 
 	loadConfig()
 
-	http.ListenAndServe(":8080", r)
+	fmt.Println()
+	log.Println("Ready to serve!")
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
 func loggingMiddleware(next http.Handler) http.Handler {
@@ -62,7 +68,7 @@ func walk(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 	path, err := route.GetPathTemplate()
 	methods, err := route.GetMethods()
 	if err == nil {
-		fmt.Println("Registered route:", strings.Join(methods, ","), "\t", string(path))
+		fmt.Println("Route:", strings.Join(methods, ","), "\t", string(path))
 	}
 	return nil
 }
