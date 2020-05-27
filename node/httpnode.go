@@ -9,17 +9,18 @@ import (
 	"os"
 	"strings"
 
+	"github.com/chabad360/covey/node/types"
 	"github.com/gorilla/mux"
 )
 
 var (
-	nodes = make(map[string]INode)
+	nodes = make(map[string]types.Node)
 )
 
 // NewNode adds a new node using the specified plugin.
 func NewNode(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var node Node
+	var node types.NodeInfo
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	if err := json.Unmarshal(reqBody, &node); err != nil {
 		errorWriter(w, err)
@@ -130,7 +131,7 @@ func GetNode(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Add("Content-Type", "application/json")
 
-	j, err := json.MarshalIndent(n, "", "\t")
+	j, err := json.MarshalIndent(n, "", "  ")
 	if err != nil {
 		errorWriter(w, err)
 		return

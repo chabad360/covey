@@ -8,15 +8,15 @@ import (
 )
 
 // GetName returns the name of the Node
-func (n *Node) GetName() string {
+func (n *SSHNode) GetName() string {
 	return n.Name
 }
 
 // Run runs a command on the server.
-func (n *Node) Run(args []string) (*bytes.Buffer, error) {
+func (n *SSHNode) Run(args []string) (*bytes.Buffer, error) {
 	var b bytes.Buffer
 	// Create an initial connection
-	client, err := ssh.Dial("tcp", n.Details.Server+":"+n.Details.Port, n.Details.config)
+	client, err := ssh.Dial("tcp", n.Server+":"+n.Port, n.config)
 	if err != nil {
 		return nil, err
 	}

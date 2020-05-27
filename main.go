@@ -56,7 +56,6 @@ func main() {
 
 	fmt.Println()
 	log.Println("Ready to serve!")
-	fmt.Println()
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 

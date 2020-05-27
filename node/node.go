@@ -7,6 +7,8 @@ import (
 	"plugin"
 
 	"encoding/json"
+
+	"github.com/chabad360/covey/node/types"
 )
 
 // LoadConfig loads up the stored nodes
@@ -25,7 +27,7 @@ func LoadConfig() {
 	}
 
 	// Make this dynamic
-	var plugins = make(map[string]NodePlugin)
+	var plugins = make(map[string]types.NodePlugin)
 	p, err := loadPlugin("ssh")
 	if err != nil {
 		log.Fatal(err)
@@ -33,7 +35,7 @@ func LoadConfig() {
 	plugins["ssh"] = p
 
 	for _, node := range h {
-		var z Node
+		var z types.NodeInfo
 		j, err := node.MarshalJSON()
 		if err != nil {
 			log.Fatal(err)
@@ -50,7 +52,7 @@ func LoadConfig() {
 	}
 }
 
-func loadPlugin(pluginName string) (NodePlugin, error) {
+func loadPlugin(pluginName string) (types.NodePlugin, error) {
 	p, err := plugin.Open("./plugins/node/" + pluginName + ".so")
 	if err != nil {
 		return nil, err
@@ -61,8 +63,8 @@ func loadPlugin(pluginName string) (NodePlugin, error) {
 		return nil, err
 	}
 
-	var s NodePlugin
-	s, ok := n.(NodePlugin)
+	var s types.NodePlugin
+	s, ok := n.(types.NodePlugin)
 	if !ok {
 		return nil, fmt.Errorf(pluginName, " does not provide a NodePlugin")
 	}
