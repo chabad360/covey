@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/chabad360/covey/node"
+	"github.com/chabad360/covey/task"
 	"github.com/gorilla/mux"
 )
 
@@ -22,7 +23,14 @@ func GetVersion(w http.ResponseWriter, r *http.Request) {
 // RegisterHandlers registers the core Covey API handlers
 func RegisterHandlers(r *mux.Router) {
 	log.Println("Registering Core module API handlers...")
-	r.HandleFunc("/version", GetVersion)
+
+	r.HandleFunc("/version", GetVersion).Methods("GET")
+
+	err := r.Walk(walk)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println()
 }
 
 func loadHandlers(r *mux.Router) {
@@ -30,6 +38,7 @@ func loadHandlers(r *mux.Router) {
 
 	RegisterHandlers(apiRouter)
 	node.RegisterHandlers(apiRouter.PathPrefix("/node").Subrouter())
+	task.RegisterHandlers(apiRouter.PathPrefix("/task").Subrouter())
 }
 
 func loadConfig() {
@@ -42,13 +51,6 @@ func main() {
 	loadHandlers(r)
 
 	r.Use(loggingMiddleware)
-
-	fmt.Println()
-	err := r.Walk(walk)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println()
 
 	loadConfig()
 

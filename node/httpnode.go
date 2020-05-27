@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -142,12 +143,28 @@ func GetNode(w http.ResponseWriter, r *http.Request) {
 // RegisterHandlers adds the mux handlers for the node module.
 func RegisterHandlers(r *mux.Router) {
 	log.Println("Registering Node module API handlers...")
+
 	r.HandleFunc("/new", NewNode).Methods("POST")
 	r.HandleFunc("/{node}", RunNode).Methods("POST")
 	r.HandleFunc("/{node}", GetNode).Methods("GET")
+
+	err := r.Walk(walk)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println()
 }
 
 func errorWriter(w http.ResponseWriter, err error) {
 	w.WriteHeader(http.StatusBadRequest)
 	fmt.Fprintf(w, "{'error':'%s'}", err)
+}
+
+func walk(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+	path, err := route.GetPathTemplate()
+	methods, err := route.GetMethods()
+	if err == nil {
+		fmt.Println("Route:", strings.Join(methods, ","), "\t", string(path))
+	}
+	return nil
 }
