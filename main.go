@@ -41,7 +41,7 @@ func getVersion(w http.ResponseWriter, r *http.Request) {
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("API called", r.RequestURI)
+		log.Println("API called", r.Method, r.RequestURI)
 		next.ServeHTTP(w, r)
 	})
 }

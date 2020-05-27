@@ -104,7 +104,21 @@ func RunNode(w http.ResponseWriter, r *http.Request) {
 		errorWriter(w, err)
 		return
 	}
-	fmt.Fprintf(w, b.String())
+	j := new(struct {
+		Result []string
+	})
+	j.Result = []string{}
+	var c []byte
+	for _, byte := range b.Bytes() {
+		if byte != '\n' {
+			c = append(c, byte)
+		} else {
+			j.Result = append(j.Result, string(c))
+			c = nil
+		}
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(j)
 }
 
 // GetNode returns a JSON representation of the specified node, GET /api/v1/node/{node}
