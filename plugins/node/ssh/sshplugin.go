@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/chabad360/covey/node"
+	"github.com/chabad360/covey/node/types"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -13,7 +13,7 @@ import (
 var Plugin plugin
 
 // NewNode creates an SSHNode
-func (p *plugin) NewNode(nodeJSON []byte) (node.INode, error) {
+func (p *plugin) NewNode(nodeJSON []byte) (types.INode, error) {
 	var nodeInfo newNodeInfo
 	if err := json.Unmarshal(nodeJSON, &nodeInfo); err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (p *plugin) NewNode(nodeJSON []byte) (node.INode, error) {
 	return &x, nil
 }
 
-func (p *plugin) LoadNode(nodeJSON []byte) (node.INode, error) {
+func (p *plugin) LoadNode(nodeJSON []byte) (types.INode, error) {
 	var n Node
 	if err := json.Unmarshal(nodeJSON, &n); err != nil {
 		return nil, err

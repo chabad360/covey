@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/chabad360/covey/node"
+	"github.com/chabad360/covey/node/types"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -18,7 +18,7 @@ type SSHNode struct {
 
 // Node is a generic Node type
 type Node struct {
-	node.Node
+	types.Node
 	Details *SSHNode `json:"details,omitempty"`
 }
 
