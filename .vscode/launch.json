@@ -11,7 +11,17 @@
             "mode": "auto",
             "program": "${fileDirname}",
             "env": {},
-            "args": []
+            "args": [""],
+            "buildFlags": "-trimpath"
+        },
+        {
+            "name": "Built",
+            "type": "go",
+            "request": "launch",
+            "mode": "exec",
+            "program": "/home/mendel/Documents/Projects/Untitled/covey",
+            "env": {},
+            "args": [""],
         }
     ]
 }

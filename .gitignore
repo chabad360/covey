@@ -1,5 +1,6 @@
+# Generated Binaries
 covey
-
-.vscode/*
-
 *.so
+
+# Generated Config
+*.json

@@ -187,13 +187,6 @@ func LoadConfig() {
 			log.Fatal(err)
 		}
 		nodes[t.GetName()] = t
-
-		r, err := t.Run([]string{"echo", "Hello World"})
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(r)
-
 	}
 }
 
