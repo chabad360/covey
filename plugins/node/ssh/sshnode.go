@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"log"
 	"strings"
 
 	"golang.org/x/crypto/ssh"
@@ -20,7 +21,6 @@ func (n *Node) Run(args []string) (*bytes.Buffer, chan int, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	defer client.Close()
 	session, err := client.NewSession()
 	if err != nil {
 		return nil, nil, err
@@ -28,16 +28,20 @@ func (n *Node) Run(args []string) (*bytes.Buffer, chan int, error) {
 	c := make(chan int)
 
 	session.Stdout = &b
+	session.Stderr = &b
 	go func() {
-		session.Start(strings.Join(args, " "))
-		if err := session.Wait(); err != nil {
+		if err := session.Run(strings.Join(args, " ")); err != nil {
+			log.Println(err)
 			if msg, ok := err.(*ssh.ExitError); ok {
+				log.Println(msg.ExitStatus())
 				c <- msg.ExitStatus()
 			}
 		} else {
 			c <- 0
 		}
 		close(c)
+		session.Close()
+		client.Close()
 	}()
 	return &b, c, nil
 }

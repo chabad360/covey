@@ -11,14 +11,6 @@ import (
 	"github.com/chabad360/covey/node/types"
 )
 
-func GetNode(node string) (types.INode, error) {
-	if n, ok := nodes[node]; ok {
-		return n, nil
-	} else {
-		return nil, fmt.Errorf("%v is not a valid node", node)
-	}
-}
-
 // LoadConfig loads up the stored nodes
 func LoadConfig() {
 	log.Println("Loading Node Config")
@@ -78,4 +70,16 @@ func loadPlugin(pluginName string) (types.NodePlugin, error) {
 	}
 
 	return s, nil
+}
+
+// GetNode checks if a node with the identifier exists and returns it.
+func GetNode(identifier string) (types.INode, bool) {
+	if n, ok := nodes[identifier]; ok {
+		return n, true
+	} else if n, ok := nodesShort[identifier]; ok {
+		return nodes[n], true
+	} else if n, ok := nodesName[identifier]; ok {
+		return nodes[n], true
+	}
+	return nil, false
 }

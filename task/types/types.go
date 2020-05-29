@@ -17,9 +17,6 @@ type ITask interface {
 	// GetLog returns the full log of the task.
 	GetLog() []string
 
-	// GetUnread returns all unread log lines of the task.
-	GetUnread() []string
-
 	// GetID returns the ID of the task.
 	GetID() string
 
@@ -29,13 +26,13 @@ type ITask interface {
 
 // Task defines the information of a task.
 type Task struct {
-	State   int           `json:"state,omitempty"`
-	Plugin  string        `json:"plugin,omitempty"`
-	ID      string        `json:"id,omitempty"`
-	Node    string        `json:"node,omitempty"`
-	Details interface{}   `json:"details,omitempty"`
-	Log     []string      `json:"log,omitempty"`
-	Time    time.Time     `json:"time,omitempty"`
+	State   int           `json:"state"`
+	Plugin  string        `json:"plugin"`
+	ID      string        `json:"id"`
+	Node    string        `json:"node"`
+	Details interface{}   `json:"details"`
+	Log     []string      `json:"log"`
+	Time    time.Time     `json:"time"`
 	Buffer  *bytes.Buffer `json:"-"`
 }
 

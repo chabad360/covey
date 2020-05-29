@@ -7,28 +7,28 @@ import (
 
 // SSHNode contains the details of an SSH node
 type SSHNode struct {
-	PrivateKey []byte `json:"private_key,omitempty"`
-	PublicKey  []byte `json:"public_key,omitempty"`
-	HostKey    []byte `json:"host_key,omitempty"`
-	Server     string `json:"server,omitempty"`
-	Username   string `json:"username,omitempty"`
-	Port       string `json:"port,omitempty"`
+	PrivateKey []byte `json:"private_key"`
+	PublicKey  []byte `json:"public_key"`
+	HostKey    []byte `json:"host_key"`
+	Server     string `json:"server"`
+	Username   string `json:"username"`
+	Port       string `json:"port"`
 	config     *ssh.ClientConfig
 }
 
 // Node is a generic Node type
 type Node struct {
 	types.Node
-	Details *SSHNode `json:"details,omitempty"`
+	Details *SSHNode `json:"details"`
 }
 
 type newNodeInfo struct {
-	Server   string `json:"server,omitempty"`
-	Port     string `json:"port,omitempty"`
-	Username string `json:"username,omitempty"`
-	Password string `json:"password,omitempty"`
-	Name     string `json:"name,omitempty"`
-	Plugin   string `json:"plugin,omitempty"`
+	Server   string `json:"server"`
+	Port     string `json:"port"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+	Plugin   string `json:"plugin"`
 }
 
 type plugin struct{}

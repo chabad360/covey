@@ -10,22 +10,22 @@ type NodePlugin interface {
 	// NewNode returns a new node
 	NewNode(nodeJSON []byte) (INode, error)
 
-	// LoadNode loads the json representation of each node node
+	// LoadNode loads the json representation of each node.
 	LoadNode(nodeJSON []byte) (INode, error)
 }
 
 // Node contains information about a node and must be implemented alongside the INode interface.
 type Node struct {
-	Name    string      `json:"name,omitempty"`
-	Plugin  string      `json:"plugin,omitempty"`
-	Details interface{} `json:"details,omitempty"`
-	ID      string      `json:"id,omitempty"`
+	Name    string      `json:"name"`
+	Plugin  string      `json:"plugin"`
+	Details interface{} `json:"details"`
+	ID      string      `json:"id"`
 }
 
-// GetID returns the ID of the task.
+// GetID returns the ID of the node.
 func (n *Node) GetID() string { return n.ID }
 
-// GetIDShort returns the first 8 bytes of the task ID.
+// GetIDShort returns the first 8 bytes of the node ID.
 func (n *Node) GetIDShort() string { x, _ := hex.DecodeString(n.ID); return hex.EncodeToString(x[:8]) }
 
 // INode defines the generic node interface.
@@ -35,4 +35,10 @@ type INode interface {
 
 	// GetName returns the name of the node
 	GetName() string
+
+	// GetID returns the id of the node.
+	GetID() string
+
+	// GetIDShort returns the first 8 bytes of the node ID.
+	GetIDShort() string
 }

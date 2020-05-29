@@ -13,35 +13,54 @@ import (
 
 type plugin struct{}
 
+// Plugin is exposed to the module.
 var Plugin plugin
 
 type newTaskInfo struct {
-	Node    string   `json:"node,omitempty"`
-	Command []string `json:"command,omitempty"`
+	Node    string   `json:"node"`
+	Command []string `json:"command"`
 	Plugin  string   `json:"plugin,omitempty"`
 }
 
 type ShellTask struct {
-	Command    []string `json:"command,omitempty"`
-	ExitStatus int      `json:"exit_status,omitempty"`
+	Command    []string `json:"command"`
+	ExitStatus int      `json:"exit_status"`
 }
 
 type Task struct {
 	types.Task
-	Details ShellTask `json:"details,omitempty"`
+	Details ShellTask `json:"details"`
 }
 
-func (t *Task) GetUnread() []string {
-	b := []byte{}
-	copy(b, t.Buffer.Bytes())
-	return proccessBytes(t, b)
-}
-
+// GetLog reads the unread buffer and adds it to the task's log, then returns that log.
 func (t *Task) GetLog() []string {
-	t.GetUnread()
+	// There is a reason why some tty clients print every rewrite of a line,
+	// it's much easier to simply process every line as a new line
+	// but if we can store the fact that \n hasn't yet been given,
+	// we can solve that issue.
+	// Also escaping is another issue...
+	b := t.Buffer.Bytes()
+	c := []byte{}
+	l := []string{}
+	for _, bb := range b {
+		if bb == '\n' {
+			l = append(l, string(c))
+			c = nil
+		} else {
+			c = append(c, bb)
+		}
+	}
+	if len(c) > 0 {
+		l = append(l, string(c))
+	}
+	if len(l) > 0 {
+		t.Log = l
+	}
+	t.Buffer.Reset()
 	return t.Log
 }
 
+// NewTask creates a new task.
 func (p *plugin) NewTask(taskJSON []byte) (types.ITask, error) {
 	var taskInfo newTaskInfo
 	if err := json.Unmarshal(taskJSON, &taskInfo); err != nil {
@@ -61,6 +80,7 @@ func (p *plugin) NewTask(taskJSON []byte) (types.ITask, error) {
 	t.Plugin = taskInfo.Plugin
 	t.State = types.StateStarting
 	t.Time = time.Now()
+	t.Details.ExitStatus = 256
 
 	b, err := runTask(&t)
 	if err != nil {
@@ -78,9 +98,9 @@ func (p *plugin) NewTask(taskJSON []byte) (types.ITask, error) {
 }
 
 func runTask(t *Task) (*bytes.Buffer, error) {
-	n, err := node.GetNode(t.Node)
-	if err != nil {
-		return nil, err
+	n, ok := node.GetNode(t.Node)
+	if !ok {
+		return nil, fmt.Errorf("%v is not a valid node", t.Node)
 	}
 
 	b, c, err := n.Run(t.Details.Command)
@@ -92,6 +112,7 @@ func runTask(t *Task) (*bytes.Buffer, error) {
 		e := <-c
 		if e == 0 {
 			t.State = types.StateDone
+			t.Details.ExitStatus = e
 		} else {
 			t.State = types.StateError
 			t.Details.ExitStatus = e
@@ -99,20 +120,4 @@ func runTask(t *Task) (*bytes.Buffer, error) {
 	}()
 
 	return b, nil
-}
-
-func proccessBytes(t *Task, b []byte) []string {
-	c := []byte{}
-	r := []string{}
-	for _, bb := range b {
-		if bb == '\n' {
-			t.Log = append(t.Log, string(c))
-			r = append(r, string(c))
-			c = nil
-		} else {
-			c = append(c, bb)
-		}
-	}
-
-	return r
 }

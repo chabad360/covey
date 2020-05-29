@@ -14,11 +14,13 @@ import (
 )
 
 var (
-	nodes = make(map[string]types.INode)
+	nodes      = make(map[string]types.INode)
+	nodesShort = make(map[string]string)
+	nodesName  = make(map[string]string)
 )
 
 // NodeNew adds a new node using the specified plugin.
-func NodeNew(w http.ResponseWriter, r *http.Request) {
+func nodeNew(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var node types.Node
 	reqBody, _ := ioutil.ReadAll(r.Body)
@@ -27,7 +29,7 @@ func NodeNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, ok := nodes[node.Name]; ok {
+	if _, ok := GetNode(node.Name); ok {
 		common.ErrorWriter(w, fmt.Errorf("Duplicate node: %v", node.Name))
 		return
 	}
@@ -44,7 +46,9 @@ func NodeNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nodes[t.GetName()] = t
+	nodes[t.GetID()] = t
+	nodesShort[t.GetIDShort()] = t.GetID()
+	nodesName[t.GetName()] = t.GetID()
 	j, err := json.MarshalIndent(nodes, "", "  ")
 	if err != nil {
 		common.ErrorWriter(w, err)
@@ -70,15 +74,16 @@ func NodeNew(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+
 	w.Header().Set("Location", "/api/v1/nodes/"+t.GetName())
+	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, string(j))
 }
 
 // NodeRun runs a command the specified node, POST /api/v1/node/{node}
-func NodeRun(w http.ResponseWriter, r *http.Request) {
+func nodeRun(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	n, ok := nodes[vars["node"]]
+	n, ok := GetNode(vars["node"])
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "404 %s not found", vars["node"])
@@ -96,6 +101,7 @@ func NodeRun(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(s.Cmd) == 0 {
 		common.ErrorWriter(w, fmt.Errorf("Missing command"))
+		return
 	}
 
 	b, _, err := n.Run(s.Cmd)
@@ -121,9 +127,9 @@ func NodeRun(w http.ResponseWriter, r *http.Request) {
 }
 
 // NodeGet returns a JSON representation of the specified node, GET /api/v1/node/{node}
-func NodeGet(w http.ResponseWriter, r *http.Request) {
+func nodeGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	n, ok := nodes[vars["node"]]
+	n, ok := GetNode(vars["node"])
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "404 %s not found", vars["node"])
@@ -145,9 +151,9 @@ func NodeGet(w http.ResponseWriter, r *http.Request) {
 func RegisterHandlers(r *mux.Router) {
 	log.Println("Registering Node module API handlers...")
 
-	r.HandleFunc("/new", NodeNew).Methods("POST")
-	r.HandleFunc("/{node}", NodeRun).Methods("POST")
-	r.HandleFunc("/{node}", NodeGet).Methods("GET")
+	r.HandleFunc("/new", nodeNew).Methods("POST")
+	r.HandleFunc("/{node}", nodeRun).Methods("POST")
+	r.HandleFunc("/{node}", nodeGet).Methods("GET")
 
 	err := r.Walk(common.Walk)
 	if err != nil {
