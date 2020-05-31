@@ -48,7 +48,10 @@ func LoadConfig() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		nodes[t.GetName()] = t
+
+		nodes[t.GetID()] = t
+		nodesShort[t.GetIDShort()] = t.GetID()
+		nodesName[t.GetName()] = t.GetID()
 	}
 }
 
