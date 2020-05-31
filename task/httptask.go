@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/task/types"
@@ -40,29 +39,10 @@ func taskNew(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter(w, err)
 		return
 	}
-	tasks[t.GetID()] = t
-	tasksShort[t.GetIDShort()] = t.GetID()
-	j, err := json.MarshalIndent(tasks, "", "  ")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	f, err := os.Create("./config/tasks.json")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	defer f.Close()
-	if err = f.Chmod(0600); err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	if _, err = f.Write(j); err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
 
-	j, err = json.MarshalIndent(t, "", "\t")
+	saveConfig(t)
+
+	j, err := json.MarshalIndent(t, "", "\t")
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
@@ -82,6 +62,8 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.GetLog()
+	saveConfig(t)
+
 	w.Header().Add("Content-Type", "application/json")
 
 	j, err := json.MarshalIndent(t, "", "\t")
@@ -101,6 +83,9 @@ func taskGetLog(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "404 %v not found", vars["task"])
 		return
 	}
+
+	t.GetLog()
+	saveConfig(t)
 
 	w.Header().Add("Content-Type", "application/json")
 

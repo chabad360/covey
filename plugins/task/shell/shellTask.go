@@ -7,23 +7,25 @@ func (t *Task) GetLog() []string {
 	// but if we can store the fact that \n hasn't yet been given,
 	// we can solve that issue.
 	// Also escaping is another issue...
-	b := t.Buffer.Bytes()
-	c := []byte{}
-	l := []string{}
-	for _, bb := range b {
-		if bb == '\n' {
-			l = append(l, string(c))
-			c = nil
-		} else {
-			c = append(c, bb)
+	if t.Details.Buffer != nil {
+		b := t.Details.Buffer.Bytes()
+		c := []byte{}
+		l := []string{}
+		for _, bb := range b {
+			if bb == '\n' {
+				l = append(l, string(c))
+				c = nil
+			} else {
+				c = append(c, bb)
+			}
 		}
+		if len(c) > 0 {
+			l = append(l, string(c))
+		}
+		if len(l) > 0 {
+			t.Log = l
+		}
+		t.Details.Buffer.Reset()
 	}
-	if len(c) > 0 {
-		l = append(l, string(c))
-	}
-	if len(l) > 0 {
-		t.Log = l
-	}
-	t.Buffer.Reset()
 	return t.Log
 }

@@ -1,7 +1,6 @@
 package types
 
 import (
-	"bytes"
 	"encoding/hex"
 	"time"
 )
@@ -10,6 +9,9 @@ import (
 type TaskPlugin interface {
 	// NewTask creates a Task object and runs it in a go routine, and returns the Task.
 	NewTask(taskJSON []byte) (ITask, error)
+
+	// LoadTask loads the task.
+	LoadTask(taskJSON []byte) (ITask, error)
 }
 
 // ITask Defines the read methods for a task.
@@ -26,14 +28,13 @@ type ITask interface {
 
 // Task defines the information of a task.
 type Task struct {
-	State   int           `json:"state"`
-	Plugin  string        `json:"plugin"`
-	ID      string        `json:"id"`
-	Node    string        `json:"node"`
-	Details interface{}   `json:"details"`
-	Log     []string      `json:"log"`
-	Time    time.Time     `json:"time"`
-	Buffer  *bytes.Buffer `json:"-"`
+	State   int         `json:"state"`
+	Plugin  string      `json:"plugin"`
+	ID      string      `json:"id"`
+	Node    string      `json:"node"`
+	Details interface{} `json:"details"`
+	Log     []string    `json:"log"`
+	Time    time.Time   `json:"time"`
 }
 
 // GetID returns the ID of the task.
