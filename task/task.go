@@ -10,6 +10,26 @@ import (
 	"github.com/chabad360/covey/task/types"
 )
 
+func NewTask(taskJSON []byte) (types.ITask, error) {
+	var task types.Task
+	if err := json.Unmarshal(taskJSON, &task); err != nil {
+		return nil, err
+	}
+
+	p, err := loadPlugin(task.Plugin)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := p.NewTask(taskJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	saveConfig(t)
+	return t, nil
+}
+
 // LoadConfig loads up the stored nodes
 func LoadConfig() {
 	log.Println("Loading Task Config")

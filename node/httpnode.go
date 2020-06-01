@@ -75,7 +75,7 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Location", "/api/v1/nodes/"+t.GetName())
+	w.Header().Set("Location", "/api/v1/node/"+t.GetName())
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, string(j))
 }

@@ -12,23 +12,16 @@ import (
 
 // NewTask creates a new task.
 func (p *plugin) NewTask(taskJSON []byte) (types.ITask, error) {
-	var taskInfo newTaskInfo
-	if err := json.Unmarshal(taskJSON, &taskInfo); err != nil {
+	var t Task
+	if err := json.Unmarshal(taskJSON, &t); err != nil {
 		return nil, err
 	}
-	if taskInfo.Command == nil {
+	if t.Details.Command == nil {
 		return nil, fmt.Errorf("Missing command")
 	}
 
-	t := Task{
-		Details: ShellTask{
-			Command:    taskInfo.Command,
-			ExitStatus: 256,
-		},
-	}
-	t.Node = taskInfo.Node
+	t.Details.ExitStatus = 256
 	t.Log = []string{}
-	t.Plugin = taskInfo.Plugin
 	t.State = types.StateStarting
 	t.Time = time.Now()
 

@@ -21,26 +21,12 @@ var (
 func taskNew(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
-	var task types.Task
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	if err := json.Unmarshal(reqBody, &task); err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-
-	p, err := loadPlugin(task.Plugin)
+	t, err := NewTask(reqBody)
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
-
-	t, err := p.NewTask(reqBody)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-
-	saveConfig(t)
 
 	j, err := json.MarshalIndent(t, "", "\t")
 	if err != nil {

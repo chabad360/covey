@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// TaskState represents the current state of the task.
+type TaskState int
+
 // TaskPlugin defines the interface for Task module plugins.
 type TaskPlugin interface {
 	// NewTask creates a Task object and runs it in a go routine, and returns the Task.
@@ -28,7 +31,7 @@ type ITask interface {
 
 // Task defines the information of a task.
 type Task struct {
-	State   int         `json:"state"`
+	State   TaskState   `json:"state"`
 	Plugin  string      `json:"plugin"`
 	ID      string      `json:"id"`
 	Node    string      `json:"node"`

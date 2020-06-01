@@ -22,6 +22,9 @@ type Node struct {
 	ID      string      `json:"id"`
 }
 
+// GetName returns the name of the Node.
+func (n *Node) GetName() string { return n.Name }
+
 // GetID returns the ID of the node.
 func (n *Node) GetID() string { return n.ID }
 

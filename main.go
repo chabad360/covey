@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/chabad360/covey/job"
 	"github.com/chabad360/covey/node"
 	"github.com/chabad360/covey/task"
 	"github.com/gorilla/mux"
@@ -39,11 +40,13 @@ func loadHandlers(r *mux.Router) {
 	RegisterHandlers(apiRouter)
 	node.RegisterHandlers(apiRouter.PathPrefix("/node").Subrouter())
 	task.RegisterHandlers(apiRouter.PathPrefix("/task").Subrouter())
+	job.RegisterHandlers(apiRouter.PathPrefix("/job").Subrouter())
 }
 
 func loadConfig() {
 	node.LoadConfig()
 	task.LoadConfig()
+	job.LoadConfig()
 }
 
 func main() {

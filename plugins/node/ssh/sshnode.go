@@ -8,11 +8,6 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// GetName returns the name of the Node
-func (n *Node) GetName() string {
-	return n.Name
-}
-
 // Run runs a command on the server.
 func (n *Node) Run(args []string) (*bytes.Buffer, chan int, error) {
 	var b bytes.Buffer
