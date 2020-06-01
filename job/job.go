@@ -29,8 +29,14 @@ type Job struct {
 	ID          string                 `json:"id"`
 	Cron        string                 `json:"cron,omitempty"`
 	Nodes       []string               `json:"nodes"`
-	Tasks       map[string]types.Task  `json:"tasks"`
+	Tasks       map[string]jobTask     `json:"tasks"`
 	TaskHistory map[string]types.ITask `json:"task_history,omitempty"`
+}
+
+type jobTask struct {
+	Plugin  string      `json:"plugin"`
+	Details interface{} `json:"details"`
+	Node    string      `json:"node,omitempty"`
 }
 
 // type IJob interface {
@@ -90,12 +96,17 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if job.Cron != "" {
-		cronTab.AddFunc(job.Cron, job.Run)
+		_, err := cronTab.AddFunc(job.Cron, job.Run)
+		if err != nil {
+			common.ErrorWriter(w, err)
+			return
+		}
 	}
 
 	id, err := common.GenerateID(job)
 	if err != nil {
 		common.ErrorWriter(w, err)
+		return
 	}
 
 	job.ID = *id
@@ -130,7 +141,7 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Location", "/api/v1/job/"+job.GetIDShort())
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, string(j))
+	fmt.Fprint(w, string(j))
 }
 
 func jobGet(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +166,7 @@ func jobGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, string(j))
+	fmt.Fprint(w, string(j))
 }
 
 func jobRun(w http.ResponseWriter, r *http.Request) {
@@ -163,7 +174,7 @@ func jobRun(w http.ResponseWriter, r *http.Request) {
 	j, ok := getJob(vars["job"])
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "404 %v not found", vars["job"])
+		fmt.Fprint(w, "404 %v not found", vars["job"])
 		return
 	}
 

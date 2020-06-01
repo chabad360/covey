@@ -35,7 +35,7 @@ func taskNew(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Add("Location", "/api/v1/task/"+t.GetIDShort())
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, string(j))
+	fmt.Fprint(w, string(j))
 }
 
 func taskGet(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +58,7 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, string(j))
+	fmt.Fprint(w, string(j))
 }
 
 func taskGetLog(w http.ResponseWriter, r *http.Request) {
@@ -81,7 +81,7 @@ func taskGetLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, string(j))
+	fmt.Fprint(w, string(j))
 }
 
 // RegisterHandlers registers the mux handlers for the Task module.

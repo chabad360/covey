@@ -2,20 +2,25 @@ package main
 
 // GetLog reads the unread buffer and adds it to the task's log, then returns that log.
 func (t *Task) GetLog() []string {
-	// There is a reason why some tty clients print every rewrite of a line,
-	// it's much easier to simply process every line as a new line
-	// but if we can store the fact that \n hasn't yet been given,
-	// we can solve that issue.
-	// Also escaping is another issue...
+	// As of now whenever we get a CR not followed by LF, we reset the line, just like a tty
+	// if there is a reason to change this, it can be.
 	if t.Details.Buffer != nil {
 		b := t.Details.Buffer.Bytes()
 		c := []byte{}
 		l := []string{}
+		cr := false
 		for _, bb := range b {
 			if bb == '\n' {
 				l = append(l, string(c))
 				c = nil
+				cr = false
+			} else if bb == '\r' {
+				c = append(c, bb)
+				cr = true
 			} else {
+				if cr == true {
+					c = nil
+				}
 				c = append(c, bb)
 			}
 		}
