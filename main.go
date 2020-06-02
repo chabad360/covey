@@ -8,6 +8,7 @@ import (
 
 	"github.com/chabad360/covey/job"
 	"github.com/chabad360/covey/node"
+	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task"
 	"github.com/gorilla/mux"
 )
@@ -50,6 +51,8 @@ func loadConfig() {
 }
 
 func main() {
+	storage.Init()
+
 	log.Printf("Starting up Covey %s", version)
 	r := mux.NewRouter()
 	loadHandlers(r)

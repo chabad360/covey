@@ -6,17 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/node/types"
+	"github.com/chabad360/covey/storage"
 	"github.com/gorilla/mux"
-)
-
-var (
-	nodes      = make(map[string]types.INode)
-	nodesShort = make(map[string]string)
-	nodesName  = make(map[string]string)
 )
 
 // NodeNew adds a new node using the specified plugin.
@@ -46,30 +40,18 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nodes[t.GetID()] = t
-	nodesShort[t.GetIDShort()] = t.GetID()
-	nodesName[t.GetName()] = t.GetID()
-	j, err := json.MarshalIndent(nodes, "", "  ")
-	if err != nil {
+	if err = storage.AddItem("nodes", t.GetID(), t.GetIDShort(), t); err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
-	f, err := os.Create("./config/nodes.json")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	defer f.Close()
-	if err = f.Chmod(0600); err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	if _, err = f.Write(j); err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
+	log.Println("Stored Node")
 
-	j, err = json.MarshalIndent(t, "", "  ")
+	z, err := storage.GetItem("nodes", t.GetID(), t)
+	if err != nil {
+		common.ErrorWriter(w, err)
+		return
+	}
+	j, err := json.MarshalIndent(z, "", "  ")
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
@@ -83,10 +65,10 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 // NodeRun runs a command the specified node, POST /api/v1/node/{node}
 func nodeRun(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	n, ok := GetNode(vars["node"])
-	if !ok {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "404 %s not found", vars["node"])
+	var t *types.Node
+	n, err := storage.GetItem("nodes", vars["node"], t)
+	if err != nil {
+		common.ErrorWriter(w, err)
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")
@@ -103,36 +85,46 @@ func nodeRun(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter(w, fmt.Errorf("Missing command"))
 		return
 	}
-
-	b, _, err := n.Run(s.Cmd)
+	j, err := json.Marshal(n)
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
-	j := new(struct {
+	x, err := loadNode(j)
+	if err != nil {
+		common.ErrorWriter(w, err)
+		return
+	}
+	b, _, err := x.Run(s.Cmd)
+	if err != nil {
+		common.ErrorWriter(w, err)
+		return
+	}
+	z := new(struct {
 		Result []string
 	})
-	j.Result = []string{}
-	var c []byte
-	for _, byte := range b.Bytes() {
-		if byte != '\n' {
-			c = append(c, byte)
-		} else {
-			j.Result = append(j.Result, string(c))
+	c := []byte{}
+	l := []string{}
+	for _, bb := range b.Bytes() {
+		if bb == '\n' {
+			l = append(l, string(c))
 			c = nil
+		} else {
+			c = append(c, bb)
 		}
 	}
+	z.Result = l
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(j)
+	json.NewEncoder(w).Encode(z)
 }
 
 // NodeGet returns a JSON representation of the specified node, GET /api/v1/node/{node}
 func nodeGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	n, ok := GetNode(vars["node"])
-	if !ok {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "404 %s not found", vars["node"])
+	var t *types.Node
+	n, err := storage.GetItem("nodes", vars["node"], t)
+	if err != nil {
+		common.ErrorWriter(w, err)
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")

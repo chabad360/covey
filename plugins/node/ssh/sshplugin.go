@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/node/types"
 	"golang.org/x/crypto/ssh"
 )
@@ -67,6 +68,12 @@ func (p *plugin) NewNode(nodeJSON []byte) (types.INode, error) {
 	if err := nodeFactory(x.Details); err != nil {
 		return nil, err
 	}
+
+	id, err := common.GenerateID(x)
+	if err != nil {
+		return nil, err
+	}
+	x.ID = *id
 
 	return &x, nil
 }

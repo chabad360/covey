@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 
 	"github.com/chabad360/covey/node/types"
+	"github.com/chabad360/covey/storage"
 )
 
 // LoadConfig loads up the stored nodes
@@ -20,39 +21,6 @@ func LoadConfig() {
 		return
 	}
 	defer f.Close()
-
-	var h map[string]json.RawMessage
-	if err = json.NewDecoder(f).Decode(&h); err != nil {
-		log.Fatal(err)
-	}
-
-	// Make this dynamic
-	var plugins = make(map[string]types.NodePlugin)
-	p, err := loadPlugin("ssh")
-	if err != nil {
-		log.Fatal(err)
-	}
-	plugins["ssh"] = p
-
-	for _, node := range h {
-		var z types.Node
-		j, err := node.MarshalJSON()
-		if err != nil {
-			log.Fatal(err)
-		}
-		if err := json.Unmarshal(j, &z); err != nil {
-			log.Fatal(err)
-		}
-
-		t, err := plugins[z.Plugin].LoadNode(j)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		nodes[t.GetID()] = t
-		nodesShort[t.GetIDShort()] = t.GetID()
-		nodesName[t.GetName()] = t.GetID()
-	}
 }
 
 func loadPlugin(pluginName string) (types.NodePlugin, error) {
@@ -75,14 +43,40 @@ func loadPlugin(pluginName string) (types.NodePlugin, error) {
 	return s, nil
 }
 
+func loadNode(nodeJSON []byte) (types.INode, error) {
+	var z types.Node
+	if err := json.Unmarshal(nodeJSON, &z); err != nil {
+		log.Fatal(err)
+	}
+	p, err := loadPlugin(z.Plugin)
+	if err != nil {
+		return nil, err
+	}
+	t, err := p.LoadNode(nodeJSON)
+	if err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
 // GetNode checks if a node with the identifier exists and returns it.
 func GetNode(identifier string) (types.INode, bool) {
-	if n, ok := nodes[identifier]; ok {
-		return n, true
-	} else if n, ok := nodesShort[identifier]; ok {
-		return nodes[n], true
-	} else if n, ok := nodesName[identifier]; ok {
-		return nodes[n], true
+	var t *types.Node
+	n, err := storage.GetItem("nodes", identifier, t)
+	if err != nil {
+		log.Println(err)
+		return nil, false
 	}
-	return nil, false
+	j, err := json.Marshal(n)
+	if err != nil {
+		log.Println(err)
+		return nil, false
+	}
+	x, err := loadNode(j)
+	if err != nil {
+		log.Println(err)
+		return nil, false
+	}
+
+	return x, true
 }
