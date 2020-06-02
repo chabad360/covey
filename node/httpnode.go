@@ -45,7 +45,6 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter(w, err)
 		return
 	}
-	log.Println("Stored Node")
 
 	z, err := storage.GetItem("nodes", t.GetID(), t)
 	if err != nil {

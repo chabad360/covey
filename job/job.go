@@ -6,25 +6,46 @@ import (
 	"encoding/hex"
 	"encoding/json"
 
+	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task"
-	"github.com/chabad360/covey/task/types"
 	"github.com/robfig/cron/v3"
 )
 
 var (
-	jobs      = make(map[string]*Job)
-	jobsShort = make(map[string]string)
-	jobsName  = make(map[string]string)
-	cronTab   = cron.New()
+	// jobs      = make(map[string]*Job)
+	// jobsShort = make(map[string]string)
+	// jobsName  = make(map[string]string)
+	cronTab = cron.New()
 )
 
+// IJob defines the interface for a job.
+// Would'a been nice not to need this...
+// type IJob interface {
+// 	// GetName returns the name of the job.
+// 	GetName() string
+
+// 	// GetID returns the ID of the job.
+// 	GetID() string
+
+// 	// GetIDShort returns the first 8 bytes of the job ID.
+// 	GetIDShort() string
+
+// 	// Run executes the the job.
+// 	Run()
+// }
+
 type Job struct {
-	Name        string                 `json:"name"`
-	ID          string                 `json:"id"`
-	Cron        string                 `json:"cron,omitempty"`
-	Nodes       []string               `json:"nodes"`
-	Tasks       map[string]jobTask     `json:"tasks"`
-	TaskHistory map[string]types.ITask `json:"task_history,omitempty"`
+	Name        string             `json:"name"`
+	ID          string             `json:"id"`
+	Cron        string             `json:"cron,omitempty"`
+	Nodes       []string           `json:"nodes"`
+	Tasks       map[string]jobTask `json:"tasks"`
+	TaskHistory []string           `json:"task_history,omitempty"`
+}
+
+type JobWithTasks struct {
+	Job
+	TaskHistory []interface{} `json:"task_history,omitempty"`
 }
 
 type jobTask struct {
@@ -57,11 +78,11 @@ func (j *Job) Run() {
 			if err != nil {
 				log.Panic(err)
 			}
-			if j.TaskHistory == nil {
-				j.TaskHistory = make(map[string]types.ITask)
-			}
-			j.TaskHistory[r.GetID()] = r
+			j.TaskHistory = append(j.TaskHistory, r.GetID())
 		}
+	}
+	if err := storage.UpdateItem("jobs", j.GetID(), j); err != nil {
+		log.Panic(err)
 	}
 }
 
@@ -70,16 +91,26 @@ func LoadConfig() {
 	cronTab.Start()
 }
 
-// getJob checks if a job with the identifier exists and returns it.
-func getJob(identifier string) (*Job, bool) {
-	if j, ok := jobs[identifier]; ok {
-		return j, true
-	} else if j, ok := jobsShort[identifier]; ok {
-		t := jobs[j]
-		return t, true
-	} else if j, ok := jobsName[identifier]; ok {
-		t := jobs[j]
-		return t, true
+// GetJob checks if a job with the identifier exists and returns it.
+func GetJob(identifier string) (*Job, bool) {
+	var t Job
+	_, err := storage.GetItem("jobs", identifier, &t)
+	if err != nil {
+		log.Println(err)
+		return nil, false
 	}
-	return nil, false
+
+	return &t, true
+}
+
+// GetJobWithTasks checks if a job with the identifier exists and returns it along with its tasks.
+func GetJobWithTasks(identifier string) (*JobWithTasks, bool) {
+	var t JobWithTasks
+	_, err := storage.GetJob(identifier, &t)
+	if err != nil {
+		log.Println(err)
+		return nil, false
+	}
+
+	return &t, true
 }

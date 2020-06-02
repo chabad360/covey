@@ -23,13 +23,13 @@ func Init() {
 
 // AddItem adds an item to the database.
 func AddItem(table string, id string, idShort string, item interface{}) error {
-	_, err := db.Exec(context.Background(), "insert into "+table+"(id, id_short, data) values($1, $2, $3);", id, idShort, item)
+	_, err := db.Exec(context.Background(), "INSERT INTO "+table+"(id, id_short, data) VALUES($1, $2, $3);", id, idShort, item)
 	return err
 }
 
 // GetItem returns an interface of an item in the database.
 func GetItem(table string, id string, i interface{}) (interface{}, error) {
-	if err := db.QueryRow(context.Background(), "select data from "+table+" where id = $1 or id_short = $1 or data->>'name' = $1 limit 1;", id).Scan(&i); err != nil {
+	if err := db.QueryRow(context.Background(), "SELECT data FROM "+table+" WHERE id = $1 OR id_short = $1 OR data->>'name' = $1;", id).Scan(&i); err != nil {
 		return nil, err
 	}
 	return i, nil
@@ -37,6 +37,25 @@ func GetItem(table string, id string, i interface{}) (interface{}, error) {
 
 // UpdateItem updates an item in the database.
 func UpdateItem(table string, id string, i interface{}) error {
-	_, err := db.Exec(context.Background(), "update "+table+" set data = $1 where id = $2 or id_short = $2 or data->>'name' = $2;", i, id)
+	_, err := db.Exec(context.Background(), "UPDATE "+table+" SET data = $1 WHERE id = $2 OR id_short = $2 OR data->>'name' = $2;", i, id)
 	return err
+}
+
+// GetJob returns a job with the tasks subsituted for their IDs.
+func GetJob(id string, i interface{}) (interface{}, error) { // Query designed with the help of https://stackoverflow.com/questions/47275606
+	if err := db.QueryRow(context.Background(), `SELECT COALESCE(j1.data, j.data) 
+	FROM   jobs j
+	LEFT   JOIN LATERAL (
+	   SELECT j.data || jsonb_build_object('task_history', COALESCE(ts.task, '[]')) AS data
+	   FROM   jobs
+	   CROSS  JOIN LATERAL (
+		  SELECT jsonb_agg(t.data) AS task
+		  FROM   jsonb_array_elements_text(jobs.data->'task_history') AS p(id)
+		  LEFT   JOIN tasks t ON t.id = p.id
+		  ) ts
+	   ) j1 ON j.data <> '{}'
+	WHERE j.id = $1 OR j.id_short = $1 OR j.data->>'name' = $1;`, id).Scan(&i); err != nil {
+		return nil, err
+	}
+	return i, nil
 }

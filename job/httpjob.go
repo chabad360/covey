@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/chabad360/covey/common"
+	"github.com/chabad360/covey/storage"
 	"github.com/gorilla/mux"
 )
 
@@ -21,13 +21,18 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, ok := getJob(job.Name); ok {
+	if _, ok := GetJob(job.Name); ok {
 		common.ErrorWriter(w, fmt.Errorf("Duplicate job: %v", job.Name))
 		return
 	}
 
 	if job.Cron != "" {
-		_, err := cronTab.AddFunc(job.Cron, job.Run)
+		_, err := cronTab.AddFunc(job.Cron, func() func() {
+			return func() { // This little bundle of joy allows the job to occur despite not being an object.
+				j, _ := GetJob(job.GetID())
+				j.Run()
+			}
+		}())
 		if err != nil {
 			common.ErrorWriter(w, err)
 			return
@@ -41,30 +46,22 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	job.ID = *id
-	jobs[job.GetID()] = &job
-	jobsShort[job.GetIDShort()] = job.GetID()
-	jobsName[job.GetName()] = job.GetID()
-	j, err := json.MarshalIndent(jobs, "", "  ")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	f, err := os.Create("./config/jobs.json")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	defer f.Close()
-	if err = f.Chmod(0600); err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	if _, err = f.Write(j); err != nil {
+	// jobs[job.GetID()] = &job
+	// jobsShort[job.GetIDShort()] = job.GetID()
+	// jobsName[job.GetName()] = job.GetID()
+
+	if err = storage.AddItem("jobs", job.GetID(), job.GetIDShort(), job); err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
 
-	j, err = json.MarshalIndent(job, "", "  ")
+	z, err := storage.GetItem("jobs", job.GetID(), job)
+	if err != nil {
+		common.ErrorWriter(w, err)
+		return
+	}
+
+	j, err := json.MarshalIndent(z, "", "\t")
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
@@ -77,18 +74,18 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 
 func jobGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	job, ok := getJob(vars["job"])
+	job, ok := GetJobWithTasks(vars["job"])
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "404 %v not found", vars["job"])
 		return
 	}
 
-	for _, task := range job.TaskHistory {
-		task.GetLog()
-	}
+	// for _, task := range job.TaskHistory {
+	// 	task.GetLog()
+	// }
 
-	jobs[job.GetID()] = job
+	// jobs[job.GetID()] = job
 
 	w.Header().Add("Content-Type", "application/json")
 	j, err := json.MarshalIndent(job, "", "\t")
@@ -102,7 +99,7 @@ func jobGet(w http.ResponseWriter, r *http.Request) {
 
 func jobRun(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	j, ok := getJob(vars["job"])
+	j, ok := GetJob(vars["job"])
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "404 %v not found", vars["job"])
