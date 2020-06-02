@@ -22,6 +22,9 @@ type ITask interface {
 	// GetLog returns the full log of the task.
 	GetLog() []string
 
+	// GetState returns the current state of the task.
+	GetState() TaskState
+
 	// GetID returns the ID of the task.
 	GetID() string
 
@@ -45,3 +48,6 @@ func (t *Task) GetID() string { return t.ID }
 
 // GetIDShort returns the first 8 bytes of the task ID.
 func (t *Task) GetIDShort() string { x, _ := hex.DecodeString(t.ID); return hex.EncodeToString(x[:8]) }
+
+// GetState returns the current state of the task.
+func (t *Task) GetState() TaskState { return t.State }

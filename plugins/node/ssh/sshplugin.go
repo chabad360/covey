@@ -83,7 +83,6 @@ func (p *plugin) LoadNode(nodeJSON []byte) (types.INode, error) {
 	if err := json.Unmarshal(nodeJSON, &n); err != nil {
 		return nil, err
 	}
-	log.Println("Loading", n.Name)
 
 	if err := nodeFactory(n.Details); err != nil {
 		return nil, err

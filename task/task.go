@@ -7,9 +7,11 @@ import (
 	"os"
 	"plugin"
 
+	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task/types"
 )
 
+// NewTask creates a new task.
 func NewTask(taskJSON []byte) (types.ITask, error) {
 	var task types.Task
 	if err := json.Unmarshal(taskJSON, &task); err != nil {
@@ -26,7 +28,9 @@ func NewTask(taskJSON []byte) (types.ITask, error) {
 		return nil, err
 	}
 
-	saveConfig(t)
+	tasks[t.GetID()] = t
+	tasksShort[t.GetIDShort()] = t.GetID()
+	SaveTask(t)
 	return t, nil
 }
 
@@ -39,38 +43,6 @@ func LoadConfig() {
 		return
 	}
 	defer f.Close()
-
-	var h map[string]json.RawMessage
-	if err = json.NewDecoder(f).Decode(&h); err != nil {
-		log.Fatal(err)
-	}
-
-	// Make this dynamic
-	var plugins = make(map[string]types.TaskPlugin)
-	p, err := loadPlugin("shell") // Hardcoding for now
-	if err != nil {
-		log.Fatal(err)
-	}
-	plugins["shell"] = p
-
-	for _, node := range h {
-		var z types.Task
-		j, err := node.MarshalJSON()
-		if err != nil {
-			log.Fatal(err)
-		}
-		if err := json.Unmarshal(j, &z); err != nil {
-			log.Fatal(err)
-		}
-
-		t, err := plugins[z.Plugin].LoadTask(j)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		tasks[t.GetID()] = t
-		tasksShort[t.GetIDShort()] = t.GetID()
-	}
 }
 
 func loadPlugin(pluginName string) (types.TaskPlugin, error) {
@@ -93,33 +65,77 @@ func loadPlugin(pluginName string) (types.TaskPlugin, error) {
 	return s, nil
 }
 
-func getTask(identifier string) (types.ITask, bool) {
-	if t, ok := tasks[identifier]; ok {
-		return t, true
-	} else if t, ok := tasksShort[identifier]; ok {
-		return tasks[t], true
+// GetTask checks if a task with the identifier exists and returns it.
+func GetTask(identifier string) (types.ITask, bool) {
+	var t *types.Task
+	n, err := storage.GetItem("tasks", identifier, t)
+	if err != nil {
+		log.Println(err)
+		return nil, false
 	}
-	return nil, false
+	j, err := json.Marshal(n)
+	if err != nil {
+		log.Println(err)
+		return nil, false
+	}
+	x, err := loadTask(j)
+	if err != nil {
+		log.Println(err)
+		return nil, false
+	}
+
+	// If the task is still running, return it instead of the db version.
+	if x, ok := tasks[identifier]; ok {
+		return x, true
+	} else if x, ok := tasksShort[identifier]; ok {
+		return tasks[x], true
+	}
+
+	return x, true
 }
 
-func saveConfig(t types.ITask) {
-	tasks[t.GetID()] = t
-	tasksShort[t.GetIDShort()] = t.GetID()
-
-	j, err := json.MarshalIndent(tasks, "", "  ")
-	if err != nil {
-		log.Fatal(err)
+func loadTask(taskJSON []byte) (types.ITask, error) {
+	var z types.Task
+	if err := json.Unmarshal(taskJSON, &z); err != nil {
+		return nil, err
 	}
-	f, err := os.Create("./config/tasks.json")
+	p, err := loadPlugin(z.Plugin)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	defer f.Close()
-	if err = f.Chmod(0600); err != nil {
-		log.Fatal(err)
+	t, err := p.LoadTask(taskJSON)
+	if err != nil {
+		return nil, err
 	}
 
-	if _, err = f.Write(j); err != nil {
-		log.Fatal(err)
+	return t, nil
+}
+
+// SaveTask saves a live task to the database.
+func SaveTask(t types.ITask) {
+	// Only useful if the task is still running, i.e. it's in the tasks map.
+	if _, ok := tasks[t.GetID()]; !ok {
+		return
+	}
+
+	var z *types.Task
+	_, err := storage.GetItem("tasks", t.GetID(), z)
+	if err != nil { // If the task isn't in the database yet
+		log.Println(err)
+		if err = storage.AddItem("tasks", t.GetID(), t.GetIDShort(), t); err != nil {
+			log.Println(err)
+		}
+	} else { // Otherwise:
+		if err = storage.UpdateItem("tasks", t.GetID(), t); err != nil {
+			log.Println(err)
+		}
+	}
+
+	// Update the task in the tasks map or remove it if it's done.
+	if state := t.GetState(); !(state == types.StateRunning || state == types.StateStarting) {
+		delete(tasks, t.GetID())
+		delete(tasksShort, t.GetIDShort())
+	} else {
+		tasks[t.GetID()] = t
 	}
 }

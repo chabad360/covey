@@ -29,8 +29,14 @@ func AddItem(table string, id string, idShort string, item interface{}) error {
 
 // GetItem returns an interface of an item in the database.
 func GetItem(table string, id string, i interface{}) (interface{}, error) {
-	if err := db.QueryRow(context.Background(), "select data from "+table+" where id = $1 or id_short = $1 or data->>'name' = $1;", id).Scan(&i); err != nil {
+	if err := db.QueryRow(context.Background(), "select data from "+table+" where id = $1 or id_short = $1 or data->>'name' = $1 limit 1;", id).Scan(&i); err != nil {
 		return nil, err
 	}
 	return i, nil
+}
+
+// UpdateItem updates an item in the database.
+func UpdateItem(table string, id string, i interface{}) error {
+	_, err := db.Exec(context.Background(), "update "+table+" set data = $1 where id = $2 or id_short = $2 or data->>'name' = $2;", i, id)
+	return err
 }

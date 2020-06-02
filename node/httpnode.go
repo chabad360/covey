@@ -2,6 +2,7 @@ package node
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -65,14 +66,12 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 // NodeRun runs a command the specified node, POST /api/v1/node/{node}
 func nodeRun(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	var t *types.Node
-	n, err := storage.GetItem("nodes", vars["node"], t)
-	if err != nil {
-		common.ErrorWriter(w, err)
+	n, ok := GetNode(vars["node"])
+	w.Header().Add("Content-Type", "application/json")
+	if !ok {
+		common.ErrorWriter(w, errors.New("404 not found"))
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
-
 	var s struct {
 		Cmd []string
 	}
@@ -85,17 +84,7 @@ func nodeRun(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter(w, fmt.Errorf("Missing command"))
 		return
 	}
-	j, err := json.Marshal(n)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	x, err := loadNode(j)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	b, _, err := x.Run(s.Cmd)
+	b, _, err := n.Run(s.Cmd)
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
@@ -121,10 +110,9 @@ func nodeRun(w http.ResponseWriter, r *http.Request) {
 // NodeGet returns a JSON representation of the specified node, GET /api/v1/node/{node}
 func nodeGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	var t *types.Node
-	n, err := storage.GetItem("nodes", vars["node"], t)
-	if err != nil {
-		common.ErrorWriter(w, err)
+	n, ok := GetNode(vars["node"])
+	if !ok {
+		common.ErrorWriter(w, errors.New("404 not found"))
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")

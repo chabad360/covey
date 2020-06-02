@@ -2,12 +2,14 @@ package task
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/chabad360/covey/common"
+	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task/types"
 	"github.com/gorilla/mux"
 )
@@ -28,7 +30,17 @@ func taskNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	j, err := json.MarshalIndent(t, "", "\t")
+	tasks[t.GetID()] = t
+	tasksShort[t.GetIDShort()] = t.GetID()
+	SaveTask(t)
+
+	z, err := storage.GetItem("tasks", t.GetID(), t)
+	if err != nil {
+		common.ErrorWriter(w, err)
+		return
+	}
+
+	j, err := json.MarshalIndent(z, "", "\t")
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
@@ -39,18 +51,17 @@ func taskNew(w http.ResponseWriter, r *http.Request) {
 }
 
 func taskGet(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+
 	vars := mux.Vars(r)
-	t, ok := getTask(vars["task"])
+	t, ok := GetTask(vars["task"])
 	if !ok {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "404 %v not found", vars["task"])
+		common.ErrorWriter(w, errors.New("404 not found"))
 		return
 	}
 
 	t.GetLog()
-	saveConfig(t)
-
-	w.Header().Add("Content-Type", "application/json")
+	SaveTask(t)
 
 	j, err := json.MarshalIndent(t, "", "\t")
 	if err != nil {
@@ -62,18 +73,17 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func taskGetLog(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+
 	vars := mux.Vars(r)
-	t, ok := getTask(vars["task"])
+	t, ok := GetTask(vars["task"])
 	if !ok {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "404 %v not found", vars["task"])
+		common.ErrorWriter(w, errors.New("404 not found"))
 		return
 	}
 
 	t.GetLog()
-	saveConfig(t)
-
-	w.Header().Add("Content-Type", "application/json")
+	SaveTask(t)
 
 	j, err := json.MarshalIndent(t.GetLog(), "", "\t")
 	if err != nil {

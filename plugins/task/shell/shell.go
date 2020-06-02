@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/chabad360/covey/node"
+	"github.com/chabad360/covey/task"
 	"github.com/chabad360/covey/task/types"
 )
 
@@ -29,6 +30,8 @@ func runTask(t *Task) (*bytes.Buffer, error) {
 			t.State = types.StateError
 			t.Details.ExitStatus = e
 		}
+		t.GetLog()
+		task.SaveTask(t)
 	}()
 
 	return b, nil
