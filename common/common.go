@@ -46,14 +46,9 @@ func Walk(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 	return nil
 }
 
-// GenerateID takes a object and converts it to json and then returns a sha256 hash of the object.
+// GenerateID takes a object and converts it to text and then returns a sha256 hash of the object.
 // Warning: This is not guaranteed to be unique, please ensure that your object includes a field that is unique (i.e. time.Now).
-func GenerateID(item interface{}) (*string, error) {
-	j, err := json.Marshal(item)
-	if err != nil {
-		return nil, err
-	}
-	id := sha256.Sum256(j)
-	ids := hex.EncodeToString(id[:])
-	return &ids, nil
+func GenerateID(item interface{}) string {
+	id := sha256.Sum256([]byte(fmt.Sprintf("%v", item)))
+	return hex.EncodeToString(id[:])
 }

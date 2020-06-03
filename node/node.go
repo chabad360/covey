@@ -53,7 +53,7 @@ func loadNode(nodeJSON []byte) (types.INode, error) {
 
 // GetNode checks if a node with the identifier exists and returns it.
 func GetNode(identifier string) (types.INode, bool) {
-	n, err := storage.GetNode(identifier)
+	n, err := storage.GetItem("nodes", identifier)
 	if err != nil {
 		log.Println(err)
 		return nil, false

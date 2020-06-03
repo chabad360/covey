@@ -27,12 +27,13 @@ func AddItem(table string, id string, idShort string, item interface{}) error {
 	return err
 }
 
-// GetItem returns an interface of an item in the database.
-func GetItem(table string, id string, i interface{}) (interface{}, error) {
-	if err := db.QueryRow(context.Background(), "SELECT data FROM "+table+" WHERE id = $1 OR id_short = $1 OR data->>'name' = $1;", id).Scan(&i); err != nil {
+// GetItem returns the JSON representation of an item in the database.
+func GetItem(table, id string) (*[]byte, error) {
+	var j []byte
+	if err := db.QueryRow(context.Background(), "SELECT to_jsonb("+table+") FROM "+table+" WHERE id = $1 OR id_short = $1 OR name = $1;", id).Scan(&j); err != nil {
 		return nil, err
 	}
-	return i, nil
+	return &j, nil
 }
 
 // UpdateItem updates an item in the database.

@@ -7,21 +7,21 @@ func (t *Task) GetDetails() interface{} { return t.Details }
 func (t *Task) GetLog() []string {
 	if t.Details.Buffer != nil {
 		b := t.Details.Buffer.Bytes()
-		c := []byte{}
-		l := []string{}
+		line := []byte(nil)
+		log := []string(nil)
 		for _, bb := range b {
 			if bb == '\n' {
-				l = append(l, string(c))
-				c = nil
+				log = append(log, string(line))
+				line = nil
 			} else {
-				c = append(c, bb)
+				line = append(line, bb)
 			}
 		}
-		if len(c) > 0 { // Append even if there is no trailing newline.
-			l = append(l, string(c))
+		if len(line) > 0 { // Append even if there is no trailing newline.
+			log = append(log, string(line))
 		}
-		if len(l) > 0 { // Set the log to the new value only if there is what to set.
-			t.Log = l
+		if len(log) > 0 { // Set the log to the new value only if there is what to set.
+			t.Log = log
 		}
 		t.Details.Buffer.Reset()
 	}

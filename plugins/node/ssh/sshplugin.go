@@ -48,12 +48,12 @@ func (p *plugin) NewNode(nodeJSON []byte) (types.INode, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Verify that everything has gone right
+	// Verify that we can run commands and get what we expected.
 	output = output[0 : len(output)-1]
 	if string(output) != nodeInfo.Username {
 		return nil, fmt.Errorf("%v is not %v", string(output), nodeInfo.Username)
 	}
-	log.Println("Successfully logged into server")
+	log.Println("Successfully logged into node")
 	// Generate SSH Keys add add the public key to the authorized_keys file.
 	err = generateKeysAndAddKeys(x.Details)
 	if err != nil {
@@ -68,12 +68,7 @@ func (p *plugin) NewNode(nodeJSON []byte) (types.INode, error) {
 	if err := nodeFactory(x.Details); err != nil {
 		return nil, err
 	}
-
-	id, err := common.GenerateID(x)
-	if err != nil {
-		return nil, err
-	}
-	x.ID = *id
+	x.ID = common.GenerateID(x)
 
 	return &x, nil
 }

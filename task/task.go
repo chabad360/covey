@@ -72,56 +72,34 @@ func GetTask(identifier string) (types.ITask, bool) {
 		log.Println(err)
 		return nil, false
 	}
-	x, err := loadTask(*t)
-	if err != nil {
-		log.Println(err)
+	var x types.Task
+	if err := json.Unmarshal(*t, &x); err != nil {
 		return nil, false
 	}
-
-	return x, true
-}
-
-func loadTask(taskJSON []byte) (types.ITask, error) {
-	var z types.Task
-	if err := json.Unmarshal(taskJSON, &z); err != nil {
-		return nil, err
-	}
-	p, err := loadPlugin(z.Plugin)
-	if err != nil {
-		return nil, err
-	}
-	t, err := p.LoadTask(taskJSON)
-	if err != nil {
-		return nil, err
-	}
-
-	return t, nil
+	return &x, true
 }
 
 // SaveTask saves a live task to the database.
 func SaveTask(t types.ITask) {
 	// Only useful if the task is still running, i.e. it's in the tasks map.
-	if _, ok := tasks[t.GetID()]; !ok {
-		return
-	}
-
-	_, err := storage.GetTask(t.GetID())
-	if err != nil { // If the task isn't in the database yet
-		log.Println(err)
-		if err = storage.AddTask(t); err != nil {
+	if _, ok := tasks[t.GetID()]; ok {
+		if _, err := storage.GetTask(t.GetID()); err != nil { // If the task isn't in the database yet
 			log.Println(err)
+			if err = storage.AddTask(t); err != nil {
+				log.Println(err)
+			}
+		} else { // Otherwise:
+			if err = storage.UpdateTask(t); err != nil {
+				log.Println(err)
+			}
 		}
-	} else { // Otherwise:
-		if err = storage.UpdateTask(t); err != nil {
-			log.Println(err)
-		}
-	}
 
-	// Update the task in the tasks map or remove it if it's done.
-	if state := t.GetState(); !(state == types.StateRunning || state == types.StateStarting) {
-		delete(tasks, t.GetID())
-		delete(tasksShort, t.GetIDShort())
-	} else {
-		tasks[t.GetID()] = t
+		// Update the task in the tasks map or remove it if it's done.
+		if state := t.GetState(); !(state == types.StateRunning || state == types.StateStarting) {
+			delete(tasks, t.GetID())
+			delete(tasksShort, t.GetIDShort())
+		} else {
+			tasks[t.GetID()] = t
+		}
 	}
 }

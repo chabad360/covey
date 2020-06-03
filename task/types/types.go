@@ -12,9 +12,6 @@ type TaskState int
 type TaskPlugin interface {
 	// NewTask creates a Task object and runs it in a go routine, and returns the Task.
 	NewTask(taskJSON []byte) (ITask, error)
-
-	// LoadTask loads the task.
-	LoadTask(taskJSON []byte) (ITask, error)
 }
 
 // Task defines the information of a task.
@@ -72,3 +69,9 @@ func (t *Task) GetNode() string { return t.Node }
 
 // GetTime returns the time of the task.
 func (t *Task) GetTime() time.Time { return t.Time }
+
+// GetDetails returns the details of the task.
+func (t *Task) GetDetails() interface{} { return t.Details }
+
+// GetLog returns the log of the task.
+func (t *Task) GetLog() []string { return t.Log }

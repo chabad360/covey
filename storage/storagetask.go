@@ -9,7 +9,7 @@ import (
 // AddTask adds a task to the database.
 func AddTask(task types.ITask) error {
 	_, err := db.Exec(context.Background(), "INSERT INTO tasks(id, id_short, plugin, state, node, time, log, details) VALUES($1, $2, $3, $4, $5, $6, $7, $8);",
-		task.GetID(), task.GetIDShort(), task.GetPlugin(), task.GetState(), task.GetNode(), func() string {t, _ := task.GetTime().MarshalText(); return string(t)}(), task.GetLog(), task.GetDetails())
+		task.GetID(), task.GetIDShort(), task.GetPlugin(), task.GetState(), task.GetNode(), func() string { t, _ := task.GetTime().MarshalText(); return string(t) }(), task.GetLog(), task.GetDetails())
 	return err
 }
 

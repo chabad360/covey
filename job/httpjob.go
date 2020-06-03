@@ -39,23 +39,17 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	id, err := common.GenerateID(job)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-
-	job.ID = *id
+	job.ID = common.GenerateID(job)
 	// jobs[job.GetID()] = &job
 	// jobsShort[job.GetIDShort()] = job.GetID()
 	// jobsName[job.GetName()] = job.GetID()
 
-	if err = storage.AddItem("jobs", job.GetID(), job.GetIDShort(), job); err != nil {
+	if err := storage.AddItem("jobs", job.GetID(), job.GetIDShort(), job); err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
 
-	z, err := storage.GetItem("jobs", job.GetID(), job)
+	z, err := storage.GetItem("jobs", job.GetID())
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return

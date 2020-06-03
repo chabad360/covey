@@ -30,7 +30,6 @@ func taskNew(w http.ResponseWriter, r *http.Request) {
 }
 
 func taskGet(w http.ResponseWriter, r *http.Request) {
-
 	vars := mux.Vars(r)
 	t, ok := GetTask(vars["task"])
 	if !ok {
@@ -40,20 +39,12 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 
 	t.GetLog()
 	SaveTask(t)
-	common.Write(w, t)
-}
 
-func taskGetLog(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	t, ok := GetTask(vars["task"])
-	if !ok {
-		common.ErrorWriter404(w, vars["task"])
-		return
+	if p, _ := mux.CurrentRoute(r).GetPathTemplate(); p == "/api/v1/task/{task}/log" {
+		common.Write(w, t.GetLog())
+	} else {
+		common.Write(w, t)
 	}
-
-	t.GetLog()
-	SaveTask(t)
-	common.Write(w, t.GetLog())
 }
 
 // RegisterHandlers registers the mux handlers for the Task module.
@@ -62,7 +53,7 @@ func RegisterHandlers(r *mux.Router) {
 
 	r.HandleFunc("/new", taskNew).Methods("POST")
 	r.HandleFunc("/{task}", taskGet).Methods("GET")
-	r.HandleFunc("/{task}/log", taskGetLog).Methods("GET")
+	r.HandleFunc("/{task}/log", taskGet).Methods("GET")
 
 	err := r.Walk(common.Walk)
 	if err != nil {

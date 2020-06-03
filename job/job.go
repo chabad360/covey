@@ -94,7 +94,7 @@ func LoadConfig() {
 // GetJob checks if a job with the identifier exists and returns it.
 func GetJob(identifier string) (*Job, bool) {
 	var t Job
-	_, err := storage.GetItem("jobs", identifier, &t)
+	_, err := storage.GetItem("jobs", identifier)
 	if err != nil {
 		log.Println(err)
 		return nil, false
