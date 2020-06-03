@@ -27,7 +27,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 * [x] Major Refactor
 
-#### V0.3 Web Interface (may swap places with V0.3)
+#### V0.3 Web Interface (may swap places with V0.4)
 
 * [ ] Design and Implement the Web Interface
 * [ ] Implement Basic Authentication
