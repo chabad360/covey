@@ -6,7 +6,6 @@ import (
 	"log"
 	"plugin"
 
-	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task/types"
 )
 
@@ -67,7 +66,7 @@ func GetTask(identifier string) (types.ITask, bool) {
 		return tasks[x], true
 	}
 
-	t, err := storage.GetTask(identifier)
+	t, err := getTask(identifier)
 	if err != nil {
 		log.Println(err)
 		return nil, false
@@ -83,13 +82,13 @@ func GetTask(identifier string) (types.ITask, bool) {
 func SaveTask(t types.ITask) {
 	// Only useful if the task is still running, i.e. it's in the tasks map.
 	if _, ok := tasks[t.GetID()]; ok {
-		if _, err := storage.GetTask(t.GetID()); err != nil { // If the task isn't in the database yet
+		if _, err := getTask(t.GetID()); err != nil { // If the task isn't in the database yet
 			log.Println(err)
-			if err = storage.AddTask(t); err != nil {
+			if err = addTask(t); err != nil {
 				log.Println(err)
 			}
 		} else { // Otherwise:
-			if err = storage.UpdateTask(t); err != nil {
+			if err = updateTask(t); err != nil {
 				log.Println(err)
 			}
 		}

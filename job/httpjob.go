@@ -73,7 +73,12 @@ func jobRun(w http.ResponseWriter, r *http.Request) {
 func RegisterHandlers(r *mux.Router) {
 	log.Println("Registering types.Job module API handlers...")
 	r.HandleFunc("/new", jobNew).Methods("POST")
-	r.HandleFunc("/{job}", jobGet).Methods("GET")
 	r.HandleFunc("/{job}", jobRun).Methods("POST")
+	r.HandleFunc("/{job}", jobGet).Methods("GET")
 
+	err := r.Walk(common.Walk)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println()
 }

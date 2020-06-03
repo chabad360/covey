@@ -9,7 +9,6 @@ import (
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/node/types"
-	"github.com/chabad360/covey/storage"
 	"github.com/gorilla/mux"
 )
 
@@ -39,7 +38,7 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = storage.AddNode(n); err != nil {
+	if err = addNode(n); err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
