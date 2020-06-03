@@ -58,7 +58,7 @@ func GetNode(identifier string) (types.INode, bool) {
 		log.Println(err)
 		return nil, false
 	}
-	x, err := loadNode(*n)
+	x, err := loadNode(n)
 	if err != nil {
 		log.Println(err)
 		return nil, false

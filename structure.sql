@@ -3,7 +3,7 @@ CREATE TABLE nodes (
     id_short TEXT UNIQUE NOT NULL,
     name TEXT UNIQUE NOT NULL,
     plugin TEXT NOT NULL,
-    details JSONB
+    details JSONB NOT NULL
 );
 
 CREATE TABLE tasks (
@@ -14,11 +14,15 @@ CREATE TABLE tasks (
     node TEXT NOT NULL,
     time TEXT,
     log JSONB,
-    details JSONB
+    details JSONB NOT NULL
 );
 
 create table jobs (
     id TEXT PRIMARY KEY NOT NULL,
     id_short TEXT UNIQUE NOT NULL,
-    data JSONB
+    name TEXT UNIQUE NOT NULL,
+    cron TEXT,
+    nodes JSONB NOT NULL,
+    tasks JSONB NOT NULL,
+    task_history JSONB
 );
