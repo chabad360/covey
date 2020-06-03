@@ -17,21 +17,6 @@ type TaskPlugin interface {
 	LoadTask(taskJSON []byte) (ITask, error)
 }
 
-// ITask Defines the read methods for a task.
-type ITask interface {
-	// GetLog returns the full log of the task.
-	GetLog() []string
-
-	// GetState returns the current state of the task.
-	GetState() TaskState
-
-	// GetID returns the ID of the task.
-	GetID() string
-
-	// GetIDShort returns the first 16 bytes of the task ID.
-	GetIDShort() string
-}
-
 // Task defines the information of a task.
 type Task struct {
 	State   TaskState   `json:"state"`
@@ -43,6 +28,33 @@ type Task struct {
 	Time    time.Time   `json:"time"`
 }
 
+// ITask Defines the read methods for a task.
+type ITask interface {
+	// GetLog returns the full log of the task.
+	GetLog() []string
+
+	// GetState returns the current state of the task.
+	GetState() TaskState
+
+	// GetPlugin returns the plugin of the task.
+	GetPlugin() string
+
+	// GetNode returns the node of the task..
+	GetNode() string
+
+	// GetTime returns the time of the task.
+	GetTime() time.Time
+
+	// GetDetails returns the details of the task.
+	GetDetails() interface{}
+
+	// GetID returns the ID of the task.
+	GetID() string
+
+	// GetIDShort returns the first 16 bytes of the task ID.
+	GetIDShort() string
+}
+
 // GetID returns the ID of the task.
 func (t *Task) GetID() string { return t.ID }
 
@@ -51,3 +63,12 @@ func (t *Task) GetIDShort() string { x, _ := hex.DecodeString(t.ID); return hex.
 
 // GetState returns the current state of the task.
 func (t *Task) GetState() TaskState { return t.State }
+
+// GetPlugin returns the plugin of the task.
+func (t *Task) GetPlugin() string { return t.Plugin }
+
+// GetNode returns the node of the task.
+func (t *Task) GetNode() string { return t.Node }
+
+// GetTime returns the time of the task.
+func (t *Task) GetTime() time.Time { return t.Time }

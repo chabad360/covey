@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"plugin"
 
 	"github.com/chabad360/covey/storage"
@@ -13,37 +12,31 @@ import (
 
 // NewTask creates a new task.
 func NewTask(taskJSON []byte) (types.ITask, error) {
-	var task types.Task
-	if err := json.Unmarshal(taskJSON, &task); err != nil {
+	var t types.Task
+	if err := json.Unmarshal(taskJSON, &t); err != nil {
 		return nil, err
 	}
 
-	p, err := loadPlugin(task.Plugin)
+	plugin, err := loadPlugin(t.Plugin)
 	if err != nil {
 		return nil, err
 	}
 
-	t, err := p.NewTask(taskJSON)
+	task, err := plugin.NewTask(taskJSON)
 	if err != nil {
 		return nil, err
 	}
 
-	tasks[t.GetID()] = t
-	tasksShort[t.GetIDShort()] = t.GetID()
-	SaveTask(t)
-	return t, nil
+	tasks[task.GetID()] = task
+	tasksShort[task.GetIDShort()] = task.GetID()
+	SaveTask(task)
+	return task, nil
 }
 
 // LoadConfig loads up the stored nodes
-func LoadConfig() {
-	log.Println("Loading Task Config")
-	f, err := os.Open("./config/tasks.json")
-	if err != nil {
-		log.Println("Error loading task config")
-		return
-	}
-	defer f.Close()
-}
+// func LoadConfig() {
+// 	log.Println("Placeholder")
+// }
 
 func loadPlugin(pluginName string) (types.TaskPlugin, error) {
 	p, err := plugin.Open("./plugins/task/" + pluginName + ".so")
@@ -67,28 +60,22 @@ func loadPlugin(pluginName string) (types.TaskPlugin, error) {
 
 // GetTask checks if a task with the identifier exists and returns it.
 func GetTask(identifier string) (types.ITask, bool) {
-	var t *types.Task
-	n, err := storage.GetItem("tasks", identifier, t)
-	if err != nil {
-		log.Println(err)
-		return nil, false
-	}
-	j, err := json.Marshal(n)
-	if err != nil {
-		log.Println(err)
-		return nil, false
-	}
-	x, err := loadTask(j)
-	if err != nil {
-		log.Println(err)
-		return nil, false
-	}
-
 	// If the task is still running, return it instead of the db version.
 	if x, ok := tasks[identifier]; ok {
 		return x, true
 	} else if x, ok := tasksShort[identifier]; ok {
 		return tasks[x], true
+	}
+
+	t, err := storage.GetTask(identifier)
+	if err != nil {
+		log.Println(err)
+		return nil, false
+	}
+	x, err := loadTask(*t)
+	if err != nil {
+		log.Println(err)
+		return nil, false
 	}
 
 	return x, true
@@ -118,15 +105,14 @@ func SaveTask(t types.ITask) {
 		return
 	}
 
-	var z *types.Task
-	_, err := storage.GetItem("tasks", t.GetID(), z)
+	_, err := storage.GetTask(t.GetID())
 	if err != nil { // If the task isn't in the database yet
 		log.Println(err)
-		if err = storage.AddItem("tasks", t.GetID(), t.GetIDShort(), t); err != nil {
+		if err = storage.AddTask(t); err != nil {
 			log.Println(err)
 		}
 	} else { // Otherwise:
-		if err = storage.UpdateItem("tasks", t.GetID(), t); err != nil {
+		if err = storage.UpdateTask(t); err != nil {
 			log.Println(err)
 		}
 	}

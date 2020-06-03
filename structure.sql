@@ -9,7 +9,12 @@ CREATE TABLE nodes (
 CREATE TABLE tasks (
     id TEXT PRIMARY KEY NOT NULL,
     id_short TEXT UNIQUE NOT NULL,
-    data JSONB
+    plugin TEXT NOT NULL,
+    state INT NOT NULL,
+    node TEXT NOT NULL,
+    time TEXT,
+    log JSONB,
+    details JSONB
 );
 
 create table jobs (

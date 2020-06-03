@@ -1,15 +1,12 @@
 package task
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task/types"
 	"github.com/gorilla/mux"
 )
@@ -21,8 +18,6 @@ var (
 
 // TaskNew creates and starts a new task.
 func taskNew(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	t, err := NewTask(reqBody)
 	if err != nil {
@@ -30,68 +25,35 @@ func taskNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks[t.GetID()] = t
-	tasksShort[t.GetIDShort()] = t.GetID()
-	SaveTask(t)
-
-	z, err := storage.GetItem("tasks", t.GetID(), t)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-
-	j, err := json.MarshalIndent(z, "", "\t")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
 	w.Header().Add("Location", "/api/v1/task/"+t.GetIDShort())
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprint(w, string(j))
+	common.Write(w, t)
 }
 
 func taskGet(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
 
 	vars := mux.Vars(r)
 	t, ok := GetTask(vars["task"])
 	if !ok {
-		common.ErrorWriter(w, errors.New("404 not found"))
+		common.ErrorWriter404(w, vars["task"])
 		return
 	}
 
 	t.GetLog()
 	SaveTask(t)
-
-	j, err := json.MarshalIndent(t, "", "\t")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, string(j))
+	common.Write(w, t)
 }
 
 func taskGetLog(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-
 	vars := mux.Vars(r)
 	t, ok := GetTask(vars["task"])
 	if !ok {
-		common.ErrorWriter(w, errors.New("404 not found"))
+		common.ErrorWriter404(w, vars["task"])
 		return
 	}
 
 	t.GetLog()
 	SaveTask(t)
-
-	j, err := json.MarshalIndent(t.GetLog(), "", "\t")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, string(j))
+	common.Write(w, t.GetLog())
 }
 
 // RegisterHandlers registers the mux handlers for the Task module.

@@ -49,7 +49,7 @@ func GetJob(id string, i interface{}) (interface{}, error) { // Query designed w
 	   SELECT j.data || jsonb_build_object('task_history', COALESCE(ts.task, '[]')) AS data
 	   FROM   jobs
 	   CROSS  JOIN LATERAL (
-		  SELECT jsonb_agg(t.data) AS task
+		  SELECT jsonb_agg(to_jsonb(t)) AS task
 		  FROM   jsonb_array_elements_text(jobs.data->'task_history') AS p(id)
 		  LEFT   JOIN tasks t ON t.id = p.id
 		  ) ts

@@ -1,5 +1,8 @@
 package main
 
+// GetDetails returns the details of the task.
+func (t *Task) GetDetails() interface{} { return t.Details }
+
 // GetLog reads the unread buffer and adds it to the task's log, then returns that log.
 func (t *Task) GetLog() []string {
 	if t.Details.Buffer != nil {
