@@ -2,7 +2,6 @@ package node
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -14,63 +13,51 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// NodeNew adds a new node using the specified plugin.
+// nodeNew adds a new node using the specified plugin.
 func nodeNew(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	var node types.Node
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	if err := json.Unmarshal(reqBody, &node); err != nil {
-		common.ErrorWriter(w, err)
+		common.ErrorWriterCustom(w, err, http.StatusBadRequest)
 		return
 	}
 
 	if _, ok := GetNode(node.Name); ok {
-		common.ErrorWriter(w, fmt.Errorf("Duplicate node: %v", node.Name))
+		common.ErrorWriterCustom(w, fmt.Errorf("Duplicate node: %v", node.Name), http.StatusConflict)
 		return
 	}
 
-	p, err := loadPlugin(node.Plugin)
+	plugin, err := loadPlugin(node.Plugin)
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
 
-	t, err := p.NewNode(reqBody)
+	n, err := plugin.NewNode(reqBody)
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
 
-	if err = storage.AddItem("nodes", t.GetID(), t.GetIDShort(), t); err != nil {
+	if err = storage.AddNode(n); err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
 
-	z, err := storage.GetItem("nodes", t.GetID(), t)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	j, err := json.MarshalIndent(z, "", "  ")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
+	w.Header().Add("Location", "/api/v1/node/"+n.GetID())
+	common.Write(w, n)
 
-	w.Header().Set("Location", "/api/v1/node/"+t.GetName())
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, string(j))
 }
 
-// NodeRun runs a command the specified node, POST /api/v1/node/{node}
+// nodeRun runs a command the specified node, POST /api/v1/node/{node}
 func nodeRun(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	n, ok := GetNode(vars["node"])
-	w.Header().Add("Content-Type", "application/json")
 	if !ok {
-		common.ErrorWriter(w, errors.New("404 not found"))
+		common.ErrorWriter404(w, vars["node"])
 		return
 	}
+
 	var s struct {
 		Cmd []string
 	}
@@ -83,14 +70,18 @@ func nodeRun(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter(w, fmt.Errorf("Missing command"))
 		return
 	}
-	b, _, err := n.Run(s.Cmd)
+
+	b, d, err := n.Run(s.Cmd)
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
+
 	z := new(struct {
-		Result []string
+		Result   []string `json:"result"`
+		ExitCode int      `json:"exit_code"`
 	})
+	e := <-d
 	c := []byte{}
 	l := []string{}
 	for _, bb := range b.Bytes() {
@@ -102,27 +93,20 @@ func nodeRun(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	z.Result = l
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(z)
+	z.ExitCode = e
+	common.Write(w, z)
 }
 
-// NodeGet returns a JSON representation of the specified node, GET /api/v1/node/{node}
+// nodeGet returns a JSON representation of the specified node, GET /api/v1/node/{node}
 func nodeGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	n, ok := GetNode(vars["node"])
 	if !ok {
-		common.ErrorWriter(w, errors.New("404 not found"))
+		common.ErrorWriter404(w, vars["node"])
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
 
-	j, err := json.MarshalIndent(n, "", "\t")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, string(j))
+	common.Write(w, n)
 
 }
 

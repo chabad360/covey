@@ -45,7 +45,7 @@ func loadHandlers(r *mux.Router) {
 }
 
 func loadConfig() {
-	node.LoadConfig()
+	// node.LoadConfig()
 	task.LoadConfig()
 	job.LoadConfig()
 }

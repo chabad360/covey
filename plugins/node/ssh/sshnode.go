@@ -8,6 +8,9 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// GetDetails returns the details of the node.
+func (n *Node) GetDetails() interface{} { return n.Details }
+
 // Run runs a command on the server.
 func (n *Node) Run(args []string) (*bytes.Buffer, chan int, error) {
 	var b bytes.Buffer

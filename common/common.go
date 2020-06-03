@@ -13,9 +13,26 @@ import (
 
 // ErrorWriter writes an error in the JSON format to the http.ResponseWriter.
 func ErrorWriter(w http.ResponseWriter, err error) {
+	ErrorWriterCustom(w, err, http.StatusInternalServerError)
+}
+
+// ErrorWriter404 writes an error in the JSON format to the with a 404 code.
+func ErrorWriter404(w http.ResponseWriter, name string) {
+	ErrorWriterCustom(w, fmt.Errorf("404 %v not found", name), http.StatusNotFound)
+}
+
+// ErrorWriterCustom writes an error in the JSON format to the http.ResponseWriter with a custom status code.
+func ErrorWriterCustom(w http.ResponseWriter, err error, code int) {
 	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusBadRequest)
+	w.WriteHeader(code)
 	fmt.Fprintf(w, "{'error':'%s'}", err)
+}
+
+// Write writes the interface as a JSON to the ResponseWriter.
+func Write(w http.ResponseWriter, i interface{}) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(i)
 }
 
 // Walk walks the route provided to it and lists all the routes and their methods.
@@ -36,8 +53,7 @@ func GenerateID(item interface{}) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
-	ida := sha256.Sum256(j)
-	id := ida[:]
-	ids := hex.EncodeToString(id)
+	id := sha256.Sum256(j)
+	ids := hex.EncodeToString(id[:])
 	return &ids, nil
 }

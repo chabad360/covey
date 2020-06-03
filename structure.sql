@@ -1,17 +1,19 @@
-create table nodes (
-    id text primary key,
-    id_short text unique,
-    data jsonb
+CREATE TABLE nodes (
+    id TEXT PRIMARY KEY NOT NULL,
+    id_short TEXT UNIQUE NOT NULL,
+    name TEXT UNIQUE NOT NULL,
+    plugin TEXT NOT NULL,
+    details JSONB
 );
 
-create table tasks (
-    id text primary key,
-    id_short text unique,
-    data jsonb
+CREATE TABLE tasks (
+    id TEXT PRIMARY KEY NOT NULL,
+    id_short TEXT UNIQUE NOT NULL,
+    data JSONB
 );
 
 create table jobs (
-    id text primary key,
-    id_short text unique,
-    data jsonb
+    id TEXT PRIMARY KEY NOT NULL,
+    id_short TEXT UNIQUE NOT NULL,
+    data JSONB
 );
