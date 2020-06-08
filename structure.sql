@@ -17,7 +17,7 @@ CREATE TABLE tasks (
     details JSONB NOT NULL
 );
 
-create table jobs (
+CREATE TABLE jobs (
     id TEXT PRIMARY KEY NOT NULL,
     id_short TEXT UNIQUE NOT NULL,
     name TEXT UNIQUE NOT NULL,
@@ -25,4 +25,11 @@ create table jobs (
     nodes JSONB NOT NULL,
     tasks JSONB NOT NULL,
     task_history JSONB
+);
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY NOT NULL,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
+
 );

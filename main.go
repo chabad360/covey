@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/chabad360/covey/authentication"
 	"github.com/chabad360/covey/job"
 	"github.com/chabad360/covey/node"
 	"github.com/chabad360/covey/storage"
@@ -40,6 +41,7 @@ func loadHandlers(r *mux.Router) {
 	apiRouter := r.PathPrefix("/api/v1").Subrouter()
 
 	RegisterHandlers(apiRouter)
+	authentication.RegisterHandlers(apiRouter.PathPrefix("/auth").Subrouter())
 	node.RegisterHandlers(apiRouter.PathPrefix("/node").Subrouter())
 	task.RegisterHandlers(apiRouter.PathPrefix("/task").Subrouter())
 	job.RegisterHandlers(apiRouter.PathPrefix("/job").Subrouter())
@@ -60,6 +62,7 @@ func main() {
 	loadHandlers(r)
 
 	r.Use(loggingMiddleware)
+	r.Use(authentication.AuthMiddleware)
 
 	loadConfig()
 
