@@ -39,6 +39,8 @@ func Write(w http.ResponseWriter, i interface{}) {
 // Walk walks the route provided to it and lists all the routes and their methods.
 // Warning: This will skip over any routes that don't have a method assigned to them.
 func Walk(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+	log.SetFlags(0)
+	defer log.SetFlags(log.LstdFlags)
 	path, err := route.GetPathTemplate()
 	methods, err := route.GetMethods()
 	if err == nil {

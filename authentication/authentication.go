@@ -1,17 +1,14 @@
 package authentication
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
-	"net/http"
-	"strings"
 	"time"
 
-	"github.com/chabad360/covey/common"
 	"github.com/dgrijalva/jwt-go/v4"
-	"github.com/gorilla/mux"
 )
+
+const key = "asdf"
 
 var (
 	random *rand.Rand = rand.New(
@@ -29,7 +26,9 @@ func randomString() string {
 }
 
 type claims struct {
-	UserID uint32 `json:"user_id"`
+	UserID        uint32          `json:"user_id"`
+	Type          string          `json:"type"`
+	AllowedClaims map[string]bool `json:"allowed_claims"`
 	jwt.StandardClaims
 }
 
@@ -38,112 +37,62 @@ type credentials struct {
 	Password string `json:"password"`
 }
 
-func createToken(userid uint32) (string, error) {
-	expirationTime := time.Now().Add(20 * time.Minute)
-	eTime := expirationTime.Unix()
-	jwtTime, err := jwt.ParseTime(eTime)
+func createToken(userid uint32, tokenType string, allowedClaims map[string]bool) (string, *time.Time, error) {
+	var expirationTime time.Time
+	if tokenType == "user" {
+		expirationTime = time.Now().Add(20 * time.Minute)
+	} else if tokenType == "api" {
+		expirationTime = time.Now().Add(time.Hour * 24 * 7 * 4)
+	}
+	jwtTime, err := jwt.ParseTime(expirationTime.Unix())
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	claim := &claims{
-		UserID: userid,
+		UserID:        userid,
+		Type:          tokenType,
+		AllowedClaims: allowedClaims,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: jwtTime,
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
-	tokenString, err := token.SignedString([]byte(crashKey))
-	if err != nil {
-		return "", err
+	var tokenString string
+	if tokenType == "user" {
+		tokenString, err = token.SignedString([]byte(crashKey))
+	} else if tokenType == "api" {
+		tokenString, err = token.SignedString([]byte(key))
 	}
 
-	return tokenString, nil
+	if err != nil {
+		return "", nil, err
+	}
+	return tokenString, &expirationTime, nil
 }
 
-func parseToken(tokenString string) (uint32, error) {
+func parseToken(tokenString string) (*claims, error) {
 	claim := &claims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, claim, func(token *jwt.Token) (interface{}, error) {
 		return []byte(crashKey), nil
 	})
+	if claim.Type == "api" {
+		token, err = jwt.ParseWithClaims(tokenString, claim, func(token *jwt.Token) (interface{}, error) {
+			return []byte(key), nil
+		})
+	}
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	if !token.Valid {
-		return 0, fmt.Errorf("Unauthorized")
+		return nil, fmt.Errorf("Unauthorized")
 	}
 
-	return claim.UserID, nil
-}
-
-func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/api/v1/auth/token" {
-			next.ServeHTTP(w, r)
-			return
-		}
-		var tokenString string
-
-		c, err := r.Cookie("token")
-		if err == nil {
-			tokenString = c.Value
-		} else {
-			if err != http.ErrNoCookie {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-		}
-
-		header := r.Header.Get("Authorization")
-		if header != "" {
-			splitToken := strings.Split(header, "Bearer ")
-			tokenString = splitToken[1]
-		}
-
-		if tokenString == "" {
-			common.ErrorWriterCustom(w, fmt.Errorf("Unauthorized"), http.StatusUnauthorized)
-			return
-		}
-
-		_, err = parseToken(tokenString)
-		if err != nil {
-			common.ErrorWriter(w, err)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func tokenGet(w http.ResponseWriter, r *http.Request) {
-	user := &credentials{}
-	var ok bool
-	user.Username, user.Password, ok = r.BasicAuth()
-	if !ok {
-		common.ErrorWriterCustom(w, fmt.Errorf("Unauthorized"), http.StatusUnauthorized)
-		return
+	if !claim.ExpiresAt.After(time.Now()) {
+		return nil, fmt.Errorf("Expired")
 	}
 
-	id, err := GetUser(*user)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-
-	token, err := createToken(id)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(struct{ Token string }{Token: token})
-}
-
-func RegisterHandlers(r *mux.Router) {
-	r.HandleFunc("/token", tokenGet).Methods("GET")
-
-	crashKey = randomString()
+	return claim, nil
 }

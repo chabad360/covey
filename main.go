@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/chabad360/covey/authentication"
+	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/job"
 	"github.com/chabad360/covey/node"
 	"github.com/chabad360/covey/storage"
@@ -30,7 +30,7 @@ func RegisterHandlers(r *mux.Router) {
 
 	r.HandleFunc("/version", GetVersion).Methods("GET")
 
-	err := r.Walk(walk)
+	err := r.Walk(common.Walk)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,13 +39,18 @@ func RegisterHandlers(r *mux.Router) {
 
 func loadHandlers(r *mux.Router) {
 	apiRouter := r.PathPrefix("/api/v1").Subrouter()
+	apiRouter.Use(authentication.AuthAPIMiddleware)
 
 	RegisterHandlers(apiRouter)
-	authentication.RegisterHandlers(apiRouter.PathPrefix("/auth").Subrouter())
+	authentication.RegisterAPIHandlers(apiRouter.PathPrefix("/auth").Subrouter())
 	node.RegisterHandlers(apiRouter.PathPrefix("/node").Subrouter())
 	task.RegisterHandlers(apiRouter.PathPrefix("/task").Subrouter())
 	job.RegisterHandlers(apiRouter.PathPrefix("/job").Subrouter())
-	ui.RegisterHandlers(r)
+
+	uiRouter := r.PathPrefix("/ui").Subrouter()
+	uiRouter.Use(authentication.AuthUserMiddleware)
+	ui.RegisterHandlers(uiRouter)
+	authentication.RegisterHandlers(uiRouter.PathPrefix("/auth").Subrouter())
 }
 
 func loadConfig() {
@@ -62,7 +67,6 @@ func main() {
 	loadHandlers(r)
 
 	r.Use(loggingMiddleware)
-	r.Use(authentication.AuthMiddleware)
 
 	loadConfig()
 
@@ -77,13 +81,4 @@ func loggingMiddleware(next http.Handler) http.Handler {
 		log.Println("API called", r.Method, r.RequestURI)
 		next.ServeHTTP(w, r)
 	})
-}
-
-func walk(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-	path, err := route.GetPathTemplate()
-	methods, err := route.GetMethods()
-	if err == nil {
-		fmt.Println("Route:", strings.Join(methods, ","), "\t", string(path))
-	}
-	return nil
 }
