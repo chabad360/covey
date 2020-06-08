@@ -30,14 +30,15 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 #### V0.3 Web Interface
 
 * [ ] Design and Implement the Web Interface
-* [ ] Implement Basic Authentication
-* [ ] Add Tests
+* [ ] Implement Basic Authentication (50% done)
+* [ ] Begin Adding Tests
 
 #### V0.4 Monitoring
 
 * [ ] Create Node Agent
 * [ ] Implement Plug-able Monitoring Interface
-
+* [ ] Refactor
+  
 ---
 
 ## State of the Project

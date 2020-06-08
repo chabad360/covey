@@ -1,3 +1,5 @@
+CREATE EXTENSION pgcrypto;
+
 CREATE TABLE nodes (
     id TEXT PRIMARY KEY NOT NULL,
     id_short TEXT UNIQUE NOT NULL,

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -41,7 +42,7 @@ func Walk(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 	path, err := route.GetPathTemplate()
 	methods, err := route.GetMethods()
 	if err == nil {
-		fmt.Println("Route:", strings.Join(methods, ","), "\t", string(path))
+		log.Println("Route:", strings.Join(methods, ","), "\t", string(path))
 	}
 	return nil
 }
