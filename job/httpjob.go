@@ -69,21 +69,15 @@ func jobRun(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// RegisterHandlers adds the handlers for the node module.
 func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Job module API handlers...")
 	r.Post("/new", jobNew)
 }
 
-// RegisterHandlers adds the mux handlers for the node module.
+// RegisterIndividualHandlers adds the handlers for the node module.
 func RegisterIndividualHandlers(r pure.IRouteGroup) {
-
 	j := r.Group("/:job")
 	j.Post("", jobRun)
 	j.Get("", jobGet)
-
-	// err := r.Walk(common.Walk)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println()
 }

@@ -38,11 +38,6 @@ func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 // AuthAPIMiddleware handles authentication for the API.
 func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// if r.URL.Path == "/api/v1/auth/token" {
-		// 	next(w, r)
-		// 	return
-		// }
-
 		var tokenString string
 		header := r.Header.Get("Authorization")
 		if header != "" {

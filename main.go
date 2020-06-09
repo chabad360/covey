@@ -19,7 +19,7 @@ const (
 )
 
 // GetVersion returns the current version of Covey
-func GetVersion(w http.ResponseWriter, r *http.Request) {
+func getVersion(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprintf(w, version)
 }
 
@@ -27,13 +27,7 @@ func GetVersion(w http.ResponseWriter, r *http.Request) {
 func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Core module API handlers...")
 
-	r.Get("/version", GetVersion)
-
-	// err := r.Walk(common.Walk)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println()
+	r.Get("/version", getVersion)
 }
 
 func loadHandlers(r *pure.Mux) {

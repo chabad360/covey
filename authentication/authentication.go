@@ -11,7 +11,7 @@ import (
 const key = "asdf" // TODO: Redesign API key system
 
 var (
-	random *rand.Rand = rand.New(
+	random = rand.New(
 		rand.NewSource(time.Now().UnixNano()))
 	crashKey string
 )
@@ -44,6 +44,7 @@ func createToken(userid string, tokenType string, allowedClaims map[string]bool)
 	} else if tokenType == "api" {
 		expirationTime = time.Now().Add(time.Hour * 24 * 7 * 4)
 	}
+
 	jwtTime, err := jwt.ParseTime(expirationTime.Unix())
 	if err != nil {
 		return "", nil, err

@@ -60,7 +60,8 @@ func (p *plugin) NewNode(nodeJSON []byte) (types.INode, error) {
 		return nil, err
 	}
 	// log.Println("Generated SSH keys")
-	if _, err := sshRun(client, fmt.Sprint("echo '", string(x.Details.PublicKey), "' | tee -a .ssh/authorized_keys")); err != nil {
+	if _, err := sshRun(client,
+		fmt.Sprint("echo '", string(x.Details.PublicKey), "' | tee -a .ssh/authorized_keys")); err != nil {
 		return nil, err
 	}
 	client.Close()
@@ -73,6 +74,7 @@ func (p *plugin) NewNode(nodeJSON []byte) (types.INode, error) {
 	return &x, nil
 }
 
+// LoadNode takes the node information and convertes it into a usable node.
 func (p *plugin) LoadNode(nodeJSON []byte) (types.INode, error) {
 	var n Node
 	if err := json.Unmarshal(nodeJSON, &n); err != nil {

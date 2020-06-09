@@ -22,7 +22,8 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, ok := GetNode(node.Name); ok {
-		common.ErrorWriterCustom(w, fmt.Errorf("Duplicate node: %v", node.Name), http.StatusConflict)
+		common.ErrorWriterCustom(w,
+			fmt.Errorf("Duplicate node: %v", node.Name), http.StatusConflict)
 		return
 	}
 
@@ -45,7 +46,6 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Location", "/api/v1/node/"+n.GetID())
 	common.Write(w, n)
-
 }
 
 // nodeRun runs a command the specified node, POST /api/v1/node/{node}
@@ -106,25 +106,18 @@ func nodeGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	common.Write(w, n)
-
 }
 
+// RegisterHandlers adds the handlers for the node module.
 func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Node module API handlers...")
 
 	r.Post("/add", nodeNew)
 }
 
-// RegisterIndividualHandlers adds the mux handlers for the node module.
+// RegisterIndividualHandlers adds the handlers for the node module.
 func RegisterIndividualHandlers(r pure.IRouteGroup) {
-
 	n := r.Group("/:node")
 	n.Post("", nodeRun)
 	n.Get("", nodeGet)
-
-	// err := r.Walk(common.Walk)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println()
 }

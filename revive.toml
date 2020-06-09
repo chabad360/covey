@@ -1,0 +1,72 @@
+# When set to false, ignores files with "GENERATED" header, similar to golint
+ignoreGeneratedHeader = true
+
+# Sets the default severity to "warning"
+severity = "warning"
+
+# Sets the default failure confidence. This means that linting errors
+# with less than 0.8 confidence will be ignored.
+confidence = 0.8
+
+# Sets the error code for failures with severity "error"
+errorCode = 0
+
+# Sets the error code for failures with severity "warning"
+warningCode = 0
+
+[rule.argument-limit]
+  arguments = [4]
+[rule.atomic]
+[rule.bare-return]
+[rule.blank-imports]
+[rule.bool-literal-in-expr]
+[rule.call-to-gc]
+[rule.cognitive-complexity]
+  arguments = [8]
+[rule.confusing-naming]
+[rule.confusing-results]
+[rule.context-as-argument]
+[rule.context-keys-type]
+[rule.cyclomatic]
+  arguments = [9]
+[rule.dot-imports]
+[rule.error-return]
+[rule.error-strings]
+[rule.error-naming]
+[rule.exported]
+[rule.if-return]
+[rule.increment-decrement]
+[rule.var-naming]
+[rule.var-declaration]
+[rule.package-comments]
+[rule.range]
+[rule.receiver-naming]
+[rule.time-naming]
+[rule.unexported-return]
+[rule.indent-error-flow]
+[rule.errorf]
+[rule.empty-block]
+[rule.superfluous-else]
+[rule.unused-parameter]
+[rule.unreachable-code]
+[rule.redefines-builtin-id]
+[rule.modifies-parameter]
+[rule.flag-parameter]
+[rule.unnecessary-stmt]
+[rule.struct-tag]
+[rule.modifies-value-receiver]
+[rule.constant-logical-expr]
+[rule.imports-blacklist]
+[rule.function-result-limit]
+  arguments = [3]
+[rule.max-public-structs]
+  arguments = [5]
+[rule.range-val-in-closure]
+[rule.range-val-address]
+[rule.waitgroup-by-value]
+[rule.empty-lines]
+[rule.line-length-limit]
+  arguments = [120]
+[rule.duplicated-imports]
+[rule.import-shadowing]
+[rule.string-of-int]

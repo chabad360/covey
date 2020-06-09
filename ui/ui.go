@@ -14,7 +14,7 @@ var (
 // baseTemplate = template.New("base")
 )
 
-func dashboard(w http.ResponseWriter, r *http.Request) {
+func dashboard(w http.ResponseWriter, _ *http.Request) {
 	t, err := template.New("base").Parse(templates.Base)
 	if err != nil {
 		common.ErrorWriter(w, err)
@@ -30,6 +30,7 @@ func dashboard(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// RegisterHandlers registers the handlers for the ui module.
 func RegisterHandlers(r pure.IRouteGroup) {
 	r.Get("/dashboard", dashboard)
 }

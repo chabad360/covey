@@ -8,6 +8,7 @@ import (
 	"github.com/chabad360/covey/task"
 )
 
+// Job contains the information for a given job
 type Job struct {
 	Name        string             `json:"name"`
 	ID          string             `json:"id"`
@@ -17,6 +18,7 @@ type Job struct {
 	TaskHistory []string           `json:"task_history,omitempty"`
 }
 
+// JobWithTasks is the same thing as a Job but with the task history enumerated.
 type JobWithTasks struct {
 	Job
 	TaskHistory []interface{} `json:"task_history,omitempty"`
@@ -39,10 +41,9 @@ func (j *Job) GetIDShort() string { x, _ := hex.DecodeString(j.ID); return hex.E
 
 // Run runs each task in succession on the specified nodes (concurrently).
 func (j *Job) Run() {
-	for z := range j.Tasks {
-		t := j.Tasks[z]
-		for node := range j.Nodes {
-			t.Node = j.Nodes[node]
+	for _, t := range j.Tasks {
+		for _, node := range j.Nodes {
+			t.Node = node
 			x, err := json.Marshal(t)
 			if err != nil {
 				log.Panic(err)
@@ -52,6 +53,7 @@ func (j *Job) Run() {
 			if err != nil {
 				log.Panic(err)
 			}
+
 			j.TaskHistory = append(j.TaskHistory, r.GetID())
 		}
 	}

@@ -34,12 +34,12 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Begin Adding Tests
 * [x] Switch away from mux (too slow...)
 * [x] Switch away from pgx (too much bloat)
+* [ ] Refactor
 
 #### V0.4 Monitoring
 
 * [ ] Create Node Agent
 * [ ] Implement Plug-able Monitoring Interface
-* [ ] Refactor
 * [ ] Fully Implement API
   
 ---

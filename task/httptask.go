@@ -47,22 +47,16 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// RegisterHandlers registers the handlers for the task module.
 func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Task module API handlers...")
 
 	r.Post("/new", taskNew)
 }
 
-// RegisterHandlers registers the mux handlers for the Task module.
+// RegisterIndividualHandlers registers the mux handlers for the Task module.
 func RegisterIndividualHandlers(r pure.IRouteGroup) {
-
 	t := r.Group("/:task")
 	t.Get("", taskGet)
 	t.Get("/log", taskGet)
-
-	// err := r.Walk(common.Walk)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println()
 }

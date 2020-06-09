@@ -9,7 +9,8 @@ import (
 func AddJob(j types.Job) error {
 	db := storage.GetDB()
 
-	_, err := db.Exec("INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history) VALUES($1, $2, $3, $4, $5, $6, $7);",
+	_, err := db.Exec(`INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history)
+		VALUES($1, $2, $3, $4, $5, $6, $7);`,
 		j.GetID(), j.GetIDShort(), j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory)
 	return err
 }
@@ -23,7 +24,8 @@ func UpdateJob(j types.Job) error {
 }
 
 // GetJobWithFullHistory returns a job with the tasks subsituted for their IDs.
-func GetJobWithFullHistory(id string) ([]byte, error) { // Query designed with the help of https://stackoverflow.com/questions/47275606
+// Query designed with the help of https://stackoverflow.com/questions/47275606
+func GetJobWithFullHistory(id string) ([]byte, error) {
 	db := storage.GetDB()
 	var b []byte
 	if err := db.QueryRow(`SELECT jsonb_build_object('id', j.id, 'name', j.name, 'cron', j.cron, 
