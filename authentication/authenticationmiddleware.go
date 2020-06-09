@@ -9,10 +9,10 @@ import (
 )
 
 // AuthUserMiddleware handles authentication for users.
-func AuthUserMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/ui/auth/login" || r.URL.Path == "/ui/login" {
-			next.ServeHTTP(w, r)
+func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/auth/login" || r.URL.Path == "/login" {
+			next(w, r)
 			return
 		}
 
@@ -31,17 +31,17 @@ func AuthUserMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
-	})
+		next(w, r)
+	}
 }
 
 // AuthAPIMiddleware handles authentication for the API.
-func AuthAPIMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/api/v1/auth/token" {
-			next.ServeHTTP(w, r)
-			return
-		}
+func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// if r.URL.Path == "/api/v1/auth/token" {
+		// 	next(w, r)
+		// 	return
+		// }
 
 		var tokenString string
 		header := r.Header.Get("Authorization")
@@ -67,6 +67,6 @@ func AuthAPIMiddleware(next http.Handler) http.Handler {
 		// }
 
 		r.Header.Add("X-User-ID", string(claim.UserID))
-		next.ServeHTTP(w, r)
-	})
+		next(w, r)
+	}
 }

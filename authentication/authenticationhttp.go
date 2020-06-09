@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/chabad360/covey/common"
-	"github.com/gorilla/mux"
+	"github.com/go-playground/pure/v5"
 )
 
 func tokenGet(w http.ResponseWriter, r *http.Request) {
@@ -63,9 +63,9 @@ func tokenRemove(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterHandlers registers the API handlers for user authentication.
-func RegisterHandlers(r *mux.Router) {
-	r.HandleFunc("/login", tokenGet).Methods("GET")
-	r.HandleFunc("/logout", tokenRemove).Methods("POST")
+func RegisterHandlers(r pure.IRouteGroup) {
+	r.Get("/login", tokenGet)
+	r.Post("/logout", tokenRemove)
 
 	crashKey = randomString()
 }

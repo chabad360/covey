@@ -7,7 +7,7 @@ import (
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/ui/templates"
-	"github.com/gorilla/mux"
+	"github.com/go-playground/pure/v5"
 )
 
 var (
@@ -30,7 +30,6 @@ func dashboard(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func RegisterHandlers(r *mux.Router) {
-	r.HandleFunc("/dashboard", dashboard)
-
+func RegisterHandlers(r pure.IRouteGroup) {
+	r.Get("/dashboard", dashboard)
 }

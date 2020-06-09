@@ -26,7 +26,7 @@ func randomString() string {
 }
 
 type claims struct {
-	UserID        uint32          `json:"user_id"`
+	UserID        string          `json:"user_id"`
 	Type          string          `json:"type"`
 	AllowedClaims map[string]bool `json:"allowed_claims"`
 	jwt.StandardClaims
@@ -37,7 +37,7 @@ type credentials struct {
 	Password string `json:"password"`
 }
 
-func createToken(userid uint32, tokenType string, allowedClaims map[string]bool) (string, *time.Time, error) {
+func createToken(userid string, tokenType string, allowedClaims map[string]bool) (string, *time.Time, error) {
 	var expirationTime time.Time
 	if tokenType == "user" {
 		expirationTime = time.Now().Add(20 * time.Minute)

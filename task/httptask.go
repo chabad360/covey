@@ -1,14 +1,14 @@
 package task
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/task/types"
-	"github.com/gorilla/mux"
+	"github.com/go-playground/pure/v5"
 )
 
 var (
@@ -30,34 +30,39 @@ func taskNew(w http.ResponseWriter, r *http.Request) {
 }
 
 func taskGet(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	t, ok := GetTask(vars["task"])
+	vars := pure.RequestVars(r)
+	t, ok := GetTask(vars.URLParam("task"))
 	if !ok {
-		common.ErrorWriter404(w, vars["task"])
+		common.ErrorWriter404(w, vars.URLParam("task"))
 		return
 	}
 
 	t.GetLog()
 	SaveTask(t)
 
-	if p, _ := mux.CurrentRoute(r).GetPathTemplate(); p == "/api/v1/task/{task}/log" {
+	if p := strings.Split(r.URL.Path, "/"); len(p) == 6 {
 		common.Write(w, t.GetLog())
 	} else {
 		common.Write(w, t)
 	}
 }
 
-// RegisterHandlers registers the mux handlers for the Task module.
-func RegisterHandlers(r *mux.Router) {
+func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Task module API handlers...")
 
-	r.HandleFunc("/new", taskNew).Methods("POST")
-	r.HandleFunc("/{task}", taskGet).Methods("GET")
-	r.HandleFunc("/{task}/log", taskGet).Methods("GET")
+	r.Post("/new", taskNew)
+}
 
-	err := r.Walk(common.Walk)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println()
+// RegisterHandlers registers the mux handlers for the Task module.
+func RegisterIndividualHandlers(r pure.IRouteGroup) {
+
+	t := r.Group("/:task")
+	t.Get("", taskGet)
+	t.Get("/log", taskGet)
+
+	// err := r.Walk(common.Walk)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println()
 }

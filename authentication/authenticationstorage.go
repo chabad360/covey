@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/chabad360/covey/storage"
 )
@@ -22,13 +23,13 @@ func UpdateUser(u credentials) error {
 }
 
 // GetUser returns a User ID from the database.
-func GetUser(u credentials) (uint32, error) {
+func GetUser(u credentials) (string, error) {
 	db := storage.GetPool()
-	var id uint32
+	var id int
 	if err := db.QueryRow(context.Background(), `SELECT id FROM users 
 		WHERE username = $1 AND (password_hash = crypt($2, password_hash)) = 't';`,
 		u.Username, u.Password).Scan(&id); err != nil {
-		return 0, err
+		return "", err
 	}
-	return id, nil
+	return strconv.Itoa(id), nil
 }

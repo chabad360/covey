@@ -5,11 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"strings"
-
-	"github.com/gorilla/mux"
 )
 
 // ErrorWriter writes an error in the JSON format to the http.ResponseWriter.
@@ -38,16 +34,16 @@ func Write(w http.ResponseWriter, i interface{}) {
 
 // Walk walks the route provided to it and lists all the routes and their methods.
 // Warning: This will skip over any routes that don't have a method assigned to them.
-func Walk(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-	log.SetFlags(0)
-	defer log.SetFlags(log.LstdFlags)
-	path, err := route.GetPathTemplate()
-	methods, err := route.GetMethods()
-	if err == nil {
-		log.Println("Route:", strings.Join(methods, ","), "\t", string(path))
-	}
-	return nil
-}
+// func Walk(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+// 	log.SetFlags(0)
+// 	defer log.SetFlags(log.LstdFlags)
+// 	path, err := route.GetPathTemplate()
+// 	methods, err := route.GetMethods()
+// 	if err == nil {
+// 		log.Println("Route:", strings.Join(methods, ","), "\t", string(path))
+// 	}
+// 	return nil
+// }
 
 // GenerateID takes a object and converts it to text and then returns a sha256 hash of the object.
 // Warning: This is not guaranteed to be unique, please ensure that your object includes a field that is unique (i.e. time.Now).

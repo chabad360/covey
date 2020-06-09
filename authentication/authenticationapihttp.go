@@ -2,21 +2,15 @@ package authentication
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/chabad360/covey/common"
-	"github.com/gorilla/mux"
+	"github.com/go-playground/pure/v5"
 )
 
 func tokenGetAPI(w http.ResponseWriter, r *http.Request) {
-	ids := r.Header.Get("X-User-ID")
-	id, err := strconv.Atoi(ids)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
+	id := r.Header.Get("X-User-ID")
 
-	token, eTime, err := createToken(uint32(id), "api", nil)
+	token, eTime, err := createToken(id, "api", nil)
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
@@ -29,6 +23,6 @@ func tokenGetAPI(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterAPIHandlers registers the API handlers for the authentication api.
-func RegisterAPIHandlers(r *mux.Router) {
-	r.HandleFunc("/token", tokenGetAPI).Methods("GET")
+func RegisterAPIHandlers(r pure.IRouteGroup) {
+	r.Get("/token", tokenGetAPI)
 }

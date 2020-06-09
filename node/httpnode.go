@@ -9,7 +9,7 @@ import (
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/node/types"
-	"github.com/gorilla/mux"
+	"github.com/go-playground/pure/v5"
 )
 
 // nodeNew adds a new node using the specified plugin.
@@ -50,10 +50,10 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 
 // nodeRun runs a command the specified node, POST /api/v1/node/{node}
 func nodeRun(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	n, ok := GetNode(vars["node"])
+	vars := pure.RequestVars(r)
+	n, ok := GetNode(vars.URLParam("node"))
 	if !ok {
-		common.ErrorWriter404(w, vars["node"])
+		common.ErrorWriter404(w, vars.URLParam("node"))
 		return
 	}
 
@@ -98,10 +98,10 @@ func nodeRun(w http.ResponseWriter, r *http.Request) {
 
 // nodeGet returns a JSON representation of the specified node, GET /api/v1/node/{node}
 func nodeGet(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	n, ok := GetNode(vars["node"])
+	vars := pure.RequestVars(r)
+	n, ok := GetNode(vars.URLParam("node"))
 	if !ok {
-		common.ErrorWriter404(w, vars["node"])
+		common.ErrorWriter404(w, vars.URLParam("node"))
 		return
 	}
 
@@ -109,17 +109,22 @@ func nodeGet(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// RegisterHandlers adds the mux handlers for the node module.
-func RegisterHandlers(r *mux.Router) {
+func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Node module API handlers...")
 
-	r.HandleFunc("/new", nodeNew).Methods("POST")
-	r.HandleFunc("/{node}", nodeRun).Methods("POST")
-	r.HandleFunc("/{node}", nodeGet).Methods("GET")
+	r.Post("/add", nodeNew)
+}
 
-	err := r.Walk(common.Walk)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println()
+// RegisterIndividualHandlers adds the mux handlers for the node module.
+func RegisterIndividualHandlers(r pure.IRouteGroup) {
+
+	n := r.Group("/:node")
+	n.Post("", nodeRun)
+	n.Get("", nodeGet)
+
+	// err := r.Walk(common.Walk)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println()
 }

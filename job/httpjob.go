@@ -9,7 +9,7 @@ import (
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/job/types"
-	"github.com/gorilla/mux"
+	"github.com/go-playground/pure/v5"
 )
 
 func jobNew(w http.ResponseWriter, r *http.Request) {
@@ -46,20 +46,20 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 }
 
 func jobGet(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	job, ok := GetJobWithTasks(vars["job"])
+	vars := pure.RequestVars(r)
+	job, ok := GetJobWithTasks(vars.URLParam("job"))
 	if !ok {
-		common.ErrorWriter404(w, vars["job"])
+		common.ErrorWriter404(w, vars.URLParam("job"))
 		return
 	}
 	common.Write(w, job)
 }
 
 func jobRun(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	j, ok := GetJob(vars["job"])
+	vars := pure.RequestVars(r)
+	j, ok := GetJob(vars.URLParam("job"))
 	if !ok {
-		common.ErrorWriter404(w, vars["job"])
+		common.ErrorWriter404(w, vars.URLParam("job"))
 		return
 	}
 
@@ -69,16 +69,21 @@ func jobRun(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// RegisterHandlers adds the mux handlers for the node module.
-func RegisterHandlers(r *mux.Router) {
-	log.Println("Registering types.Job module API handlers...")
-	r.HandleFunc("/new", jobNew).Methods("POST")
-	r.HandleFunc("/{job}", jobRun).Methods("POST")
-	r.HandleFunc("/{job}", jobGet).Methods("GET")
+func RegisterHandlers(r pure.IRouteGroup) {
+	log.Println("Registering Job module API handlers...")
+	r.Post("/new", jobNew)
+}
 
-	err := r.Walk(common.Walk)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println()
+// RegisterHandlers adds the mux handlers for the node module.
+func RegisterIndividualHandlers(r pure.IRouteGroup) {
+
+	j := r.Group("/:job")
+	j.Post("", jobRun)
+	j.Get("", jobGet)
+
+	// err := r.Walk(common.Walk)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println()
 }
