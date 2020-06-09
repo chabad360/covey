@@ -1,34 +1,32 @@
 package job
 
 import (
-	"context"
-
 	"github.com/chabad360/covey/job/types"
 	"github.com/chabad360/covey/storage"
 )
 
 // AddJob adds a Job to the database.
 func AddJob(j types.Job) error {
-	db := storage.GetPool()
+	db := storage.GetDB()
 
-	_, err := db.Exec(context.Background(), "INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history) VALUES($1, $2, $3, $4, $5, $6, $7);",
+	_, err := db.Exec("INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history) VALUES($1, $2, $3, $4, $5, $6, $7);",
 		j.GetID(), j.GetIDShort(), j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory)
 	return err
 }
 
 // UpdateJob updates a Job in the database.
 func UpdateJob(j types.Job) error {
-	db := storage.GetPool()
-	_, err := db.Exec(context.Background(), "UPDATE jobs SET name = $1, cron = $2, nodes = $3, tasks = $4, task_history = $5 WHERE id = $6;",
+	db := storage.GetDB()
+	_, err := db.Exec("UPDATE jobs SET name = $1, cron = $2, nodes = $3, tasks = $4, task_history = $5 WHERE id = $6;",
 		j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory, j.GetID())
 	return err
 }
 
 // GetJobWithFullHistory returns a job with the tasks subsituted for their IDs.
 func GetJobWithFullHistory(id string) ([]byte, error) { // Query designed with the help of https://stackoverflow.com/questions/47275606
-	db := storage.GetPool()
+	db := storage.GetDB()
 	var b []byte
-	if err := db.QueryRow(context.Background(), `SELECT jsonb_build_object('id', j.id, 'name', j.name, 'cron', j.cron, 
+	if err := db.QueryRow(`SELECT jsonb_build_object('id', j.id, 'name', j.name, 'cron', j.cron, 
 			'nodes', j.nodes, 'tasks', j.tasks, 'task_history', j1.task_history)
 		FROM   jobs j
 			LEFT   JOIN LATERAL (
