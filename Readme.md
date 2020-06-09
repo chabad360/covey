@@ -30,8 +30,9 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 #### V0.3 Web Interface
 
 * [ ] Design and Implement the Web Interface
-* [ ] Implement Basic Authentication (50% done)
+* [x] Implement Basic Authentication
 * [ ] Begin Adding Tests
+* [ ] Switch away from mux (too slow...)
 
 #### V0.4 Monitoring
 

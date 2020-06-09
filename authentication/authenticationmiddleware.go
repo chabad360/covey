@@ -11,7 +11,7 @@ import (
 // AuthUserMiddleware handles authentication for users.
 func AuthUserMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/ui/auth/login" {
+		if r.URL.Path == "/ui/auth/login" || r.URL.Path == "/ui/login" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -19,7 +19,7 @@ func AuthUserMiddleware(next http.Handler) http.Handler {
 		c, err := r.Cookie("token")
 		if err != nil {
 			if err == http.ErrNoCookie {
-				common.ErrorWriterCustom(w, fmt.Errorf("Unauthorized"), http.StatusUnauthorized)
+				http.Redirect(w, r, "/ui/login?url="+r.URL.Path, http.StatusFound)
 				return
 			}
 			common.ErrorWriter(w, err)
@@ -55,7 +55,7 @@ func AuthAPIMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		_, err := parseToken(tokenString)
+		claim, err := parseToken(tokenString)
 		if err != nil {
 			common.ErrorWriter(w, err)
 			return
@@ -66,6 +66,7 @@ func AuthAPIMiddleware(next http.Handler) http.Handler {
 		// 	return
 		// }
 
+		r.Header.Add("X-User-ID", string(claim.UserID))
 		next.ServeHTTP(w, r)
 	})
 }

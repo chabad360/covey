@@ -8,7 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 )
 
-const key = "asdf"
+const key = "asdf" // TODO: Redesign API key system
 
 var (
 	random *rand.Rand = rand.New(
