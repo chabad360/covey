@@ -32,7 +32,7 @@ func GetJobWithFullHistory(id string) ([]byte, error) { // Query designed with t
 			'nodes', j.nodes, 'tasks', j.tasks, 'task_history', j1.task_history)
 		FROM   jobs j
 			LEFT   JOIN LATERAL (
-			SELECT jsonb_agg(to_jsonb(t)) AS task_history
+			SELECT jsonb_agg(to_jsonb(t) - 'id_short') AS task_history
 			FROM   jsonb_array_elements_text(j.task_history) AS p(id)
 			LEFT   JOIN tasks t ON t.id = p.id
 			GROUP  BY j.id

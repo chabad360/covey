@@ -32,13 +32,14 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Design and Implement the Web Interface
 * [x] Implement Basic Authentication
 * [ ] Begin Adding Tests
-* [ ] Switch away from mux (too slow...)
+* [x] Switch away from mux (too slow...)
 
 #### V0.4 Monitoring
 
 * [ ] Create Node Agent
 * [ ] Implement Plug-able Monitoring Interface
 * [ ] Refactor
+* [ ] Fully Implement API
   
 ---
 

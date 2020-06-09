@@ -60,21 +60,21 @@ func loadHandlers(r *pure.Mux) {
 	job.RegisterIndividualHandlers(apiRouter.Group("/job"))
 }
 
-func loadConfig() {
+func initialize() {
+	storage.Init()
+
 	// node.LoadConfig()
 	// task.LoadConfig()
 	job.Init()
 }
 
 func main() {
-	storage.Init()
-
 	log.Printf("Starting up Covey %s", version)
 
 	r := pure.New()
 	loadHandlers(r)
 
-	loadConfig()
+	initialize()
 
 	fmt.Println()
 	log.Println("Ready to serve!")
