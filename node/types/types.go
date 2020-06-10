@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 	"encoding/hex"
+	"fmt"
 )
 
 // NodePlugin defines what a node plugin should look like
@@ -54,3 +55,11 @@ func (n *Node) GetIDShort() string { x, _ := hex.DecodeString(n.ID); return hex.
 
 // GetPlugin returns the plugin of the node.
 func (n *Node) GetPlugin() string { return n.Plugin }
+
+// GetDetails returns the details of the node.
+func (n *Node) GetDetails() interface{} { return n.Details }
+
+// Run is a stub implementation of the Run method.
+func (n *Node) Run(_ []string) (*bytes.Buffer, chan int, error) {
+	return nil, nil, fmt.Errorf("not implemented")
+}

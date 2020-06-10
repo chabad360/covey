@@ -73,7 +73,7 @@ func GetTask(identifier string) (types.ITask, bool) {
 		return nil, false
 	}
 	var x types.Task
-	if err := json.Unmarshal(*t, &x); err != nil {
+	if err := json.Unmarshal(t, &x); err != nil {
 		return nil, false
 	}
 	return &x, true

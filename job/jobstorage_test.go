@@ -42,7 +42,8 @@ func TestAddJob(t *testing.T) {
 		testname := fmt.Sprintf("%s", tt.id)
 		t.Run(testname, func(t *testing.T) {
 			var got []byte
-			if db.QueryRow(context.Background(), "SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = $1;", tt.id).Scan(&got); string(got) != tt.want {
+			if db.QueryRow(context.Background(), "SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = $1;",
+				tt.id).Scan(&got); string(got) != tt.want {
 				t.Errorf("AddJob() = %v, want %v, error: %v", string(got), tt.want, testError)
 			}
 		})
