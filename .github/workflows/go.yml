@@ -35,15 +35,16 @@ jobs:
       run: go build -trimpath -v github.com/chabad360/covey
     
     - name: Build SSH Plugin
-      run: go build -trimpath -buildmode=plugin -o plugins/node/ssh.so github.com/chabad360/covey/plugins/node/ssh  
+      run: go build -trimpath -v -buildmode=plugin -o plugins/node/ssh.so github.com/chabad360/covey/plugins/node/ssh  
 
     - name: Build Shell PLugin
-      run: go build -trimpath -buildmode=plugin -o plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
+      run: go build -trimpath -v -buildmode=plugin -o plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
 
     - name: Test
       run: go test -v -coverprofile=coverage.txt -covermode count ./...
     
     - name: Upload Coverage to Codacy
+      continue-on-error: true
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: |
