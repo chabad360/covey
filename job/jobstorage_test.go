@@ -75,18 +75,7 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
 
-	db.Exec(`CREATE TABLE tasks (
-		id TEXT PRIMARY KEY NOT NULL,
-		id_short TEXT UNIQUE NOT NULL,
-		plugin TEXT NOT NULL,
-		state INT NOT NULL,
-		node TEXT NOT NULL,
-		time TEXT,
-		log JSONB,
-		details JSONB NOT NULL
-	);
-	
-	CREATE TABLE jobs (
+	db.Exec(`CREATE TABLE jobs (
 		id TEXT PRIMARY KEY NOT NULL,
 		id_short TEXT UNIQUE NOT NULL,
 		name TEXT UNIQUE NOT NULL,
