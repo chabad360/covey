@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task/types"
 	"github.com/chabad360/covey/test"
 )
@@ -59,12 +60,6 @@ func TestUpdateTask(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	db.Exec(context.Background(), `INSERT INTO tasks(id, id_short, plugin, state, node, time, log, details) 
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
-		task.GetID(), task.GetIDShort(), task.GetPlugin(), task.GetState(), task.GetNode(),
-		func() string { t, _ := task.GetTime().MarshalText(); return string(t) }(),
-		task.GetLog(), task.GetDetails())
-
 	tu := task
 	tu.Log = []string{"hello", "world"}
 	testError := updateTask(tu)
@@ -93,12 +88,6 @@ func TestGetTaskJSON(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	db.Exec(context.Background(), `INSERT INTO tasks(id, id_short, plugin, state, node, time, log, details) 
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
-		task.GetID(), task.GetIDShort(), task.GetPlugin(), task.GetState(), task.GetNode(),
-		func() string { t, _ := task.GetTime().MarshalText(); return string(t) }(),
-		task.GetLog(), task.GetDetails())
-
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt.id)
 		t.Run(testname, func(t *testing.T) {
@@ -112,9 +101,16 @@ func TestGetTaskJSON(t *testing.T) {
 func TestMain(m *testing.M) {
 	pool, resource, pdb, err := test.Boilerplate()
 	db = pdb
+	storage.DB = pdb
 	if err != nil {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}
+
+	db.Exec(context.Background(), `INSERT INTO tasks(id, id_short, plugin, state, node, time, log, details) 
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
+		task.GetID(), task.GetIDShort(), task.GetPlugin(), task.GetState(), task.GetNode(),
+		func() string { t, _ := task.GetTime().MarshalText(); return string(t) }(),
+		task.GetLog(), task.GetDetails())
 
 	code := m.Run()
 

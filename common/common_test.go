@@ -3,8 +3,9 @@ package common
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
+
+	"github.com/chabad360/covey/test"
 )
 
 func TestGenerateID(t *testing.T) {
@@ -14,11 +15,11 @@ func TestGenerateID(t *testing.T) {
 }
 
 func TestErrorWriter(t *testing.T) {
-	req, err := http.NewRequest("GET", "/test", nil)
+	rr, req, err := test.HTTPBoilerplate("GET", "/test", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	rr := httptest.NewRecorder()
+
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ErrorWriter(w, fmt.Errorf("test"))
 	})
@@ -34,11 +35,11 @@ func TestErrorWriter(t *testing.T) {
 }
 
 func TestErrorWriter404(t *testing.T) {
-	req, err := http.NewRequest("GET", "/test", nil)
+	rr, req, err := test.HTTPBoilerplate("GET", "/test", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	rr := httptest.NewRecorder()
+
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ErrorWriter404(w, "test")
 	})
@@ -54,11 +55,11 @@ func TestErrorWriter404(t *testing.T) {
 }
 
 func TestErrorWriterCustom(t *testing.T) {
-	req, err := http.NewRequest("GET", "/test", nil)
+	rr, req, err := test.HTTPBoilerplate("GET", "/test", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	rr := httptest.NewRecorder()
+
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ErrorWriterCustom(w, fmt.Errorf("test"), http.StatusUnauthorized)
 	})
@@ -73,11 +74,11 @@ func TestErrorWriterCustom(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	req, err := http.NewRequest("GET", "/test", nil)
+	rr, req, err := test.HTTPBoilerplate("GET", "/test", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	rr := httptest.NewRecorder()
+
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		Write(w, struct {
 			Test string `json:"test"`
