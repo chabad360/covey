@@ -1,12 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/node/types"
+	json "github.com/json-iterator/go"
 	"golang.org/x/crypto/ssh"
 )
 

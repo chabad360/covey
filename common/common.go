@@ -3,9 +3,10 @@ package common
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"net/http"
+
+	json "github.com/json-iterator/go"
 )
 
 // ErrorWriter writes an error in the JSON format to the http.ResponseWriter.

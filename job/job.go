@@ -2,11 +2,11 @@ package job
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 
 	"github.com/chabad360/covey/job/types"
 	"github.com/chabad360/covey/storage"
+	json "github.com/json-iterator/go"
 	"github.com/robfig/cron/v3"
 )
 

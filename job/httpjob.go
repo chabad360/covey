@@ -1,7 +1,6 @@
 package job
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,6 +9,7 @@ import (
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/job/types"
 	"github.com/go-playground/pure/v5"
+	json "github.com/json-iterator/go"
 )
 
 func jobNew(w http.ResponseWriter, r *http.Request) {

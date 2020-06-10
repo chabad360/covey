@@ -14,6 +14,7 @@ var (
 // Init initializes the database connection.
 func Init() {
 	var err error
+	// TODO: provide a method for configuration
 	db, err = pgxpool.Connect(context.Background(), "user=postgres host=127.0.0.1 port=5432 dbname=covey")
 	if err != nil {
 		log.Fatal(err)

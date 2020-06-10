@@ -1,10 +1,11 @@
 package task
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"plugin"
+
+	json "github.com/json-iterator/go"
 
 	"github.com/chabad360/covey/task/types"
 )

@@ -5,7 +5,7 @@ import (
 	"log"
 	"plugin"
 
-	"encoding/json"
+	json "github.com/json-iterator/go"
 
 	"github.com/chabad360/covey/node/types"
 	"github.com/chabad360/covey/storage"

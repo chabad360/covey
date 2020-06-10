@@ -2,10 +2,10 @@ package types
 
 import (
 	"encoding/hex"
-	"encoding/json"
 	"log"
 
 	"github.com/chabad360/covey/task"
+	json "github.com/json-iterator/go"
 )
 
 // Job contains the information for a given job

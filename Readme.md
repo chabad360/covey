@@ -42,6 +42,12 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Fully Implement API
 * [ ] Add and Refactor Tests (Aim for 80% Coverage)
 
+#### V0.5 Beta
+
+* [ ] Provide Configuration Methods
+* [ ] Provide Build Artifacts
+* [ ] Fix Some Issues With the Plugin System
+
 ---
 
 ## State of the Project

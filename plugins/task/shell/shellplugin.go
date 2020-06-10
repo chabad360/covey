@@ -1,12 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/task/types"
+	json "github.com/json-iterator/go"
 )
 
 // NewTask creates a new task.
