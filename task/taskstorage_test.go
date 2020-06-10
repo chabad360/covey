@@ -41,7 +41,7 @@ func TestAddTask(t *testing.T) {
 			var got []byte
 			if db.QueryRow(context.Background(), "SELECT to_jsonb(tasks) - 'id_short' FROM tasks WHERE id = $1;",
 				tt.id).Scan(&got); string(got) != tt.want {
-				t.Errorf("AddJob() = %v, want %v, error: %v", string(got), tt.want, testError)
+				t.Errorf("addTask() = %v, want %v, error: %v", string(got), tt.want, testError)
 			}
 		})
 	}

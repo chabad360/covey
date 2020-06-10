@@ -25,7 +25,8 @@ func addTask(task types.ITask) error {
 func getTaskJSON(id string) ([]byte, error) {
 	refreshDB()
 	var j []byte
-	if err := db.QueryRow(context.Background(), "SELECT to_jsonb(tasks) - 'id_short' FROM tasks WHERE id = $1 OR id_short = $1;",
+	if err := db.QueryRow(context.Background(),
+		"SELECT to_jsonb(tasks) - 'id_short' FROM tasks WHERE id = $1 OR id_short = $1;",
 		id).Scan(&j); err != nil {
 		return nil, err
 	}
