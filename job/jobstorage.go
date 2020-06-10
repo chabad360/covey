@@ -1,29 +1,27 @@
 package job
 
 import (
-	"github.com/chabad360/covey/common"
+	"context"
+
 	"github.com/chabad360/covey/job/types"
 	"github.com/chabad360/covey/storage"
 )
 
-var db = storage.GetDB()
+var db = storage.GetPool()
 
 // AddJob adds a Job to the database.
 func AddJob(j types.Job) error {
 	refreshDB()
-	_, err := db.Exec(`INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history)
-		VALUES($1, $2, $3, $4, $5, $6, $7);`,
-		j.GetID(), j.GetIDShort(), j.Name, j.Cron,
-		common.UnsafeMarshal(j.Nodes), common.UnsafeMarshal(j.Tasks), common.UnsafeMarshal(j.TaskHistory))
+	_, err := db.Exec(context.Background(), "INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history) VALUES($1, $2, $3, $4, $5, $6, $7);",
+		j.GetID(), j.GetIDShort(), j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory)
 	return err
 }
 
 // UpdateJob updates a Job in the database.
 func UpdateJob(j types.Job) error {
 	refreshDB()
-	_, err := db.Exec("UPDATE jobs SET name = $1, cron = $2, nodes = $3, tasks = $4, task_history = $5 WHERE id = $6;",
-		j.Name, j.Cron,
-		common.UnsafeMarshal(j.Nodes), common.UnsafeMarshal(j.Tasks), common.UnsafeMarshal(j.TaskHistory), j.GetID())
+	_, err := db.Exec(context.Background(), "UPDATE jobs SET name = $1, cron = $2, nodes = $3, tasks = $4, task_history = $5 WHERE id = $6;",
+		j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory, j.GetID())
 	return err
 }
 
@@ -32,7 +30,7 @@ func UpdateJob(j types.Job) error {
 func GetJobWithFullHistory(id string) ([]byte, error) {
 	refreshDB()
 	var b []byte
-	if err := db.QueryRow(`SELECT jsonb_build_object('id', j.id, 'name', j.name, 'cron', j.cron, 
+	if err := db.QueryRow(context.Background(), `SELECT jsonb_build_object('id', j.id, 'name', j.name, 'cron', j.cron, 
 			'nodes', j.nodes, 'tasks', j.tasks, 'task_history', j1.task_history)
 		FROM   jobs j
 			LEFT   JOIN LATERAL (
@@ -49,6 +47,6 @@ func GetJobWithFullHistory(id string) ([]byte, error) {
 
 func refreshDB() {
 	if db == nil {
-		db = storage.GetDB()
+		db = storage.GetPool()
 	}
 }

@@ -33,7 +33,6 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [x] Implement Basic Authentication
 * [ ] Begin Adding Tests
 * [x] Switch away from mux (too slow...)
-* [x] Switch away from pgx (too much bloat)
 * [x] Refactor
 
 #### V0.4 Monitoring

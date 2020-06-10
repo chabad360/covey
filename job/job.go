@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 
@@ -18,8 +19,8 @@ var (
 
 // Init loads up the the jobs and starts the cronTab.
 func Init() {
-	db := storage.GetDB()
-	q, err := db.Query("SELECT id, cron FROM jobs WHERE cron != '';")
+	db := storage.GetPool()
+	q, err := db.Query(context.Background(), "SELECT id, cron FROM jobs WHERE cron != '';")
 	if err != nil {
 		log.Panic(err)
 	}
