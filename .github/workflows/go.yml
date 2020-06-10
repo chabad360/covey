@@ -41,10 +41,10 @@ jobs:
       run: go build -trimpath -v -buildmode=plugin -o plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
 
     - name: Test
+      continue-on-error: true
       run: go test -v -coverprofile=coverage.txt -covermode count ./...
     
     - name: Upload Coverage to Codacy
-      continue-on-error: true
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: |
