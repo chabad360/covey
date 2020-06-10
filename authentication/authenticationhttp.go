@@ -14,7 +14,7 @@ func tokenGet(w http.ResponseWriter, r *http.Request) {
 	var ok bool
 	user.Username, user.Password, ok = r.BasicAuth()
 	if !ok {
-		common.ErrorWriterCustom(w, fmt.Errorf("Unauthorized"), http.StatusUnauthorized)
+		common.ErrorWriterCustom(w, fmt.Errorf("unauthorized"), http.StatusUnauthorized)
 		return
 	}
 

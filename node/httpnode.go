@@ -23,7 +23,7 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 
 	if _, ok := GetNode(node.Name); ok {
 		common.ErrorWriterCustom(w,
-			fmt.Errorf("Duplicate node: %v", node.Name), http.StatusConflict)
+			fmt.Errorf("duplicate node: %v", node.Name), http.StatusConflict)
 		return
 	}
 
@@ -66,7 +66,7 @@ func nodeRun(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(s.Cmd) == 0 {
-		common.ErrorWriter(w, fmt.Errorf("Missing command"))
+		common.ErrorWriter(w, fmt.Errorf("missing command"))
 		return
 	}
 

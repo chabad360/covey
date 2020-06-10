@@ -16,12 +16,12 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *pgxpool.Pool, error
 	var db *pgxpool.Pool
 	pool, err := dockertest.NewPool("")
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("Could not connect to docker: %s", err)
+		return nil, nil, nil, fmt.Errorf("could not connect to docker: %s", err)
 	}
 
 	resource, err := pool.Run("postgres", "9.6", []string{"POSTGRES_PASSWORD=secret", "POSTGRES_DB=covey"})
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("Could not start resource: %s", err)
+		return nil, nil, nil, fmt.Errorf("could not start resource: %s", err)
 	}
 
 	if err = pool.Retry(func() error {
@@ -34,7 +34,7 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *pgxpool.Pool, error
 		}
 		return nil
 	}); err != nil {
-		return nil, nil, nil, fmt.Errorf("Could not connect to docker: %s", err)
+		return nil, nil, nil, fmt.Errorf("could not connect to docker: %s", err)
 	}
 
 	db.Exec(context.Background(), `

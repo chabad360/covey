@@ -46,7 +46,7 @@ func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		if tokenString == "" {
-			common.ErrorWriterCustom(w, fmt.Errorf("Unauthorized"), http.StatusUnauthorized)
+			common.ErrorWriterCustom(w, fmt.Errorf("unauthorized"), http.StatusUnauthorized)
 			return
 		}
 

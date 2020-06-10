@@ -16,7 +16,7 @@ func (p *plugin) NewTask(taskJSON []byte) (types.ITask, error) {
 		return nil, err
 	}
 	if t.Details.Command == nil {
-		return nil, fmt.Errorf("Missing command")
+		return nil, fmt.Errorf("missing command")
 	}
 
 	t.Details.ExitStatus = 256

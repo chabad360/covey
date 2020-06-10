@@ -88,11 +88,11 @@ func parseToken(tokenString string) (*claims, error) {
 		return nil, err
 	}
 	if !token.Valid {
-		return nil, fmt.Errorf("Unauthorized")
+		return nil, fmt.Errorf("unauthorized")
 	}
 
 	if !claim.ExpiresAt.After(time.Now()) {
-		return nil, fmt.Errorf("Expired")
+		return nil, fmt.Errorf("expired")
 	}
 
 	return claim, nil

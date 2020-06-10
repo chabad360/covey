@@ -22,7 +22,7 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, ok := GetJob(job.Name); ok {
-		common.ErrorWriterCustom(w, fmt.Errorf("Duplicate job: %v", job.Name), http.StatusBadRequest)
+		common.ErrorWriterCustom(w, fmt.Errorf("duplicate job: %v", job.Name), http.StatusBadRequest)
 		return
 	}
 
