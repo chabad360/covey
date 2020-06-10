@@ -10,16 +10,20 @@ import (
 // AddTask adds a task to the database.
 func addTask(task types.ITask) error {
 	db := storage.GetPool()
-	_, err := db.Exec(context.Background(), "INSERT INTO tasks(id, id_short, plugin, state, node, time, log, details) VALUES($1, $2, $3, $4, $5, $6, $7, $8);",
-		task.GetID(), task.GetIDShort(), task.GetPlugin(), task.GetState(), task.GetNode(), func() string { t, _ := task.GetTime().MarshalText(); return string(t) }(), task.GetLog(), task.GetDetails())
+	_, err := db.Exec(context.Background(), `INSERT INTO tasks(id, id_short, plugin, state, node, time, log, details) 
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
+		task.GetID(), task.GetIDShort(), task.GetPlugin(), task.GetState(), task.GetNode(),
+		func() string { t, _ := task.GetTime().MarshalText(); return string(t) }(),
+		task.GetLog(), task.GetDetails())
 	return err
 }
 
 // GetTask returns the JSON representation of a task in the database.
-func getTask(id string) (*[]byte, error) {
+func getTaskJSON(id string) (*[]byte, error) {
 	db := storage.GetPool()
 	var j []byte
-	if err := db.QueryRow(context.Background(), "SELECT to_jsonb(tasks) FROM tasks WHERE id = $1 OR id_short = $1;", id).Scan(&j); err != nil {
+	if err := db.QueryRow(context.Background(), "SELECT to_jsonb(tasks) FROM tasks WHERE id = $1 OR id_short = $1;",
+		id).Scan(&j); err != nil {
 		return nil, err
 	}
 	return &j, nil

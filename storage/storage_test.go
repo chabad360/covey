@@ -1,14 +1,14 @@
 package storage
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"reflect"
 	"testing"
 
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/ory/dockertest/v3"
 )
 
@@ -21,7 +21,7 @@ func TestGetItem(t *testing.T) {
 		{"2", ""},
 	}
 
-	db.Exec("INSERT INTO nodes(id, id_short, name, plugin, details) VALUES($1, $2, $3, $4, $5);",
+	db.Exec(context.Background(), "INSERT INTO nodes(id, id_short, name, plugin, details) VALUES($1, $2, $3, $4, $5);",
 		"1", "1", "1", "1", "1")
 
 	for _, tt := range tests {
@@ -34,17 +34,17 @@ func TestGetItem(t *testing.T) {
 	}
 }
 
-func TestGetDB(t *testing.T) {
-	db := GetDB()
-	if reflect.TypeOf(db) != reflect.TypeOf(&sql.DB{}) {
-		t.Errorf("GetDB() = %v, want %v", reflect.TypeOf(sql.DB{}), reflect.TypeOf(db))
+func TestGetPool(t *testing.T) {
+	db := GetPool()
+	if reflect.TypeOf(db) != reflect.TypeOf(&pgxpool.Pool{}) {
+		t.Errorf("GetPool() = %v, want %v", reflect.TypeOf(pgxpool.Pool{}), reflect.TypeOf(db))
 	}
 }
 
 func TestInit(t *testing.T) {
 	Init()
-	if reflect.TypeOf(db) != reflect.TypeOf(&sql.DB{}) {
-		t.Errorf("GetDB() = %v, want %v", reflect.TypeOf(sql.DB{}), reflect.TypeOf(db))
+	if reflect.TypeOf(db) != reflect.TypeOf(&pgxpool.Pool{}) {
+		t.Errorf("Init() = %v, want %v", reflect.TypeOf(pgxpool.Pool{}), reflect.TypeOf(db))
 	}
 }
 
@@ -62,18 +62,18 @@ func TestMain(m *testing.M) {
 
 	if err = pool.Retry(func() error {
 		var err error
-		db, err = sql.Open("postgres", fmt.Sprintf("postgres://postgres:secret@localhost:%s/%s?sslmode=disable",
-			resource.GetPort("5432/tcp"), "covey"))
+		db, err = pgxpool.Connect(context.Background(),
+			fmt.Sprintf("postgres://postgres:secret@localhost:%s/%s?sslmode=disable",
+				resource.GetPort("5432/tcp"), "covey"))
 		if err != nil {
 			return err
 		}
-		return db.Ping()
+		return nil
 	}); err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
 
-	db.Exec(`
-	CREATE TABLE nodes (
+	db.Exec(context.Background(), `CREATE TABLE nodes (
 		id TEXT PRIMARY KEY NOT NULL,
 		id_short TEXT UNIQUE NOT NULL,
 		name TEXT UNIQUE NOT NULL,

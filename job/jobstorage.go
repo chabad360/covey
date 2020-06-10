@@ -12,7 +12,8 @@ var db = storage.GetPool()
 // AddJob adds a Job to the database.
 func AddJob(j types.Job) error {
 	refreshDB()
-	_, err := db.Exec(context.Background(), "INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history) VALUES($1, $2, $3, $4, $5, $6, $7);",
+	_, err := db.Exec(context.Background(), `INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history) 
+		VALUES($1, $2, $3, $4, $5, $6, $7);`,
 		j.GetID(), j.GetIDShort(), j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory)
 	return err
 }
@@ -20,7 +21,8 @@ func AddJob(j types.Job) error {
 // UpdateJob updates a Job in the database.
 func UpdateJob(j types.Job) error {
 	refreshDB()
-	_, err := db.Exec(context.Background(), "UPDATE jobs SET name = $1, cron = $2, nodes = $3, tasks = $4, task_history = $5 WHERE id = $6;",
+	_, err := db.Exec(context.Background(),
+		"UPDATE jobs SET name = $1, cron = $2, nodes = $3, tasks = $4, task_history = $5 WHERE id = $6;",
 		j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory, j.GetID())
 	return err
 }

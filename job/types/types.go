@@ -24,6 +24,7 @@ type JobWithTasks struct {
 	TaskHistory []interface{} `json:"task_history,omitempty"`
 }
 
+// JobTask represents a single task in a job.
 type JobTask struct {
 	Plugin  string      `json:"plugin"`
 	Details interface{} `json:"details"`

@@ -1,15 +1,14 @@
 package job
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"testing"
 
-	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/job/types"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/ory/dockertest/v3"
 )
 
@@ -36,16 +35,15 @@ func TestGetJobWithFullHistory(t *testing.T) {
 		TaskHistory: []string{},
 	}
 
-	db.Exec(`INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history)
+	db.Exec(context.Background(), `INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history)
 		VALUES($1, $2, $3, $4, $5, $6, $7);`,
-		j.ID, j.GetIDShort(), j.Name, j.Cron,
-		common.UnsafeMarshal(j.Nodes), common.UnsafeMarshal(j.Tasks), common.UnsafeMarshal(j.TaskHistory))
+		j.ID, j.GetIDShort(), j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory)
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt.id)
 		t.Run(testname, func(t *testing.T) {
-			if got, _ := GetJobWithFullHistory(tt.id); string(got) != tt.want {
-				t.Errorf("GetJobWithFullHistory() = %v, want %v", string(got), tt.want)
+			if got, err := GetJobWithFullHistory(tt.id); string(got) != tt.want {
+				t.Errorf("GetJobWithFullHistory() = %v, want %v, error: %v", string(got), tt.want, err)
 			}
 		})
 	}
@@ -65,17 +63,29 @@ func TestMain(m *testing.M) {
 
 	if err = pool.Retry(func() error {
 		var err error
-		db, err = sql.Open("postgres", fmt.Sprintf("postgres://postgres:secret@localhost:%s/%s?sslmode=disable",
-			resource.GetPort("5432/tcp"), "covey"))
+		db, err = pgxpool.Connect(context.Background(),
+			fmt.Sprintf("postgres://postgres:secret@localhost:%s/%s?sslmode=disable",
+				resource.GetPort("5432/tcp"), "covey"))
 		if err != nil {
 			return err
 		}
-		return db.Ping()
+		return nil
 	}); err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
 
-	db.Exec(`CREATE TABLE jobs (
+	db.Exec(context.Background(), `
+	CREATE TABLE tasks (
+		id TEXT PRIMARY KEY NOT NULL,
+		id_short TEXT UNIQUE NOT NULL,
+		plugin TEXT NOT NULL,
+		state INT NOT NULL,
+		node TEXT NOT NULL,
+		time TEXT,
+		log JSONB,
+		details JSONB NOT NULL
+	);
+	CREATE TABLE jobs (
 		id TEXT PRIMARY KEY NOT NULL,
 		id_short TEXT UNIQUE NOT NULL,
 		name TEXT UNIQUE NOT NULL,
