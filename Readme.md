@@ -31,7 +31,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 * [ ] Design and Implement the Web Interface
 * [x] Implement Basic Authentication
-* [ ] Begin Adding Tests
+* [x] Begin Adding Tests
 * [x] Switch away from mux (too slow...)
 * [x] Refactor
 
