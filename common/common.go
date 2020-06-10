@@ -38,3 +38,8 @@ func GenerateID(item interface{}) string {
 	id := sha256.Sum256([]byte(fmt.Sprintf("%v", item)))
 	return hex.EncodeToString(id[:])
 }
+
+func UnsafeMarshal(item interface{}) []byte {
+	b, _ := json.Marshal(item)
+	return b
+}

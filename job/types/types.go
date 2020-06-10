@@ -14,8 +14,8 @@ type Job struct {
 	ID          string             `json:"id"`
 	Cron        string             `json:"cron,omitempty"`
 	Nodes       []string           `json:"nodes"`
-	Tasks       map[string]jobTask `json:"tasks"`
-	TaskHistory []string           `json:"task_history,omitempty"`
+	Tasks       map[string]JobTask `json:"tasks"`
+	TaskHistory []string           `json:"task_history"`
 }
 
 // JobWithTasks is the same thing as a Job but with the task history enumerated.
@@ -24,7 +24,7 @@ type JobWithTasks struct {
 	TaskHistory []interface{} `json:"task_history,omitempty"`
 }
 
-type jobTask struct {
+type JobTask struct {
 	Plugin  string      `json:"plugin"`
 	Details interface{} `json:"details"`
 	Node    string      `json:"node,omitempty"`

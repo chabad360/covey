@@ -32,6 +32,7 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	job.TaskHistory = []string{}
 	job.ID = common.GenerateID(job)
 	// jobs[job.GetID()] = &job
 	// jobsShort[job.GetIDShort()] = job.GetID()

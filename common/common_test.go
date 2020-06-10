@@ -95,22 +95,3 @@ func TestWrite(t *testing.T) {
 `)
 	}
 }
-
-// func TestWalk(t *testing.T) {
-// 	r := mux.NewRouter()
-// 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-// 		Write(w, "test")
-// 	}).Methods("GET")
-
-// 	var b bytes.Buffer
-// 	log.SetOutput(&b)
-// 	log.SetFlags(0)
-// 	r.Walk(Walk)
-// 	log.SetOutput(os.Stderr)
-
-// 	if got := b.String(); got != `Route: GET 	 /
-// ` {
-// 		t.Errorf("Walk() = %v, want %v", got, `Route: GET 	 /
-// `)
-// 	}
-// }
