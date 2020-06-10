@@ -21,7 +21,7 @@ func TestGetItem(t *testing.T) {
 		{"2", ""},
 	}
 
-	db.Exec(context.Background(), "INSERT INTO nodes(id, id_short, name, plugin, details) VALUES($1, $2, $3, $4, $5);",
+	DB.Exec(context.Background(), "INSERT INTO nodes(id, id_short, name, plugin, details) VALUES($1, $2, $3, $4, $5);",
 		"1", "1", "1", "1", "1")
 
 	for _, tt := range tests {
@@ -34,23 +34,16 @@ func TestGetItem(t *testing.T) {
 	}
 }
 
-func TestGetPool(t *testing.T) {
-	db := GetPool()
-	if reflect.TypeOf(db) != reflect.TypeOf(&pgxpool.Pool{}) {
-		t.Errorf("GetPool() = %v, want %v", reflect.TypeOf(pgxpool.Pool{}), reflect.TypeOf(db))
-	}
-}
-
 func TestInit(t *testing.T) {
 	Init()
-	if reflect.TypeOf(db) != reflect.TypeOf(&pgxpool.Pool{}) {
-		t.Errorf("Init() = %v, want %v", reflect.TypeOf(pgxpool.Pool{}), reflect.TypeOf(db))
+	if reflect.TypeOf(DB) != reflect.TypeOf(&pgxpool.Pool{}) {
+		t.Errorf("Init() = %v, want %v", reflect.TypeOf(pgxpool.Pool{}), reflect.TypeOf(DB))
 	}
 }
 
 func TestMain(m *testing.M) {
 	pool, resource, pdb, err := test.Boilerplate()
-	db = pdb
+	DB = pdb
 	if err != nil {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}

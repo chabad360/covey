@@ -5,9 +5,10 @@ import (
 
 	"github.com/chabad360/covey/job/types"
 	"github.com/chabad360/covey/storage"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-var db = storage.GetPool()
+var db *pgxpool.Pool
 
 // AddJob adds a Job to the database.
 func AddJob(j types.Job) error {
@@ -49,6 +50,6 @@ func GetJobWithFullHistory(id string) ([]byte, error) {
 
 func refreshDB() {
 	if db == nil {
-		db = storage.GetPool()
+		db = storage.DB
 	}
 }

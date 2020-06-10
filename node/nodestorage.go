@@ -21,6 +21,6 @@ func addNode(node types.INode) error {
 
 func refreshDB() {
 	if db == nil {
-		db = storage.GetPool()
+		db = storage.DB
 	}
 }

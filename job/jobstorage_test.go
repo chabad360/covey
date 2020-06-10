@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/chabad360/covey/job/types"
+	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
 )
 
@@ -62,10 +63,6 @@ func TestUpdateJob(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	db.Exec(context.Background(), `INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history)
-		VALUES($1, $2, $3, $4, $5, $6, $7);`,
-		j.ID, j.GetIDShort(), j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory)
-
 	ju := *j
 	ju.Cron = "5 * * * *"
 	testError := UpdateJob(ju)
@@ -94,10 +91,6 @@ func TestGetJobWithFullHistory(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	db.Exec(context.Background(), `INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history)
-		VALUES($1, $2, $3, $4, $5, $6, $7);`,
-		j.ID, j.GetIDShort(), j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory)
-
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt.id)
 		t.Run(testname, func(t *testing.T) {
@@ -111,9 +104,14 @@ func TestGetJobWithFullHistory(t *testing.T) {
 func TestMain(m *testing.M) {
 	pool, resource, pdb, err := test.Boilerplate()
 	db = pdb
+	storage.DB = pdb
 	if err != nil {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}
+
+	db.Exec(context.Background(), `INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history)
+	VALUES($1, $2, $3, $4, $5, $6, $7);`,
+		j.ID, j.GetIDShort(), j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory)
 
 	code := m.Run()
 

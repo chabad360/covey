@@ -43,6 +43,6 @@ func updateTask(task types.ITask) error {
 
 func refreshDB() {
 	if db == nil {
-		db = storage.GetPool()
+		db = storage.DB
 	}
 }

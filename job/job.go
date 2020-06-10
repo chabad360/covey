@@ -19,7 +19,7 @@ var (
 
 // Init loads up the the jobs and starts the cronTab.
 func Init() {
-	db := storage.GetPool()
+	db := storage.DB
 	q, err := db.Query(context.Background(), "SELECT id, cron FROM jobs WHERE cron != '';")
 	if err != nil {
 		log.Panic(err)

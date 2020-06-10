@@ -3,7 +3,12 @@ package test
 import (
 	"context"
 	"fmt"
+	"io"
 
+	"net/http"
+	"net/http/httptest"
+
+	"github.com/go-playground/pure/v5"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/ory/dockertest"
 )
@@ -77,4 +82,48 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *pgxpool.Pool, error
 	);`)
 
 	return pool, resource, db, nil
+}
+
+//revive:disable:cyclomatic
+
+// PureBoilerplate handles boilerplate code for setting up pure.
+func PureBoilerplate(method string, path string, handler http.HandlerFunc) http.Handler {
+	p := pure.New()
+	switch method {
+	case http.MethodGet:
+		p.Get(path, handler)
+	case http.MethodPost:
+		p.Post(path, handler)
+	case http.MethodHead:
+		p.Head(path, handler)
+	case http.MethodPut:
+		p.Put(path, handler)
+	case http.MethodDelete:
+		p.Delete(path, handler)
+	case http.MethodConnect:
+		p.Connect(path, handler)
+	case http.MethodOptions:
+		p.Options(path, handler)
+	case http.MethodPatch:
+		p.Patch(path, handler)
+	case http.MethodTrace:
+		p.Trace(path, handler)
+	default:
+		p.Handle(method, path, handler)
+	}
+
+	return p.Serve()
+}
+
+//revive:enable:cyclomatic
+
+// HTTPBoilerplate handles boilerplate code for setting up an HTTP test.
+func HTTPBoilerplate(method string, path string, body io.Reader) (*httptest.ResponseRecorder, *http.Request, error) {
+	req, err := http.NewRequest(method, path, body)
+	if err != nil {
+		return nil, nil, err
+	}
+	rr := httptest.NewRecorder()
+
+	return rr, req, nil
 }
