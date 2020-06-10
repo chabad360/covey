@@ -8,32 +8,90 @@ import (
 	"testing"
 
 	"github.com/chabad360/covey/job/types"
-	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/ory/dockertest/v3"
+	"github.com/chabad360/covey/test"
 )
 
-func TestGetJobWithFullHistory(t *testing.T) {
+var j = &types.Job{
+	Name:  "update",
+	ID:    "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+	Nodes: []string{"node1"},
+	Tasks: map[string]types.JobTask{
+		"update": {
+			Plugin:  "shell",
+			Details: struct{ Command []string }{Command: []string{"sudo apt update && sudo apt upgrade -y"}},
+		},
+	},
+	TaskHistory: []string{},
+}
+
+func TestAddJob(t *testing.T) {
+	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"Command": ["sudo apt update && sudo apt upgrade -y"]}}}, "task_history": null}`},
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"Command": ["sudo apt update && sudo apt upgrade -y"]}}}, "task_history": []}`},
 		{"3", ""},
 	}
+	//revive:enable:line-length-limit
 
-	j := &types.Job{
-		Name:  "update",
-		ID:    "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-		Nodes: []string{"node1"},
-		Tasks: map[string]types.JobTask{
-			"update": {
-				Plugin:  "shell",
-				Details: struct{ Command []string }{Command: []string{"sudo apt update && sudo apt upgrade -y"}},
-			},
-		},
-		TaskHistory: []string{},
+	testError := AddJob(*j)
+
+	for _, tt := range tests {
+		testname := fmt.Sprintf("%s", tt.id)
+		t.Run(testname, func(t *testing.T) {
+			var got []byte
+			if db.QueryRow(context.Background(), "SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = $1;", tt.id).Scan(&got); string(got) != tt.want {
+				t.Errorf("AddJob() = %v, want %v, error: %v", string(got), tt.want, testError)
+			}
+		})
 	}
+}
+
+func TestUpdateJob(t *testing.T) {
+	//revive:disable:line-length-limit
+	var tests = []struct {
+		id   string
+		want string
+	}{
+		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "5 * * * *", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"Command": ["sudo apt update && sudo apt upgrade -y"]}}}, "task_history": []}`},
+		{"3", ""},
+	}
+	//revive:enable:line-length-limit
+
+	db.Exec(context.Background(), `INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history)
+		VALUES($1, $2, $3, $4, $5, $6, $7);`,
+		j.ID, j.GetIDShort(), j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory)
+
+	ju := *j
+	ju.Cron = "5 * * * *"
+	testError := UpdateJob(ju)
+
+	for _, tt := range tests {
+		testname := fmt.Sprintf("%s", tt.id)
+		t.Run(testname, func(t *testing.T) {
+			var got []byte
+			if db.QueryRow(context.Background(), "SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = $1;",
+				tt.id).Scan(&got); string(got) != tt.want {
+				t.Errorf("UpdateJob() = %v, want %v, error: %v", string(got), tt.want, testError)
+			}
+		})
+	}
+}
+
+func TestGetJobWithFullHistory(t *testing.T) {
+	//revive:disable:line-length-limit
+	var tests = []struct {
+		id   string
+		want string
+	}{
+		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "5 * * * *", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"Command": ["sudo apt update && sudo apt upgrade -y"]}}}, "task_history": null}`},
+		{"3", ""},
+	}
+	//revive:enable:line-length-limit
 
 	db.Exec(context.Background(), `INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history)
 		VALUES($1, $2, $3, $4, $5, $6, $7);`,
@@ -50,50 +108,11 @@ func TestGetJobWithFullHistory(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	var err error
-	pool, err := dockertest.NewPool("")
+	pool, resource, pdb, err := test.Boilerplate()
+	db = pdb
 	if err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
+		log.Fatalf("Could not setup DB connection: %s", err)
 	}
-
-	resource, err := pool.Run("postgres", "9.6", []string{"POSTGRES_PASSWORD=secret", "POSTGRES_DB=covey"})
-	if err != nil {
-		log.Fatalf("Could not start resource: %s", err)
-	}
-
-	if err = pool.Retry(func() error {
-		var err error
-		db, err = pgxpool.Connect(context.Background(),
-			fmt.Sprintf("postgres://postgres:secret@localhost:%s/%s?sslmode=disable",
-				resource.GetPort("5432/tcp"), "covey"))
-		if err != nil {
-			return err
-		}
-		return nil
-	}); err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
-	}
-
-	db.Exec(context.Background(), `
-	CREATE TABLE tasks (
-		id TEXT PRIMARY KEY NOT NULL,
-		id_short TEXT UNIQUE NOT NULL,
-		plugin TEXT NOT NULL,
-		state INT NOT NULL,
-		node TEXT NOT NULL,
-		time TEXT,
-		log JSONB,
-		details JSONB NOT NULL
-	);
-	CREATE TABLE jobs (
-		id TEXT PRIMARY KEY NOT NULL,
-		id_short TEXT UNIQUE NOT NULL,
-		name TEXT UNIQUE NOT NULL,
-		cron TEXT,
-		nodes JSONB NOT NULL,
-		tasks JSONB NOT NULL,
-		task_history JSONB
-	);`)
 
 	code := m.Run()
 
