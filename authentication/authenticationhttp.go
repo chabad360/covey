@@ -14,13 +14,13 @@ func tokenGet(w http.ResponseWriter, r *http.Request) {
 	var ok bool
 	user.Username, user.Password, ok = r.BasicAuth()
 	if !ok {
-		common.ErrorWriterCustom(w, fmt.Errorf("unauthorized"), http.StatusUnauthorized)
+		common.ErrorWriterCustom(w, fmt.Errorf("forbidden"), http.StatusForbidden)
 		return
 	}
 
 	id, err := GetUser(*user)
 	if err != nil {
-		common.ErrorWriter(w, err)
+		common.ErrorWriterCustom(w, fmt.Errorf("unauthorized"), http.StatusUnauthorized)
 		return
 	}
 
@@ -48,15 +48,9 @@ func tokenGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func tokenRemove(w http.ResponseWriter, r *http.Request) {
-	c, err := r.Cookie("token")
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-
 	http.SetCookie(w, &http.Cookie{
-		Name:   c.Name,
-		MaxAge: 0,
+		Name:   "token",
+		MaxAge: -1,
 	})
 
 	http.Redirect(w, r, "/ui/login", http.StatusFound)
