@@ -3,3 +3,11 @@ engines:
       enabled: true
       exclude_paths:
         - '**_test.go'
+    remark-lint:
+      enabled: true
+      exclude_paths:
+        - 'Readme.md'
+    jacksonlinter:
+      enabled: true
+      exclude_paths:
+        - '.vscode/**'
