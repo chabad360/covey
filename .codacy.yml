@@ -3,7 +3,7 @@ engines:
       enabled: true
       exclude_paths:
         - '**_test.go'
-    remark-lint:
+    remark-int:
       enabled: true
       exclude_paths:
         - 'Readme.md'
@@ -11,3 +11,7 @@ engines:
       enabled: true
       exclude_paths:
         - '.vscode/**'
+    revive:
+      enabled: true
+      exclude_paths:
+        - 'ui/templates/**'
