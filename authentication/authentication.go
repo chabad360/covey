@@ -42,7 +42,7 @@ func createToken(userid string, tokenType string, allowedClaims map[string]bool)
 	if tokenType == "user" {
 		expirationTime = time.Now().Add(20 * time.Minute)
 	} else if tokenType == "api" {
-		expirationTime = time.Now().Add(time.Hour * 24 * 7 * 4)
+		expirationTime = time.Now().Add(4 * (7 * (24 * time.Hour)))
 	}
 
 	jwtTime, err := jwt.ParseTime(expirationTime.Unix())

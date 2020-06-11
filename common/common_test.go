@@ -20,10 +20,9 @@ func TestErrorWriter(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ErrorWriter(w, fmt.Errorf("test"))
-	})
-	handler.ServeHTTP(rr, req)
+	}).ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusInternalServerError {
 		t.Errorf("ErrorWriter status = %v, want %v", status, http.StatusInternalServerError)
@@ -40,10 +39,9 @@ func TestErrorWriter404(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ErrorWriter404(w, "test")
-	})
-	handler.ServeHTTP(rr, req)
+	}).ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("ErrorWriter404 status = %v, want %v", status, http.StatusNotFound)
@@ -60,10 +58,9 @@ func TestErrorWriterCustom(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ErrorWriterCustom(w, fmt.Errorf("test"), http.StatusUnauthorized)
-	})
-	handler.ServeHTTP(rr, req)
+	}).ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("ErrorWriterCustom status = %v, want %v", status, http.StatusUnauthorized)
@@ -79,20 +76,17 @@ func TestWrite(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		Write(w, struct {
-			Test string `json:"test"`
-		}{Test: "test"})
-	})
-	handler.ServeHTTP(rr, req)
+	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		Write(w, struct{ Test string }{"test"})
+	}).ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("Write status = %v, want %v", status, http.StatusOK)
 	}
 
-	if rr.Body.String() != `{"test":"test"}
+	if rr.Body.String() != `{"Test":"test"}
 ` {
-		t.Errorf("Write body = %v, want %v", rr.Body.String(), `{"test":"test"}
+		t.Errorf("Write body = %v, want %v", rr.Body.String(), `{"Test":"test"}
 `)
 	}
 }

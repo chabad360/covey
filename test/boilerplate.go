@@ -24,7 +24,7 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *pgxpool.Pool, error
 		return nil, nil, nil, fmt.Errorf("could not connect to docker: %s", err)
 	}
 
-	resource, err := pool.Run("postgres", "9.6", []string{"POSTGRES_PASSWORD=secret", "POSTGRES_DB=covey"})
+	resource, err := pool.Run("postgres", "12", []string{"POSTGRES_PASSWORD=secret", "POSTGRES_DB=covey"})
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("could not start resource: %s", err)
 	}
@@ -42,7 +42,7 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *pgxpool.Pool, error
 		return nil, nil, nil, fmt.Errorf("could not connect to docker: %s", err)
 	}
 
-	db.Exec(context.Background(), `
+	_, err = db.Exec(context.Background(), `
 	CREATE EXTENSION pgcrypto;
 
 	CREATE TABLE nodes (
@@ -80,6 +80,9 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *pgxpool.Pool, error
 		password_hash TEXT NOT NULL
 	
 	);`)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("error preping the database: %s", err)
+	}
 
 	return pool, resource, db, nil
 }
