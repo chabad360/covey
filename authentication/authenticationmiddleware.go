@@ -25,7 +25,7 @@ func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			common.ErrorWriter(w, err)
 		}
 
-		_, err = parseToken(c.Value)
+		_, err = parseToken(c.Value, "user", "all")
 		if err != nil {
 			common.ErrorWriter(w, err)
 			return
@@ -50,7 +50,7 @@ func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		claim, err := parseToken(tokenString)
+		claim, err := parseToken(tokenString, "api", "all")
 		if err != nil {
 			common.ErrorWriter(w, err)
 			return
@@ -61,7 +61,7 @@ func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// 	return
 		// }
 
-		r.Header.Add("X-User-ID", string(claim.UserID))
+		r.Header.Add("X-User-ID", string(claim.Subject))
 		next(w, r)
 	}
 }

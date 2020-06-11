@@ -1,11 +1,11 @@
 package authentication
 
 import (
-	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go/v4"
+	"github.com/gbrlsnchs/jwt/v3"
 )
 
 const key = "asdf" // TODO: Redesign API key system
@@ -13,7 +13,7 @@ const key = "asdf" // TODO: Redesign API key system
 var (
 	random = rand.New(
 		rand.NewSource(time.Now().UnixNano()))
-	crashKey string
+	crashKey = randomString()
 )
 
 func randomString() string {
@@ -25,19 +25,13 @@ func randomString() string {
 	return string(b)
 }
 
-type claims struct {
-	UserID        string          `json:"user_id"`
-	Type          string          `json:"type"`
-	AllowedClaims map[string]bool `json:"allowed_claims"`
-	jwt.StandardClaims
-}
-
 type credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-func createToken(userid string, tokenType string, allowedClaims map[string]bool) (string, *time.Time, error) {
+func createToken(userid string, tokenType string, audience []string) (string, *time.Time, error) {
+	var err error
 	var expirationTime time.Time
 	if tokenType == "user" {
 		expirationTime = time.Now().Add(20 * time.Minute)
@@ -45,55 +39,41 @@ func createToken(userid string, tokenType string, allowedClaims map[string]bool)
 		expirationTime = time.Now().Add(4 * (7 * (24 * time.Hour)))
 	}
 
-	jwtTime, err := jwt.ParseTime(expirationTime.Unix())
-	if err != nil {
-		return "", nil, err
+	claim := jwt.Payload{
+		Issuer:         strings.Join([]string{"covey", tokenType}, "-"),
+		Subject:        userid,
+		Audience:       audience,
+		ExpirationTime: jwt.NumericDate(expirationTime),
+		IssuedAt:       jwt.NumericDate(time.Now()),
+		JWTID:          randomString(),
 	}
 
-	claim := &claims{
-		UserID:        userid,
-		Type:          tokenType,
-		AllowedClaims: allowedClaims,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: jwtTime,
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
-	var tokenString string
+	var token []byte
 	if tokenType == "user" {
-		tokenString, err = token.SignedString([]byte(crashKey))
+		token, err = jwt.Sign(claim, jwt.NewHS256([]byte(crashKey)))
 	} else if tokenType == "api" {
-		tokenString, err = token.SignedString([]byte(key))
+		token, err = jwt.Sign(claim, jwt.NewHS256([]byte(key)))
 	}
-
 	if err != nil {
 		return "", nil, err
 	}
-	return tokenString, &expirationTime, nil
+	return string(token), &expirationTime, nil
 }
 
-func parseToken(tokenString string) (*claims, error) {
-	claim := &claims{}
+func parseToken(tokenString string, tokenType string, audience string) (*jwt.Payload, error) {
+	var claim jwt.Payload
+	iss := jwt.IssuerValidator(strings.Join([]string{"covey", tokenType}, "-"))
+	exp := jwt.ExpirationTimeValidator(time.Now())
+	aud := jwt.AudienceValidator(jwt.Audience{audience})
+	validate := jwt.ValidatePayload(&claim, iss, exp, aud)
 
-	token, err := jwt.ParseWithClaims(tokenString, claim, func(token *jwt.Token) (interface{}, error) {
-		return []byte(crashKey), nil
-	})
-	if claim.Type == "api" {
-		token, err = jwt.ParseWithClaims(tokenString, claim, func(token *jwt.Token) (interface{}, error) {
-			return []byte(key), nil
-		})
+	_, err := jwt.Verify([]byte(tokenString), jwt.NewHS256([]byte(crashKey)), &claim, validate)
+	if err != nil {
+		_, err = jwt.Verify([]byte(tokenString), jwt.NewHS256([]byte(key)), &claim, validate)
 	}
 	if err != nil {
-		return nil, err
-	}
-	if !token.Valid {
-		return nil, fmt.Errorf("unauthorized")
+		return &claim, err
 	}
 
-	if !claim.ExpiresAt.After(time.Now()) {
-		return nil, fmt.Errorf("expired")
-	}
-
-	return claim, nil
+	return &claim, nil
 }

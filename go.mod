@@ -8,9 +8,9 @@ require (
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/containerd/continuity v0.0.0-20200413184840-d3ef23f19fbb // indirect
-	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
+	github.com/gbrlsnchs/jwt/v3 v3.0.0-rc.2
 	github.com/go-playground/pure/v5 v5.0.5
 	github.com/google/go-cmp v0.4.1 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect

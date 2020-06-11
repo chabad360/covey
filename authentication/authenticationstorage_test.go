@@ -29,7 +29,7 @@ var (
 	}
 )
 
-func TestAdd(t *testing.T) {
+func TestAddUser(t *testing.T) {
 	var tests = []struct {
 		id   string
 		user credentials
@@ -54,7 +54,7 @@ func TestAdd(t *testing.T) {
 	}
 }
 
-func TestUpdateJob(t *testing.T) {
+func TestUpdateUser(t *testing.T) {
 	testError := UpdateUser(*uu, *u)
 
 	var tests = []struct {

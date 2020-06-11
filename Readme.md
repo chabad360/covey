@@ -39,7 +39,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 #### V0.4 Monitoring
 
 * [ ] Create Node Agent
-* [ ] Implement Plug-able Monitoring Interface
+* [ ] Use [Netdata](https://github.com/netdata/netdata) for Monitoring
 * [ ] Fully Implement API
 * [ ] Add and Refactor Tests (Aim for 80% Coverage)
 

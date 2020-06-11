@@ -3,6 +3,8 @@ package authentication
 import (
 	"testing"
 	"time"
+
+	"github.com/gbrlsnchs/jwt/v3"
 )
 
 var token string
@@ -11,7 +13,7 @@ func Test_createToken(t *testing.T) {
 	type args struct {
 		userid        string
 		tokenType     string
-		allowedClaims map[string]bool
+		allowedClaims []string
 	}
 	tests := []struct {
 		name    string
@@ -19,8 +21,8 @@ func Test_createToken(t *testing.T) {
 		want    time.Time
 		wantErr bool
 	}{
-		{"1", args{"1", "user", nil}, time.Now().Add(20 * time.Minute), false},
-		{"2", args{"1", "api", nil}, time.Now().Add(4 * (7 * (24 * time.Hour))), false},
+		{"1", args{"1", "user", []string{"all"}}, time.Now().Add(20 * time.Minute), false},
+		{"2", args{"1", "api", []string{"all"}}, time.Now().Add(4 * (7 * (24 * time.Hour))), false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -34,7 +36,6 @@ func Test_createToken(t *testing.T) {
 			}
 			token = tk
 		})
-
 	}
 }
 
@@ -45,19 +46,25 @@ func Test_parseToken(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *claims
+		want    *jwt.Payload
 		wantErr bool
 	}{
-		{"1", args{token}, &claims{Type: "api"}, false},
+		//revive:disable:line-length-limit
+		{"Good", args{token}, &jwt.Payload{Issuer: "covey-api"}, false},
+		{"Expired", args{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3ZleS1hcGkiLCJzdWIiOiIxIiwiYXVkIjoiYWxsIiwiZXhwIjowLCJpYXQiOjE1OTE5MTI5NzAsImp0aSI6InBIWWp4ZVVCclZmZHdVeldIUmloRkRQUkhCTXVFV21hIn0.XiNKXNDmsxXul8ceyQUgBWJBfrUmBsHWyLC34_Qy5qo"},
+			&jwt.Payload{Issuer: "covey-api"}, true},
+		{"Invalid", args{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3ZleS1hcGkiLCJzdWIiOiIxIiwiYXVkIjoiYWxsIiwiZXhwIjowLCJpYXQiOjE1OTE5MTI5NzAsImp0aSI6InBIWWp4ZVVCclZmZHdVeldIUmloRkRQUkhCTXVFV21hIna.XiNKXNDmsxXul8ceyQUgBWJBfrUmBsHWyLC34_Qy5qo"},
+			&jwt.Payload{Issuer: ""}, true},
+		//revive:enable:line-length-limit
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := parseToken(tt.args.tokenString)
+			got, err := parseToken(tt.args.tokenString, "api", "all")
 			if (err != nil) != tt.wantErr {
-				t.Errorf("parseToken() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("parseToken() error = %v, wantErr %v, got = %v", err, tt.wantErr, got)
 				return
 			}
-			if got.Type != tt.want.Type {
+			if got.Issuer != tt.want.Issuer {
 				t.Errorf("parseToken() = %v, want %v", got, tt.want)
 			}
 		})
