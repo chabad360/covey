@@ -24,7 +24,7 @@ func tokenGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, eTime, err := createToken(id, "user", nil)
+	token, eTime, err := createToken(id, "user", []string{"all"})
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return

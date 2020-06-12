@@ -15,11 +15,13 @@ func Test_tokenGet(t *testing.T) {
 		username   string
 		password   string
 		notWant    string
+		url        string
 		wantStatus int
 	}{
-		{"user", "password", "", http.StatusFound},
-		{"us", "password", "a", http.StatusUnauthorized},
-		{"", "", "a", http.StatusForbidden},
+		{"user", "password", "", "/auth/login", http.StatusFound},
+		{"user", "password", "", "/auth/login?url=/home", http.StatusFound},
+		{"us", "password", "a", "/auth/login", http.StatusUnauthorized},
+		{"", "", "a", "/auth/login", http.StatusForbidden},
 	}
 	//revive:enable:line-length-limit
 
@@ -28,7 +30,7 @@ func Test_tokenGet(t *testing.T) {
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt.username)
 		t.Run(testname, func(t *testing.T) {
-			rr, req, err := test.HTTPBoilerplate("GET", "/auth/login", nil)
+			rr, req, err := test.HTTPBoilerplate("GET", tt.url, nil)
 			if err != nil {
 				t.Fatal(err)
 			}

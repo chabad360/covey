@@ -67,14 +67,18 @@ func createToken(userid string, tokenType string, audience []string) (string, *t
 
 func parseToken(tokenString string, tokenType string, audience string) (*jwt.Payload, error) {
 	var claim jwt.Payload
+	var err error
 	iss := jwt.IssuerValidator(strings.Join([]string{"covey", tokenType}, "-"))
 	exp := jwt.ExpirationTimeValidator(time.Now())
 	aud := jwt.AudienceValidator(jwt.Audience{audience})
 	validate := jwt.ValidatePayload(&claim, iss, exp, aud)
 
-	_, err := jwt.Verify([]byte(tokenString), jwt.NewHS256([]byte(crashKey)), &claim, validate)
-	if err != nil {
+	if tokenType == "user" {
+		_, err = jwt.Verify([]byte(tokenString), jwt.NewHS256([]byte(crashKey)), &claim, validate)
+	} else if tokenType == "api" {
 		_, err = jwt.Verify([]byte(tokenString), jwt.NewHS256([]byte(key)), &claim, validate)
+	} else {
+		return nil, fmt.Errorf("parseToken: invalid token type")
 	}
 	if err != nil {
 		return &claim, err

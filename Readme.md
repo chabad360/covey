@@ -47,6 +47,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Evaluate GraphQL for the API
 * [ ] Fully Implement (and test) the API
 * [ ] Swagger (OpenAPI) (Might save that for later)
+* [ ] Fully Document the API
 
 #### V0.6 Alpha
 
@@ -54,6 +55,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Provide Build Artifacts
 * [ ] Fix Some Issues With the Plugin System
 * [ ] Refactor
+* [ ] Add an AUR Package
 
 ---
 

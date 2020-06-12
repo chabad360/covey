@@ -10,7 +10,7 @@ import (
 func tokenGetAPI(w http.ResponseWriter, r *http.Request) {
 	id := r.Header.Get("X-User-ID")
 
-	token, eTime, err := createToken(id, "api", nil)
+	token, eTime, err := createToken(id, "api", []string{"all"})
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
