@@ -39,15 +39,16 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 #### V0.4 Monitoring
 
 * [ ] Create Node Agent
-* [ ] Use [Netdata](https://github.com/netdata/netdata) for Monitoring
+* [ ] Integrate With [Netdata](https://github.com/netdata/netdata) for Monitoring
 * [ ] Add and Refactor Tests (Aim for 80% Coverage)
 
 #### V0.5 A Better API
 
 * [ ] Evaluate GraphQL for the API
 * [ ] Fully Implement (and test) the API
+* [ ] Swagger (OpenAPI) (Might save that for later)
 
-#### V0.6 Beta
+#### V0.6 Alpha
 
 * [ ] Provide Configuration Methods
 * [ ] Provide Build Artifacts
