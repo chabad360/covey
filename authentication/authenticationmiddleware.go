@@ -18,11 +18,8 @@ func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		c, err := r.Cookie("token")
 		if err != nil {
-			if err == http.ErrNoCookie {
-				http.Redirect(w, r, "/ui/login?url="+r.URL.Path, http.StatusFound)
-				return
-			}
-			common.ErrorWriter(w, err)
+			http.Redirect(w, r, "/ui/login?url="+r.URL.Path, http.StatusFound)
+			return
 		}
 
 		_, err = parseToken(c.Value, "user", "all")
@@ -46,20 +43,18 @@ func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		if tokenString == "" {
-			common.ErrorWriterCustom(w, fmt.Errorf("unauthorized"), http.StatusUnauthorized)
+			common.ErrorWriterCustom(w, fmt.Errorf("forbidden"), http.StatusForbidden)
 			return
 		}
 
 		claim, err := parseToken(tokenString, "api", "all")
-		if err != nil {
-			common.ErrorWriter(w, err)
-			return
+		if err != nil { // This is here incase a user is trying to generate a token
+			claim, err = parseToken(tokenString, "user", "all")
+			if err != nil {
+				common.ErrorWriterCustom(w, err, http.StatusUnauthorized)
+				return
+			}
 		}
-
-		// if ok := claims.AllowedClaims[r.URL.Path]; !ok {
-		// 	common.ErrorWriterCustom(w, fmt.Errorf("Forbidden"), http.StatusForbidden)
-		// 	return
-		// }
 
 		r.Header.Add("X-User-ID", string(claim.Subject))
 		next(w, r)

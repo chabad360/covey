@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"fmt"
 	"math/rand"
 	"strings"
 	"time"
@@ -37,6 +38,10 @@ func createToken(userid string, tokenType string, audience []string) (string, *t
 		expirationTime = time.Now().Add(20 * time.Minute)
 	} else if tokenType == "api" {
 		expirationTime = time.Now().Add(4 * (7 * (24 * time.Hour)))
+	}
+
+	if userid == "" {
+		return "", nil, fmt.Errorf("createToken: missing userid")
 	}
 
 	claim := jwt.Payload{
