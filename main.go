@@ -34,6 +34,7 @@ func RegisterHandlers(r pure.IRouteGroup) {
 }
 
 func loadHandlers(r *pure.Mux) {
+	// TODO: uncomment the following line once the login has been implemented.
 	// r.Use(authentication.AuthUserMiddleware)
 	r.Use(loggingMiddleware)
 

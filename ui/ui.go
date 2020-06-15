@@ -1,42 +1,31 @@
 package ui
 
 import (
-	"log"
+	"fmt"
 	"net/http"
-
-	"html/template"
 
 	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/common"
 	"github.com/go-playground/pure/v5"
 )
 
-var (
-// baseTemplate = template.New("base")
-)
-
 func dashboard(w http.ResponseWriter, _ *http.Request) {
-	str, ok := asset.FS.String("/base.html")
-	if !ok {
-		log.Fatal("Missing files")
-	}
-	t, err := template.New("base").Parse(str)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	str, ok = asset.FS.String("/sidebar.html")
-	if !ok {
-		log.Fatal("Missing files")
-	}
-	t.New("sidebar").Parse(str)
-	err = t.ExecuteTemplate(w, "base", struct {
+	base := getTemplate("base")
+	err := base.ExecuteTemplate(w, "base", struct {
 		Title string
 		Body  string
 	}{Title: "Dashboard", Body: "{{ .Title }}"})
 	if err != nil {
 		common.ErrorWriter(w, err)
 	}
+}
+
+func fsMust(f string) string {
+	str, ok := asset.FS.String(f)
+	if !ok {
+		panic(fmt.Errorf("fsMust: invalid file %v", f))
+	}
+	return str
 }
 
 // RegisterHandlers registers the handlers for the ui module.

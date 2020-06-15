@@ -5,6 +5,8 @@ engines:
         - '**_test.go'
         - 'asset/asset.go'
         - 'asset/live.go'
+        - 'ui/load.go'
+        - 'ui/liveload.go'
     remark-int:
       enabled: true
       exclude_paths:
