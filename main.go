@@ -1,14 +1,14 @@
 package main
 
-// Make sure to run resources -declare -package=common -output=common/assets.go -tag="\!live" -trim assets/ assets/*
+// Make sure to run resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/authentication"
-	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/job"
 	"github.com/chabad360/covey/node"
 	"github.com/chabad360/covey/storage"
@@ -65,17 +65,18 @@ func initialize() {
 	job.Init()
 
 	// Ensure files are available
-	if common.FS == nil {
+	if asset.FS == nil {
 		log.Fatal(`Remember to run 
-		'resources -declare -package=common -output=common/assets.go -tag="\!live" -trim assets/ assets/*'`)
+		'resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*'`)
 	}
-	if _, err := common.FS.Open("/base.html"); err != nil {
+	if _, err := asset.FS.Open("/base.html"); err != nil {
 		log.Fatalf("Failed to open filesystem: %v", err)
 	}
 }
 
 func main() {
 	log.Printf("Starting up Covey %s", version)
+	fmt.Println()
 
 	r := pure.New()
 	loadHandlers(r)

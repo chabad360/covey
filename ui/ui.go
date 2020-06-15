@@ -6,6 +6,7 @@ import (
 
 	"html/template"
 
+	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/common"
 	"github.com/go-playground/pure/v5"
 )
@@ -15,7 +16,7 @@ var (
 )
 
 func dashboard(w http.ResponseWriter, _ *http.Request) {
-	str, ok := common.FS.String("/base.html")
+	str, ok := asset.FS.String("/base.html")
 	if !ok {
 		log.Fatal("Missing files")
 	}
@@ -24,7 +25,7 @@ func dashboard(w http.ResponseWriter, _ *http.Request) {
 		common.ErrorWriter(w, err)
 		return
 	}
-	str, ok = common.FS.String("/sidebar.html")
+	str, ok = asset.FS.String("/sidebar.html")
 	if !ok {
 		log.Fatal("Missing files")
 	}

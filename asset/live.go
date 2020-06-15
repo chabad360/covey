@@ -1,6 +1,6 @@
 // +build live
 
-package common
+package asset
 
 import (
 	//"github.com/omeid/go-resources/live"

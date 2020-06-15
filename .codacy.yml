@@ -3,8 +3,8 @@ engines:
       enabled: true
       exclude_paths:
         - '**_test.go'
-        - 'common/assets.go'
-        - 'common/live.go'
+        - 'asset/asset.go'
+        - 'asset/live.go'
     remark-int:
       enabled: true
       exclude_paths:
@@ -16,15 +16,15 @@ engines:
     revive:
       enabled: true
       exclude_paths:
-        - 'common/assets.go'
-        - 'common/live.go'
+        - 'asset/asset.go'
+        - 'asset/live.go'
     coverage:
       enabled: true
       exclude_paths:
-        - 'common/assets.go'
-        - 'common/live.go'
+        - 'asset/asset.go'
+        - 'asset/live.go'
     metrics:
       enabled: true
       exclude_paths:
-        - 'common/assets.go'
-        - 'common/live.go'
+        - 'asset/asset.go'
+        - 'asset/live.go'
