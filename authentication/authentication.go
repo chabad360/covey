@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"strings"
 	"time"
@@ -14,14 +15,14 @@ const key = "asdf" // TODO: Redesign API key system
 var (
 	random = rand.New(
 		rand.NewSource(time.Now().UnixNano()))
-	crashKey = randomString()
+	crashKey string
 )
 
 func randomString() string {
 	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	b := make([]byte, 32)
 	for i := range b {
-		b[i] = charset[rand.Int63()%int64(len(charset))]
+		b[i] = charset[random.Int63()%int64(len(charset))]
 	}
 	return string(b)
 }
@@ -32,6 +33,7 @@ type credentials struct {
 }
 
 func createToken(userid string, tokenType string, audience []string) (string, *time.Time, error) {
+	refreshKey()
 	var err error
 	var expirationTime time.Time
 	if tokenType == "user" {
@@ -66,12 +68,14 @@ func createToken(userid string, tokenType string, audience []string) (string, *t
 }
 
 func parseToken(tokenString string, tokenType string, audience string) (*jwt.Payload, error) {
+	refreshKey()
 	var claim jwt.Payload
 	var err error
 	iss := jwt.IssuerValidator(strings.Join([]string{"covey", tokenType}, "-"))
 	exp := jwt.ExpirationTimeValidator(time.Now())
 	aud := jwt.AudienceValidator(jwt.Audience{audience})
 	validate := jwt.ValidatePayload(&claim, iss, exp, aud)
+	log.Printf(crashKey)
 
 	if tokenType == "user" {
 		_, err = jwt.Verify([]byte(tokenString), jwt.NewHS256([]byte(crashKey)), &claim, validate)
@@ -85,4 +89,10 @@ func parseToken(tokenString string, tokenType string, audience string) (*jwt.Pay
 	}
 
 	return &claim, nil
+}
+
+func refreshKey() {
+	if crashKey == "" {
+		crashKey = randomString()
+	}
 }

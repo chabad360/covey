@@ -10,12 +10,12 @@ import (
 )
 
 func tokenGet(w http.ResponseWriter, r *http.Request) {
-	user := &credentials{}
-	var ok bool
-	user.Username, user.Password, ok = r.BasicAuth()
-	if !ok {
-		common.ErrorWriterCustom(w, fmt.Errorf("forbidden"), http.StatusForbidden)
-		return
+	user := &credentials{
+		Username: r.FormValue("username"),
+		Password: r.FormValue("password"),
+	}
+	if user.Username == "" || user.Password == "" {
+		common.ErrorWriterCustom(w, fmt.Errorf("forbbiden"), http.StatusForbidden)
 	}
 
 	id, err := GetUser(*user)
@@ -37,6 +37,7 @@ func tokenGet(w http.ResponseWriter, r *http.Request) {
 		Expires:  *eTime,
 		MaxAge:   int(time.Until(*eTime).Seconds()),
 		HttpOnly: true,
+		Path:     "/",
 	})
 
 	if r.URL.Query().Get("url") != "" {
@@ -49,17 +50,17 @@ func tokenGet(w http.ResponseWriter, r *http.Request) {
 
 func tokenRemove(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
-		Name:   "token",
-		MaxAge: -1,
+		Name:    "token",
+		MaxAge:  -1,
+		Expires: time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
+		Path:    "/",
 	})
 
-	http.Redirect(w, r, "/ui/login", http.StatusFound)
+	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
 // RegisterHandlers registers the API handlers for user authentication.
 func RegisterHandlers(r pure.IRouteGroup) {
-	r.Get("/login", tokenGet)
-	r.Post("/logout", tokenRemove)
-
-	crashKey = randomString()
+	r.Post("/login", tokenGet)
+	r.Get("/logout", tokenRemove)
 }

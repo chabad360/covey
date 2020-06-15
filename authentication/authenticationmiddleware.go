@@ -11,20 +11,28 @@ import (
 // AuthUserMiddleware handles authentication for users.
 func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/auth/login" || r.URL.Path == "/login" {
-			next(w, r)
-			return
-		}
-
 		c, err := r.Cookie("token")
 		if err != nil {
-			http.Redirect(w, r, "/ui/login?url="+r.URL.Path, http.StatusFound)
+			if r.URL.Path == "/auth/login" || r.URL.Path == "/login" {
+				next(w, r)
+				return
+			}
+			http.Redirect(w, r, "/login?url="+r.URL.Path, http.StatusFound)
 			return
 		}
 
 		_, err = parseToken(c.Value, "user", "all")
 		if err != nil {
-			common.ErrorWriter(w, err)
+			if r.URL.Path == "/auth/logout" {
+				next(w, r)
+				return
+			}
+			http.Redirect(w, r, "/auth/logout", http.StatusFound)
+			return
+		}
+
+		if r.URL.Path == "/auth/login" || r.URL.Path == "/login" {
+			http.Redirect(w, r, "/dashboard", http.StatusFound)
 			return
 		}
 

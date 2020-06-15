@@ -14,9 +14,7 @@ func getTemplate(name string) *template.Template {
 
 func init() {
 	templates = map[string]*template.Template{
-		"base": func() *template.Template {
-			b := template.Must(template.New("base").Parse(fsMust("/base.html")))
-			return template.Must(b.Parse(fsMust("/sidebar.html")))
-		}(),
+		"base":  templatesF["base"](),
+		"login": templatesF["login"](),
 	}
 }
