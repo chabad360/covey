@@ -40,22 +40,23 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 * [ ] Create Node Agent
 * [ ] Integrate With [Netdata](https://github.com/netdata/netdata) for Monitoring
-* [ ] Add and Refactor Tests (Aim for 80% Coverage)
+* [ ] Add Tests
 
 #### V0.5 A Better API
 
 * [ ] Evaluate GraphQL for the API
-* [ ] Fully Implement (and test) the API
+* [ ] Fully Implement (and Test) the API
 * [ ] Swagger (OpenAPI) (Might save that for later)
 * [ ] Fully Document the API
 
 #### V0.6 Alpha
 
 * [ ] Provide Configuration Methods
-* [ ] Provide Build Artifacts
+* [ ] CI
 * [ ] Fix Some Issues With the Plugin System
 * [ ] Refactor
 * [ ] Add an AUR Package
+* [ ] Add and Refactor Tests (Aim for 80% Coverage)
 
 ---
 
@@ -77,4 +78,10 @@ createdb covey
 psql covey < structure.sql
 
 ./covey
+```
+
+Use the following command to build covey with live file system changes support:
+
+```bash
+go build -tags live -trimpath github.com/chabad360/covey
 ```

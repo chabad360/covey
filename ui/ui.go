@@ -1,12 +1,12 @@
 package ui
 
 import (
+	"log"
 	"net/http"
 
 	"html/template"
 
 	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/ui/templates"
 	"github.com/go-playground/pure/v5"
 )
 
@@ -15,12 +15,20 @@ var (
 )
 
 func dashboard(w http.ResponseWriter, _ *http.Request) {
-	t, err := template.New("base").Parse(templates.Base)
+	str, ok := common.FS.String("/base.html")
+	if !ok {
+		log.Fatal("Missing files")
+	}
+	t, err := template.New("base").Parse(str)
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
 	}
-	t.New("sidebar").Parse(templates.Sidebar)
+	str, ok = common.FS.String("/sidebar.html")
+	if !ok {
+		log.Fatal("Missing files")
+	}
+	t.New("sidebar").Parse(str)
 	err = t.ExecuteTemplate(w, "base", struct {
 		Title string
 		Body  string
