@@ -3,6 +3,8 @@ engines:
       enabled: true
       exclude_paths:
         - '**_test.go'
+        - 'common/assets.go'
+        - 'common/live.go'
     remark-int:
       enabled: true
       exclude_paths:
@@ -12,6 +14,16 @@ engines:
       exclude_paths:
         - '.vscode/**'
     revive:
+      enabled: true
+      exclude_paths:
+        - 'common/assets.go'
+        - 'common/live.go'
+    coverage:
+      enabled: true
+      exclude_paths:
+        - 'common/assets.go'
+        - 'common/live.go'
+    metrics:
       enabled: true
       exclude_paths:
         - 'common/assets.go'
