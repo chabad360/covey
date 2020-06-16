@@ -1,0 +1,56 @@
+{{ define "main" }}
+<div class="container-fluid">
+<div class="fade-in">
+<div class="card">
+<div class="card-header">Tasks</div>
+<div class="card-body">
+    <table id="tasks" class="table table-striped table-bordered table-hover" style="width:100%">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>State</th>
+                <th>Node</th>
+                <th>Plugin</th>
+                <th>ID (Short)</th>
+            </tr>
+        </thead>
+    </table>
+    </div>
+    </div>
+    </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+<script type="text/javascript">
+    var json = JSON.parse({{ .Details.Tasks }})
+    // Really ineficient, I need to figure out a better method, (this whole thing will be too slow when the lists get long).
+    for (var i = 0; i < json.length; i++) {
+        if (json[i].state == "0") {
+            json[i].state = "<span class=\"badge badge-failure\">Failed</span>"
+        } else if (json[i].state == "1") {
+            json[i].state = "<span class=\"badge badge-success\">Done</span>"
+        } else if (json[i].state == "2") {
+            json[i].state = "<span class=\"badge badge-warning\">Running</span>"
+        }
+    }
+    $(document).ready(function() {
+        var table = $('#tasks').DataTable({
+           "data": json,
+           columns: [
+                { "data": "time" },
+                { "data": "state" },
+                { "data": "node" },
+                { "data": "plugin" },
+                { "data": "id_short" },
+            ],
+            "lengthMenu": [[10, 25, 50, -1], ["10", "25", "50", "All"]]
+        });
+
+        $('#tasks tbody').on('click', 'tr', function () {
+        var data = table.row( this ).data();
+        alert( 'You clicked on '+data.id_short+'\'s row' );
+    } );
+    });
+</script>
+{{ end }}

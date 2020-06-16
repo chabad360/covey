@@ -34,7 +34,7 @@ func RegisterHandlers(r pure.IRouteGroup) {
 }
 
 func loadHandlers(r *pure.Mux) {
-	r.Use(authentication.AuthUserMiddleware)
+	// r.Use(authentication.AuthUserMiddleware)
 	r.Use(loggingMiddleware)
 
 	ui.RegisterHandlers(r)
@@ -69,7 +69,7 @@ func initialize() {
 		log.Fatal(`Remember to run 
 		'resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*'`)
 	}
-	if _, err := asset.FS.Open("/base.html"); err != nil {
+	if _, err := asset.FS.Open("/base/base.html"); err != nil {
 		log.Fatalf("Failed to open filesystem: %v", err)
 	}
 }
