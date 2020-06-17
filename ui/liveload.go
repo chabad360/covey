@@ -4,6 +4,7 @@ package ui
 
 import "html/template"
 
-func getTemplate(name string) *template.Template {
+// GetTemplate generates the requested template from the template map.
+func GetTemplate(name string) *template.Template {
 	return templatesF[name]()
 }

@@ -24,8 +24,8 @@ func Test_AuthUserMiddlware(t *testing.T) {
 		{"/test", "", "/login?url=/test", http.StatusFound},
 		{"/test", tokenUser, "", http.StatusOK},
 		{"/login", tokenUser, "/dashboard", http.StatusFound},
-		{"/test", "1", "/auth/logout", http.StatusFound},
-		{"/auth/logout", "1", "", http.StatusOK},
+		{"/test", "1", "/logout", http.StatusFound},
+		{"/logout", "1", "", http.StatusOK},
 		{"/login", "", "", http.StatusOK},
 	}
 	//revive:enable:line-length-limit

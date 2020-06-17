@@ -10,7 +10,7 @@ import (
 )
 
 //revive:disable:cognitive-complexity
-func Test_tokenGet(t *testing.T) {
+func Test_login(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		username   string
@@ -19,14 +19,14 @@ func Test_tokenGet(t *testing.T) {
 		url        string
 		wantStatus int
 	}{
-		{"user", "password", "", "/auth/login", http.StatusFound},
-		{"user", "password", "", "/auth/login?url=/home", http.StatusFound},
-		{"us", "password", "a", "/auth/login", http.StatusUnauthorized},
-		{"", "", "a", "/auth/login", http.StatusForbidden},
+		{"user", "password", "", "/login", http.StatusFound},
+		{"user", "password", "", "/login?url=/home", http.StatusFound},
+		{"us", "password", "a", "/login", http.StatusUnauthorized},
+		{"", "", "a", "/login", http.StatusForbidden},
 	}
 	//revive:enable:line-length-limit
 
-	h := test.PureBoilerplate("POST", "/auth/login", tokenGet)
+	h := test.PureBoilerplate("POST", "/login", login)
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt.username)
@@ -55,9 +55,9 @@ func Test_tokenGet(t *testing.T) {
 }
 
 func Test_tokenRemove(t *testing.T) {
-	h := test.PureBoilerplate("POST", "/auth/logout", tokenRemove)
+	h := test.PureBoilerplate("POST", "/logout", logout)
 
-	rr, req, err := test.HTTPBoilerplate("POST", "/auth/logout", nil)
+	rr, req, err := test.HTTPBoilerplate("POST", "/logout", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

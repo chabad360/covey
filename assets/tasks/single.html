@@ -14,35 +14,37 @@
                 <tbody>
                     <tr>
                         <th scope="row">ID</th>
-                        <td>{{ .Details.Task.ID }}</td>
+                        <td>{{ .Details.Task.GetID }}</td>
                         <th scope="row">Node</th>
-                        <td><a href="/nodes/{{ .Details.Task.Node }}">{{ .Details.Task.Node }}</a></td>
+                        <td><a href="/nodes/{{ .Details.Task.GetNode }}">{{ .Details.Task.GetNode }}</a></td>
                     </tr>
                     <tr>
                         <th scope="row">Date</th>
-                        <td>{{ .Details.Task.Time.Format "01/02/2006" }}</td>
+                        <td>{{ .Details.Task.GetTime.Format "01/02/2006" }}</td>
                         <th scope="row">Time</th>
-                        <td>{{ .Details.Task.Time.Format "15:04:05" }}</td>
+                        <td>{{ .Details.Task.GetTime.Format "15:04:05" }}</td>
                     </tr>
                     <tr>
                         <th scope="row">State</th>
                         <td>
-                        {{- if eq .Details.Task.State 0 -}}
+                        {{- with .Details.Task.GetState -}}
+                        {{- if eq . 0 -}}
                         <span class="badge bg-danger">Failed</span>
-                        {{- else if eq .Details.Task.State 1 -}}
+                        {{- else if eq . 1 -}}
                         <span class="badge bg-success">Done</span>
-                        {{- else if eq .Details.Task.State 2 -}}
+                        {{- else if eq . 2 -}}
                         <span class="badge bg-warning">Running</span>
-                        {{- else if eq .Details.Task.State 3 -}}
+                        {{- else if eq . 3 -}}
                         <span class="badge bg-secondary">Stopped</span>
+                        {{- end -}}
                         {{- end -}}
                         </td>
                         <th scope="row">Plugin</th>
-                        <td>{{ .Details.Task.Plugin }}</td>
+                        <td>{{ .Details.Task.GetPlugin }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Command</th>
-                        <td colspan="3"><code>{{ index (index .Details.Task.Details "command") 0 }}</code></td>
+                        <td colspan="3"><code>{{ index (index .Details.Task.GetDetails "command") 0 }}</code></td>
                     </tr>
                 </tbody>
             </table>
@@ -52,7 +54,7 @@
             <div class="card-header">Log</div>
             <div class="card-body">
             <div class="overflow-auto" style="height: 100%"><pre>
-            {{- range .Details.Task.Log -}}
+            {{- range .Details.Task.GetLog -}}
                 <samp>{{ . }}</samp><br />
             {{- else -}}
                 <samp>No Logs Yet</samp>

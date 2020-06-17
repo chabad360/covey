@@ -8,7 +8,8 @@ var (
 	templates map[string]*template.Template
 )
 
-func getTemplate(name string) *template.Template {
+// GetTemplate returns a template from the template map.
+func GetTemplate(name string) *template.Template {
 	return templates[name]
 }
 

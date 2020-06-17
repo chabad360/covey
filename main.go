@@ -34,11 +34,12 @@ func RegisterHandlers(r pure.IRouteGroup) {
 }
 
 func loadHandlers(r *pure.Mux) {
-	// r.Use(authentication.AuthUserMiddleware)
 	r.Use(loggingMiddleware)
+	r.Use(authentication.AuthUserMiddleware)
 
 	ui.RegisterHandlers(r)
-	authentication.RegisterHandlers(r.Group("/auth"))
+	authentication.RegisterUIHandlers(r)
+	task.RegisterUIHandlers(r.Group("/tasks"))
 
 	apiRouter := r.GroupWithNone("/api/v1")
 	apiRouter.Use(loggingMiddleware)
@@ -59,9 +60,6 @@ func loadHandlers(r *pure.Mux) {
 
 func initialize() {
 	storage.Init()
-
-	// node.LoadConfig()
-	// task.LoadConfig()
 	job.Init()
 
 	// Ensure files are available
@@ -91,7 +89,7 @@ func main() {
 
 func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("API called", r.Method, r.RequestURI)
+		log.Println("Called", r.Method, r.RequestURI)
 		next(w, r)
 	}
 }

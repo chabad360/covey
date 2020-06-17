@@ -1,4 +1,4 @@
-package ui
+package task
 
 import (
 	"context"
@@ -9,52 +9,51 @@ import (
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task/types"
+	"github.com/chabad360/covey/ui"
 	"github.com/go-playground/pure/v5"
-	json "github.com/json-iterator/go"
 )
 
-func tasks(w http.ResponseWriter, r *http.Request) {
+func uiTasks(w http.ResponseWriter, r *http.Request) {
 	var tasks []byte
 	err := storage.DB.QueryRow(context.Background(),
 		"SELECT jsonb_agg(to_jsonb(tasks) - 'log' - 'details') FROM tasks").Scan(&tasks)
 	if err != nil {
 		common.ErrorWriter(w, err)
 	}
-	p := &page{
+	p := &ui.Page{
 		Title:   "Tasks",
 		URL:     strings.Split(r.URL.Path, "/"),
 		Details: struct{ Tasks string }{Tasks: string(tasks)},
 	}
-	t := getTemplate("tasksAll")
+	t := ui.GetTemplate("tasksAll")
 	err = t.ExecuteTemplate(w, "base", p)
 	if err != nil {
 		common.ErrorWriter(w, err)
 	}
 }
 
-func task(w http.ResponseWriter, r *http.Request) {
+func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 	vars := pure.RequestVars(r)
-	var j []byte
-	err := storage.DB.QueryRow(context.Background(),
-		"SELECT to_jsonb(tasks) FROM tasks WHERE id = $1", vars.URLParam("id")).Scan(&j)
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
-	var task types.Task
-	err = json.Unmarshal(j, &task)
-	if err != nil {
-		common.ErrorWriter(w, err)
+	task, ok := GetTask(vars.URLParam("task"))
+	if !ok {
+		common.ErrorWriter404(w, vars.URLParam("task"))
 	}
 
-	p := &page{
+	p := &ui.Page{
 		Title:   fmt.Sprintf("Task %s", vars.URLParam("id")),
 		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Task types.Task }{Task: task},
+		Details: struct{ Task types.ITask }{Task: task},
 	}
 
-	t := getTemplate("tasksSingle")
-	err = t.ExecuteTemplate(w, "base", p)
+	t := ui.GetTemplate("tasksSingle")
+	err := t.ExecuteTemplate(w, "base", p)
 	if err != nil {
 		common.ErrorWriter(w, err)
 	}
+}
+
+// RegisterUIHandlers registers the HTTP handlers for the task UI.
+func RegisterUIHandlers(r pure.IRouteGroup) {
+	r.Get("", uiTasks)
+	r.Get("/:task", uiTaskSingle)
 }

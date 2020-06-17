@@ -11,8 +11,6 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gbrlsnchs/jwt/v3 v3.0.0-rc.2
-	github.com/go-playground/form v3.1.4+incompatible // indirect
-	github.com/go-playground/pure v4.2.0+incompatible
 	github.com/go-playground/pure/v5 v5.0.5
 	github.com/google/go-cmp v0.4.1 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect

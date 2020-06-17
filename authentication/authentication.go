@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"strings"
 	"time"
@@ -75,7 +74,6 @@ func parseToken(tokenString string, tokenType string, audience string) (*jwt.Pay
 	exp := jwt.ExpirationTimeValidator(time.Now())
 	aud := jwt.AudienceValidator(jwt.Audience{audience})
 	validate := jwt.ValidatePayload(&claim, iss, exp, aud)
-	log.Printf(crashKey)
 
 	if tokenType == "user" {
 		_, err = jwt.Verify([]byte(tokenString), jwt.NewHS256([]byte(crashKey)), &claim, validate)
