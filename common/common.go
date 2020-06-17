@@ -23,7 +23,9 @@ func ErrorWriter404(w http.ResponseWriter, name string) {
 func ErrorWriterCustom(w http.ResponseWriter, err error, code int) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(err)
+	json.NewEncoder(w).Encode(struct {
+		Error string `json:"error"`
+	}{err.Error()})
 }
 
 // Write writes the interface as a JSON to the ResponseWriter.

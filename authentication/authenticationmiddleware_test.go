@@ -66,8 +66,10 @@ func Test_AuthAPIMiddlware(t *testing.T) {
 		want       string
 		wantStatus int
 	}{
-		{"forbidden", "", `{"error":"forbidden"}`, http.StatusForbidden},
-		{"fail", "123", `{"error":"jwt: malformed token"}`, http.StatusUnauthorized},
+		{"forbidden", "", `{"error":"forbidden"}
+`, http.StatusForbidden},
+		{"fail", "123", `{"error":"jwt: malformed token"}
+`, http.StatusUnauthorized},
 		{"success", tokenUser, "1", http.StatusOK},
 	}
 	//revive:enable:line-length-limit

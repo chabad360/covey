@@ -24,6 +24,7 @@ func loginP(w http.ResponseWriter, r *http.Request) {
 	login := ui.GetTemplate("login")
 	cookie, err := tokenGet(&credentials{Username: r.FormValue("username"), Password: r.FormValue("password")})
 	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
 		err := login.ExecuteTemplate(w, "login",
 			&ui.Page{Title: "Login", URL: strings.Split(r.URL.Path, "/"), Details: false})
 		if err != nil {
@@ -41,13 +42,9 @@ func loginP(w http.ResponseWriter, r *http.Request) {
 }
 
 func tokenGet(user *credentials) (*http.Cookie, error) {
-	if user.Username == "" || user.Password == "" {
-		return nil, fmt.Errorf("forbidden")
-	}
-
 	id, err := GetUser(*user)
 	if err != nil {
-		return nil, fmt.Errorf("unauthorized")
+		return nil, err
 	}
 
 	token, eTime, err := createToken(id, "user", []string{"all"})

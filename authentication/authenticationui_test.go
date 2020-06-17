@@ -11,6 +11,19 @@ import (
 
 //revive:disable:cognitive-complexity
 func Test_login(t *testing.T) {
+	rr, req, err := test.HTTPBoilerplate("GET", "/login", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	http.HandlerFunc(login).ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("login status = %v, want %v", rr.Code, http.StatusInternalServerError)
+	}
+}
+
+func Test_loginP(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		username   string
@@ -19,14 +32,13 @@ func Test_login(t *testing.T) {
 		url        string
 		wantStatus int
 	}{
-		{"user", "password", "", "/login", http.StatusFound},
-		{"user", "password", "", "/login?url=/home", http.StatusFound},
+		{"user", "pass", "", "/login", http.StatusFound},
+		{"user", "pass", "", "/login?url=/home", http.StatusFound},
 		{"us", "password", "a", "/login", http.StatusUnauthorized},
-		{"", "", "a", "/login", http.StatusForbidden},
 	}
 	//revive:enable:line-length-limit
 
-	h := test.PureBoilerplate("POST", "/login", login)
+	h := test.PureBoilerplate("POST", "/login", loginP)
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt.username)
@@ -43,18 +55,18 @@ func Test_login(t *testing.T) {
 
 			h.ServeHTTP(rr, req)
 			if rr.Code != tt.wantStatus {
-				t.Errorf("tokenGet status = %v, want %v, error = %v", rr.Code, tt.wantStatus, rr.Body.String())
+				t.Errorf("loginP status = %v, want %v, error = %v", rr.Code, tt.wantStatus, rr.Body.String())
 			}
 
 			if rr.Header().Get("set-cookie") == tt.notWant {
-				t.Errorf("tokenGet cookie = %v, want: anything other than %v",
+				t.Errorf("loginP cookie = %v, want: anything other than %v",
 					rr.Header().Get("set-cookie"), tt.notWant)
 			}
 		})
 	}
 }
 
-func Test_tokenRemove(t *testing.T) {
+func Test_logout(t *testing.T) {
 	h := test.PureBoilerplate("POST", "/logout", logout)
 
 	rr, req, err := test.HTTPBoilerplate("POST", "/logout", nil)
@@ -65,7 +77,7 @@ func Test_tokenRemove(t *testing.T) {
 	h.ServeHTTP(rr, req)
 
 	if rr.Header().Get("set-cookie") != "token=; Path=/; Expires=Sat, 01 Jan 2000 01:01:01 GMT; Max-Age=0" {
-		t.Errorf("tokenRemove cookie = %v, want: %v", rr.Header().Get("set-cookie"),
+		t.Errorf("logout cookie = %v, want: %v", rr.Header().Get("set-cookie"),
 			"token=; Path=/; Expires=Sat, 01 Jan 2000 01:01:01 GMT; Max-Age=0")
 	}
 }

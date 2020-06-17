@@ -15,7 +15,9 @@ func GetTemplate(name string) *template.Template {
 
 func init() {
 	templates = map[string]*template.Template{
-		"base":  templatesF["base"](),
-		"login": templatesF["login"](),
+		"dashboard":   templatesF["dashboard"](),
+		"tasksAll":    templatesF["tasksAll"](),
+		"tasksSingle": templatesF["tasksSingle"](),
+		"login":       templatesF["login"](),
 	}
 }

@@ -18,9 +18,11 @@ func Test_jobNew(t *testing.T) {
 			`{"name":"test","id":"98fda662cbc8871f35d5d93fc4980b1d67fde92354310a9814521d72acce489f","nodes":["test"],"tasks":{"update":{"plugin":"test","details":{"command":["test"]}}},"task_history":[]}
 `},
 		{`{"name": "test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": ["test"]}}}}`,
-			`{"error":"duplicate job: test"}`},
+			`{"error":"duplicate job: test"}
+`},
 		{`{"name":}`,
-			`{"error":"types.Job.Name: ReadString: expects " or n, but found }, error found in #9 byte of ...|{"name":}|..., bigger context ...|{"name":}|..."}`},
+			`{"error":"types.Job.Name: ReadString: expects \" or n, but found }, error found in #9 byte of ...|{\"name\":}|..., bigger context ...|{\"name\":}|..."}
+`},
 	}
 	//revive:enable:line-length-limit
 
@@ -51,7 +53,8 @@ func Test_jobGet(t *testing.T) {
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
 			`{"name":"update","id":"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e","nodes":["node1"],"tasks":{"update":{"plugin":"shell","details":{"Command":["sudo apt update \u0026\u0026 sudo apt upgrade -y"]}}}}
 `},
-		{"3", `{"error":"404 3 not found"}`},
+		{"3", `{"error":"404 3 not found"}
+`},
 	}
 	//revive:enable:line-length-limit
 

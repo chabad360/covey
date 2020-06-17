@@ -28,7 +28,8 @@ func TestErrorWriter(t *testing.T) {
 		t.Errorf("ErrorWriter status = %v, want %v", status, http.StatusInternalServerError)
 	}
 
-	if rr.Body.String() != `{"error":"test"}` {
+	if rr.Body.String() != `{"error":"test"}
+` {
 		t.Errorf("ErrorWriter body = %v, want %v", rr.Body.String(), `{"error":"test"}`)
 	}
 }
@@ -47,7 +48,8 @@ func TestErrorWriter404(t *testing.T) {
 		t.Errorf("ErrorWriter404 status = %v, want %v", status, http.StatusNotFound)
 	}
 
-	if rr.Body.String() != `{"error":"404 test not found"}` {
+	if rr.Body.String() != `{"error":"404 test not found"}
+` {
 		t.Errorf("ErrorWriter404 body = %v, want %v", rr.Body.String(), `{"error":"404 test not found"}`)
 	}
 }
@@ -65,7 +67,8 @@ func TestErrorWriterCustom(t *testing.T) {
 	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("ErrorWriterCustom status = %v, want %v", status, http.StatusUnauthorized)
 	}
-	if rr.Body.String() != `{"error":"test"}` {
+	if rr.Body.String() != `{"error":"test"}
+` {
 		t.Errorf("ErrorWriterCustom body = %v, want %v", rr.Body.String(), `{"error":"test"}`)
 	}
 }
