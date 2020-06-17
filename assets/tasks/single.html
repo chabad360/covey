@@ -1,0 +1,65 @@
+{{ define "main" }}
+<div class="container-fluid">
+    <div class="fade-in">
+        <div class="card">
+            <div class="card-header">Task</div>
+            <div class="card-body">
+            <table class="table table-bordered">
+                <colgroup>
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 50%;">
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 30%;">
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th scope="row">ID</th>
+                        <td>{{ .Details.Task.ID }}</td>
+                        <th scope="row">Node</th>
+                        <td><a href="/nodes/{{ .Details.Task.Node }}">{{ .Details.Task.Node }}</a></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Date</th>
+                        <td>{{ .Details.Task.Time.Format "01/02/2006" }}</td>
+                        <th scope="row">Time</th>
+                        <td>{{ .Details.Task.Time.Format "15:04:05" }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">State</th>
+                        <td>
+                        {{- if eq .Details.Task.State 0 -}}
+                        <span class="badge bg-danger">Failed</span>
+                        {{- else if eq .Details.Task.State 1 -}}
+                        <span class="badge bg-success">Done</span>
+                        {{- else if eq .Details.Task.State 2 -}}
+                        <span class="badge bg-warning">Running</span>
+                        {{- else if eq .Details.Task.State 3 -}}
+                        <span class="badge bg-secondary">Stopped</span>
+                        {{- end -}}
+                        </td>
+                        <th scope="row">Plugin</th>
+                        <td>{{ .Details.Task.Plugin }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Command</th>
+                        <td colspan="3"><code>{{ index (index .Details.Task.Details "command") 0 }}</code></td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Log</div>
+            <div class="card-body">
+            <div class="overflow-auto" style="height: 100%"><pre>
+            {{- range .Details.Task.Log -}}
+                <samp>{{ . }}</samp><br />
+            {{- else -}}
+                <samp>No Logs Yet</samp>
+            {{- end -}}
+            </pre></div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }} {{ define "scripts" }} {{ end }}

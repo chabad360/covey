@@ -30,6 +30,14 @@ var (
 			b = template.Must(b.Parse(fsMust("/tasks/all.html")))
 			return b
 		},
+		"tasksSingle": func() *template.Template {
+			b := template.Must(template.New("base").Funcs(funcMap).Parse(fsMust("/base/base.html")))
+			b = template.Must(b.Parse(fsMust("/base/sidebar.html")))
+			b = template.Must(b.Parse(fsMust("/base/header.html")))
+			b = template.Must(b.Parse(fsMust("/base/footer.html")))
+			b = template.Must(b.Parse(fsMust("/tasks/single.html")))
+			return b
+		},
 		"login": func() *template.Template {
 			l := template.Must(template.New("login").Funcs(funcMap).Parse(fsMust("/single/login.html")))
 			return l

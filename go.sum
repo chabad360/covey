@@ -29,10 +29,16 @@ github.com/go-playground/assert v1.2.1 h1:ad06XqC+TOv0nJWnbULSlh3ehp5uLuQEojZY5T
 github.com/go-playground/assert v1.2.1/go.mod h1:Lgy+k19nOB/wQG/fVSQ7rra5qYugmytMQqvQ2dgjWn8=
 github.com/go-playground/assert/v2 v2.0.1 h1:MsBgLAaY856+nPRTKrp3/OZK38U/wa0CcBYNjji3q3A=
 github.com/go-playground/assert/v2 v2.0.1/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
+github.com/go-playground/form v1.10.0 h1:0ybRwhsCPQzo8dC09q8XAVn+peG7Ld927Gbe9twmgv8=
+github.com/go-playground/form v3.1.4+incompatible h1:lvKiHVxE2WvzDIoyMnWcjyiBxKt2+uFJyZcPYWsLnjI=
+github.com/go-playground/form v3.1.4+incompatible/go.mod h1:lhcKXfTuhRtIZCIKUeJ0b5F207aeQCPbZU09ScKjwWg=
 github.com/go-playground/form/v4 v4.0.0 h1:vUKi2K1Hqlc4rpBc0tCclgs9zSfbY5yMKsL106db/eY=
 github.com/go-playground/form/v4 v4.0.0/go.mod h1:bodWfd97U9PVMZFcDsbVzSbQQTtaWrebnTwQtWjSW1M=
 github.com/go-playground/pkg/v4 v4.0.0 h1:0lTr9H8RyCwom4TcfNhMCNvlTlFuin7uUlXcZQuxrA4=
 github.com/go-playground/pkg/v4 v4.0.0/go.mod h1:TLowM3d3a/m04JlHK/zM6Ia8zf8+0C/9pTwhDEUqKO0=
+github.com/go-playground/pure v1.1.0 h1:V3quUWSkM+6EomkD6Lw+EkYs15mma7OJpLdTok3fdjQ=
+github.com/go-playground/pure v4.2.0+incompatible h1:fwvKudP25N9ilfdxSwvFtO8fxdJyYgddcHQOq7v8qlA=
+github.com/go-playground/pure v4.2.0+incompatible/go.mod h1:k2eRJXw80qTBI0vn3rVf3CcZRLtdbPb0FPV7sDZGk5o=
 github.com/go-playground/pure/v5 v5.0.5 h1:wFEAqov3IvaVzNHyDj8Lv4XC8jsRehzqkZcp+oQtq4I=
 github.com/go-playground/pure/v5 v5.0.5/go.mod h1:3eIuM+H9VmL32h1cXFlrvjUrYSY2bql5qWjB0f0s2RA=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=

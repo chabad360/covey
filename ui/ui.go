@@ -39,4 +39,5 @@ func RegisterHandlers(r pure.IRouteGroup) {
 	r.Get("/dashboard", dashboard)
 	r.Get("/login", login)
 	r.Get("/tasks", tasks)
+	r.Get("/tasks/:id", task)
 }
