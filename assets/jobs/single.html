@@ -1,0 +1,81 @@
+{{ define "main" }}
+<div class="container-fluid">
+    <div class="fade-in">
+        <div class="card">
+            <div class="card-header">Job</div>
+            <div class="card-body">
+            <table class="table table-bordered">
+                <colgroup>
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 45%;">
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 35%;">
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th scope="row">Name</th>
+                        <td>{{ .Details.Job.Name }}</td>
+                        <th scope="row">ID</th>
+                        <td>{{ .Details.Job.GetID }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Cron</th>
+                        <td><code>{{ or .Details.Job.Cron "N/A" }}</code></td>
+                        <th scope="row">Nodes</th>
+                        <td>{{ range .Details.Job.Nodes }}<a href="/nodes/.">{{ . }}</a> {{ end }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Tasks</div>
+            <div class="card-body">
+            <table class="table table-bordered">
+            <tbody>
+            {{- range $key, $value := .Details.Job.Tasks -}}
+                <tr>
+                    <td>{{ $key }}</td>
+                    <td>{{ $value }}</td>
+                </tr>
+            {{- end -}}
+            </tbody>
+            </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Task History</div>
+            <div class="card-body">
+            <table class="table table-bordered table-hover">
+            <tbody>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">State</th>
+                </tr>
+            {{- range .Details.Job.TaskHistory -}}
+                <tr>
+                    <td><a href="/tasks/{{ index . "id" }}">{{ index . "id" }}</a></td>
+                    <td>{{ index . "time"}}</td>
+                    <td>{{- with print (index . "state") -}}
+                        {{- if eq . "0" -}}
+                        <span class="badge bg-danger">Failed</span>
+                        {{- else if eq . "1" -}}
+                        <span class="badge bg-success">Done</span>
+                        {{- else if eq . "2" -}}
+                        <span class="badge bg-warning">Running</span>
+                        {{- else if eq . "3" -}}
+                        <span class="badge bg-secondary">Stopped</span>
+                        {{- end -}}
+                    {{- end -}}</td>
+                </tr>
+            {{- else -}}
+            None Yet
+            {{- end -}}
+            </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }} {{ define "scripts" }} {{ end }}

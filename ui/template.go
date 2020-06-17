@@ -26,6 +26,16 @@ var (
 			l := template.Must(template.New("login").Funcs(funcMap).Parse(fsMust("/single/login.html")))
 			return l
 		},
+		"jobsAll": func() *template.Template {
+			b := baseTemplate()
+			b = template.Must(b.Parse(fsMust("/jobs/all.html")))
+			return b
+		},
+		"jobsSingle": func() *template.Template {
+			b := baseTemplate()
+			b = template.Must(b.Parse(fsMust("/jobs/single.html")))
+			return b
+		},
 	}
 )
 

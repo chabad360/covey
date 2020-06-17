@@ -1,0 +1,41 @@
+{{ define "main" }}
+<div class="container-fluid">
+    <div class="fade-in">
+        <div class="card">
+            <div class="card-header">Jobs</div>
+            <div class="card-body">
+                <table id="jobs" class="table table-striped table-bordered table-hover" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Nodes</th>
+                            <th>ID (Short)</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }} {{ define "scripts" }}
+<script type="text/javascript">
+    var json = JSON.parse({{.Details.Jobs}})
+    $(document).ready(function() {
+        var table = $('#jobs').DataTable({
+            "data": json,
+            columns: [{
+                "data": "name"
+            }, {
+                "data": "nodes"
+            }, {
+                "data": "id_short"
+            }, ]
+        });
+
+        $('#jobs tbody').on('click', 'tr', function() {
+            var data = table.row(this).data();
+            window.location = "/jobs/" + data.name;
+        });
+    });
+</script>
+{{ end }}

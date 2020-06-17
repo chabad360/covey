@@ -40,6 +40,7 @@ func loadHandlers(r *pure.Mux) {
 	ui.RegisterHandlers(r)
 	authentication.RegisterUIHandlers(r)
 	task.RegisterUIHandlers(r.Group("/tasks"))
+	job.RegisterUIHandlers(r.Group("/jobs"))
 
 	apiRouter := r.GroupWithNone("/api/v1")
 	apiRouter.Use(loggingMiddleware)
