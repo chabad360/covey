@@ -1,0 +1,48 @@
+{{ define "main" }}
+<div class="container-fluid">
+    <div class="fade-in">
+        <div class="card">
+            <div class="card-header"><strong>New Task<strong></div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="plugin">Plugin</label>
+                            <select class="form-control" id="plugin" name="plugin" required>
+                                <option value="">Please select</option>
+                                {{ range .Details.Plugins }}
+                                <option value="{{ . }}">{{ . }}</option>
+                                {{ end }}
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="node">Node</label>
+                            <select class="form-control" id="node" name="node" required>
+                                <option value="">Please select</option>
+                                {{ range .Details.Nodes }}
+                                <option value="{{ . }}">{{ . }}</option>
+                                {{ end }}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                        <label for="command">Command</label>
+                        <input type="text" class="form-control" id="command" name="command" placeholder="apt-get update ..." required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                        <button class="btn btn-primary" type="submit">Start Task</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+
+{{ end }}

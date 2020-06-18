@@ -1,6 +1,5 @@
 {{ define "main" }}
 <div class="container-fluid">
-    <div class="fade-in">
         <div class="card">
             <div class="card-header">Task</div>
             <div class="card-body">
@@ -44,7 +43,7 @@
                     </tr>
                     <tr>
                         <th scope="row">Command</th>
-                        <td colspan="3"><code>{{ index (index .Details.Task.GetDetails "command") 0 }}</code></td>
+                        <td colspan="3"><code>{{ if not .Details.Task.GetDetails.Command }}{{ index (index .Details.Task.GetDetails "command") 0 }}{{else}}{{ index .Details.Task.GetDetails.Command 0}}{{end}}</code></td>
                     </tr>
                 </tbody>
             </table>
@@ -53,7 +52,7 @@
         <div class="card">
             <div class="card-header">Log</div>
             <div class="card-body">
-            <div class="overflow-auto" style="height: 100%"><pre>
+            <div id="log" class="overflow-auto" style="height: 100%"><pre>
             {{- range .Details.Task.GetLog -}}
                 <samp>{{ . }}</samp><br />
             {{- else -}}
@@ -61,7 +60,21 @@
             {{- end -}}
             </pre></div>
             </div>
-        </div>
     </div>
 </div>
-{{ end }} {{ define "scripts" }} {{ end }}
+{{ end }}
+
+{{ define "scripts" }} 
+{{ if eq .Details.Task.GetState 2 }}
+<script type="text/javascript">
+function startRefresh() {
+    $.get('', function(data) {
+        $(document.body).html(data);    
+    });
+}
+$(function() {
+    setTimeout(startRefresh,1000);
+});
+</script>
+{{ end }}
+{{ end }}

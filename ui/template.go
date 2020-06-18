@@ -22,6 +22,11 @@ var (
 			b = template.Must(b.Parse(fsMust("/tasks/single.html")))
 			return b
 		},
+		"tasksNew": func() *template.Template {
+			b := baseTemplate()
+			b = template.Must(b.Parse(fsMust("/tasks/new.html")))
+			return b
+		},
 		"login": func() *template.Template {
 			l := template.Must(template.New("login").Funcs(funcMap).Parse(fsMust("/single/login.html")))
 			return l
