@@ -26,9 +26,9 @@ type JobWithTasks struct {
 
 // JobTask represents a single task in a job.
 type JobTask struct {
-	Plugin  string      `json:"plugin"`
-	Details interface{} `json:"details"`
-	Node    string      `json:"node,omitempty"`
+	Plugin  string            `json:"plugin"`
+	Details map[string]string `json:"details"`
+	Node    string            `json:"node,omitempty"`
 }
 
 // GetName returns the name of the job.

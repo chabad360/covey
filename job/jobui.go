@@ -38,6 +38,12 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		common.ErrorWriter404(w, vars.URLParam("job"))
 	}
+	if r.URL.Query().Get("run") == "true" {
+		j, _ := GetJob(vars.URLParam("job"))
+		j.Run()
+		UpdateJob(*j)
+		job, _ = GetJobWithTasks(vars.URLParam("job"))
+	}
 
 	p := &ui.Page{
 		Title:   fmt.Sprintf("Job %s", vars.URLParam("job")),

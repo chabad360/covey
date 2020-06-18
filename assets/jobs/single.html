@@ -2,7 +2,7 @@
 <div class="container-fluid">
     <div class="fade-in">
         <div class="card">
-            <div class="card-header">Job</div>
+            <div class="card-header"><strong>Job</strong></div>
             <div class="card-body">
             <table class="table table-bordered">
                 <colgroup>
@@ -27,35 +27,36 @@
                 </tbody>
             </table>
             </div>
+            <div class="card-footer"><a class="btn btn-success" href="?run=true"><i class="fa fa-play"></i> Start Job</a></div>
         </div>
         <div class="card">
             <div class="card-header">Tasks</div>
             <div class="card-body">
-            <table class="table table-bordered">
-            <tbody>
             {{- range $key, $value := .Details.Job.Tasks -}}
-                <tr>
-                    <td>{{ $key }}</td>
-                    <td>{{ $value }}</td>
-                </tr>
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ title $key }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Plugin: {{ $value.Plugin }}</h6>
+                        <p class="card-text">{{ range $k, $v := $value.Details }}<strong>{{ $k }}:</strong> {{ $v }}<br />{{end}}</p>
+                        <a href="#" class="card-link">Edit</a>
+                    </div>
+                </div>
             {{- end -}}
-            </tbody>
-            </table>
             </div>
         </div>
         <div class="card">
             <div class="card-header">Task History</div>
             <div class="card-body">
-            <table class="table table-bordered table-hover">
-            <tbody>
-                <tr>
+            <table id="task-history" class="table table-bordered table-hover">
+            <thead>
                     <th scope="col">ID</th>
                     <th scope="col">Time</th>
                     <th scope="col">State</th>
-                </tr>
+                </thead>
+            <tbody>
             {{- range .Details.Job.TaskHistory -}}
                 <tr>
-                    <td><a href="/tasks/{{ index . "id" }}">{{ index . "id" }}</a></td>
+                    <td>{{ index . "id" }}</td>
                     <td>{{ index . "time"}}</td>
                     <td>{{- with print (index . "state") -}}
                         {{- if eq . "0" -}}
@@ -70,7 +71,7 @@
                     {{- end -}}</td>
                 </tr>
             {{- else -}}
-            None Yet
+            <tr><td>None Yet<td></tr>
             {{- end -}}
             </tbody>
             </table>
@@ -78,4 +79,19 @@
         </div>
     </div>
 </div>
-{{ end }} {{ define "scripts" }} {{ end }}
+{{ end }}
+{{ define "scripts" }} 
+<script type="text/javascript">
+    $(document).ready(function() {
+        var table = $('#task-history').DataTable({
+        "order": [[ 1, "desc" ]]
+    });
+
+        $('#task-history tbody').on('click', 'tr', function() {
+            var data = table.row(this).data();
+            window.location = "/tasks/" + data[0];
+        });
+    window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
+    });
+</script>
+{{ end }}
