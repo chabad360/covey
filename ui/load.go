@@ -10,6 +10,8 @@ var (
 
 // GetTemplate returns a template from the template map.
 func GetTemplate(name string) *template.Template {
-	templates[name] = templatesF[name]()
+	if templates[name] == nil {
+		templates[name] = templatesF[name]()
+	}
 	return templates[name]
 }
