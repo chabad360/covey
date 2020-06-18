@@ -85,3 +85,9 @@ Use the following command to build covey with live file system changes support:
 ```bash
 go build -tags live -trimpath github.com/chabad360/covey
 ```
+
+Use the following for a fancy release build:
+
+```bash
+go build -trimpath -ldflags="-s -w" github.com/chabad360/covey && upx covey
+```
