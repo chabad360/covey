@@ -14,15 +14,12 @@ import (
 )
 
 var task = &types.Task{
-	ID:     "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-	State:  types.StateRunning,
-	Plugin: "test",
-	Node:   "test",
-	Time:   time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
-	Details: struct {
-		Test  string `json:"Test"`
-		Test2 string `json:"Test2"`
-	}{"test", "test"},
+	ID:      "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+	State:   types.StateRunning,
+	Plugin:  "test",
+	Node:    "test",
+	Time:    time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
+	Details: map[string]string{"test": "test"},
 }
 
 func TestAddTask(t *testing.T) {
@@ -32,7 +29,7 @@ func TestAddTask(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "log": null, "node": "test", "time": "2000-01-01T01:01:01.000000001Z", "state": 2, "plugin": "test", "details": {"Test": "test", "Test2": "test"}}`},
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "log": null, "node": "test", "time": "2000-01-01T01:01:01.000000001Z", "state": 2, "plugin": "test", "details": {"test": "test"}}`},
 		{"3", ""},
 	}
 	//revive:enable:line-length-limit
@@ -58,7 +55,7 @@ func TestUpdateTask(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "log": ["hello", "world"], "node": "test", "time": "2000-01-01T01:01:01.000000001Z", "state": 2, "plugin": "test", "details": {"Test": "test", "Test2": "test"}}`},
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "log": ["hello", "world"], "node": "test", "time": "2000-01-01T01:01:01.000000001Z", "state": 2, "plugin": "test", "details": {"test": "test"}}`},
 		{"3", ""},
 	}
 	//revive:enable:line-length-limit
@@ -86,7 +83,7 @@ func TestGetTaskJSON(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "log": ["hello", "world"], "node": "test", "time": "2000-01-01T01:01:01.000000001Z", "state": 2, "plugin": "test", "details": {"Test": "test", "Test2": "test"}}`},
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "log": ["hello", "world"], "node": "test", "time": "2000-01-01T01:01:01.000000001Z", "state": 2, "plugin": "test", "details": {"test": "test"}}`},
 		{"3", ""},
 	}
 	//revive:enable:line-length-limit

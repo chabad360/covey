@@ -69,7 +69,6 @@ func GetTask(identifier string) (types.ITask, bool) {
 
 	t, err := getTaskJSON(identifier)
 	if err != nil {
-		log.Println(err)
 		return nil, false
 	}
 	var x types.Task

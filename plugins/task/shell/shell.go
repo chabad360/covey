@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 
 	"github.com/chabad360/covey/node"
 	"github.com/chabad360/covey/task"
@@ -15,7 +16,7 @@ func runTask(t *Task) (*bytes.Buffer, error) {
 		return nil, fmt.Errorf("%v is not a valid node", t.Node)
 	}
 
-	b, c, err := n.Run(t.Details.Command)
+	b, c, err := n.Run([]string{t.Details["command"]})
 	if err != nil {
 		return nil, err
 	}
@@ -25,11 +26,10 @@ func runTask(t *Task) (*bytes.Buffer, error) {
 		e := <-c
 		if e == 0 {
 			t.State = types.StateDone
-			t.Details.ExitStatus = e
 		} else {
 			t.State = types.StateError
-			t.Details.ExitStatus = e
 		}
+		t.Details["exit_status"] = strconv.Itoa(e)
 		t.GetLog()
 		task.SaveTask(t)
 	}()

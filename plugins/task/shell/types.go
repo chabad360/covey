@@ -9,17 +9,10 @@ import (
 // Plugin is exposed to the module.
 var Plugin plugin
 
-// ShellTask fills the details field of the Task.
-type ShellTask struct {
-	Command    []string      `json:"command"`
-	ExitStatus int           `json:"exit_status"`
-	Buffer     *bytes.Buffer `json:"-"`
-}
-
 // Task implements the types.Task struct internally.
 type Task struct {
 	types.Task
-	Details ShellTask `json:"details"`
+	Buffer *bytes.Buffer `json:"-"`
 }
 
 type plugin struct{}

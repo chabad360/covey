@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/chabad360/covey/common"
@@ -15,11 +16,11 @@ func (p *plugin) NewTask(taskJSON []byte) (types.ITask, error) {
 	if err := json.Unmarshal(taskJSON, &t); err != nil {
 		return nil, err
 	}
-	if t.Details.Command == nil {
-		return nil, fmt.Errorf("missing command")
+	if t.Details["command"] == "" {
+		return nil, fmt.Errorf("shellPlugin: missing command")
 	}
 
-	t.Details.ExitStatus = 256
+	t.Details["exit_status"] = strconv.Itoa(256)
 	t.Log = []string{}
 	t.State = types.StateStarting
 	t.Time = time.Now()
@@ -29,7 +30,7 @@ func (p *plugin) NewTask(taskJSON []byte) (types.ITask, error) {
 	if err != nil {
 		return nil, err
 	}
-	t.Details.Buffer = b
+	t.Buffer = b
 
 	return &t, nil
 }

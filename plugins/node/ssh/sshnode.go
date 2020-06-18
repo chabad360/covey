@@ -26,7 +26,7 @@ func (n *Node) Run(args []string) (*bytes.Buffer, chan int, error) {
 	c := make(chan int)
 
 	session.Stdout = &b
-	session.Stderr = &b
+	// session.Stderr = &b
 	go func() {
 		if err := session.Run(strings.Join(args, " ")); err != nil {
 			log.Println(err)

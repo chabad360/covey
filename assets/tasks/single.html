@@ -41,10 +41,21 @@
                         <th scope="row">Plugin</th>
                         <td>{{ .Details.Task.GetPlugin }}</td>
                     </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Details</div>
+            <div class="card-body">
+            <table class="table table-bordered">
+                <tbody>
+                    {{ range $key, $val := .Details.Task.Details }}
                     <tr>
-                        <th scope="row">Command</th>
-                        <td colspan="3"><code>{{ if not .Details.Task.GetDetails.Command }}{{ index (index .Details.Task.GetDetails "command") 0 }}{{else}}{{ index .Details.Task.GetDetails.Command 0}}{{end}}</code></td>
+                        <th scope="row">{{ title $key }}</th>
+                        <td><code>{{ $val }}</code></td>
                     </tr>
+                    {{ end }}
                 </tbody>
             </table>
             </div>
@@ -60,7 +71,7 @@
             {{- end -}}
             </pre></div>
             </div>
-    </div>
+        </div>
 </div>
 {{ end }}
 

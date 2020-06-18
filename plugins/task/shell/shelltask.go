@@ -1,12 +1,12 @@
 package main
 
 // GetDetails returns the details of the task.
-func (t *Task) GetDetails() interface{} { return t.Details }
+func (t *Task) GetDetails() map[string]string { return t.Details }
 
 // GetLog reads the unread buffer and adds it to the task's log, then returns that log.
 func (t *Task) GetLog() []string {
-	if t.Details.Buffer != nil { // Ensure buffer exists
-		b := t.Details.Buffer.Bytes()
+	if t.Buffer != nil { // Ensure buffer exists
+		b := t.Buffer.Bytes()
 
 		var line []byte
 		var log []string
@@ -28,7 +28,7 @@ func (t *Task) GetLog() []string {
 			t.Log = log
 		}
 
-		t.Details.Buffer.Reset() // Finally, reset the buffer.
+		t.Buffer.Reset() // Finally, reset the buffer.
 	}
 
 	return t.Log

@@ -16,13 +16,13 @@ type TaskPlugin interface {
 
 // Task defines the information of a task.
 type Task struct {
-	State   TaskState   `json:"state"`
-	Plugin  string      `json:"plugin"`
-	ID      string      `json:"id"`
-	Node    string      `json:"node"`
-	Details interface{} `json:"details"`
-	Log     []string    `json:"log"`
-	Time    time.Time   `json:"time"`
+	State   TaskState         `json:"state"`
+	Plugin  string            `json:"plugin"`
+	ID      string            `json:"id"`
+	Node    string            `json:"node"`
+	Details map[string]string `json:"details"`
+	Log     []string          `json:"log"`
+	Time    time.Time         `json:"time"`
 }
 
 // ITask Defines the read methods for a task.
@@ -43,7 +43,7 @@ type ITask interface {
 	GetTime() time.Time
 
 	// GetDetails returns the details of the task.
-	GetDetails() interface{}
+	GetDetails() map[string]string
 
 	// GetID returns the ID of the task.
 	GetID() string
@@ -71,7 +71,7 @@ func (t *Task) GetNode() string { return t.Node }
 func (t *Task) GetTime() time.Time { return t.Time }
 
 // GetDetails returns the details of the task.
-func (t *Task) GetDetails() interface{} { return t.Details }
+func (t *Task) GetDetails() map[string]string { return t.Details }
 
 // GetLog returns the log of the task.
 func (t *Task) GetLog() []string { return t.Log }

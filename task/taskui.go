@@ -39,6 +39,7 @@ func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 	task, ok := GetTask(vars.URLParam("task"))
 	if !ok {
 		common.ErrorWriter404(w, vars.URLParam("task"))
+		return
 	}
 
 	p := &ui.Page{
@@ -82,7 +83,7 @@ func UITaskNew(w http.ResponseWriter, r *http.Request) {
 		task, err := json.Marshal(map[string]interface{}{
 			"node":    r.FormValue("node"),
 			"plugin":  r.FormValue("plugin"),
-			"details": map[string][]string{"command": []string{u}}})
+			"details": map[string]string{"command": u}})
 		if err != nil {
 			common.ErrorWriter(w, err)
 			return

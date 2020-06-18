@@ -32,7 +32,7 @@ func TestAddJob(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"Command": ["sudo apt update && sudo apt upgrade -y"]}}}, "task_history": []}`},
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"command": ["sudo apt update && sudo apt upgrade -y"]}}}, "task_history": []}`},
 		{"3", ""},
 	}
 	//revive:enable:line-length-limit
@@ -58,7 +58,7 @@ func TestUpdateJob(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "5 * * * *", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"Command": ["sudo apt update && sudo apt upgrade -y"]}}}, "task_history": []}`},
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "5 * * * *", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"command": ["sudo apt update && sudo apt upgrade -y"]}}}, "task_history": []}`},
 		{"3", ""},
 	}
 	//revive:enable:line-length-limit
@@ -86,7 +86,7 @@ func TestGetJobWithFullHistory(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "5 * * * *", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"Command": ["sudo apt update && sudo apt upgrade -y"]}}}, "task_history": null}`},
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "5 * * * *", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"command": ["sudo apt update && sudo apt upgrade -y"]}}}, "task_history": null}`},
 		{"3", ""},
 	}
 	//revive:enable:line-length-limit

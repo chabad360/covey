@@ -51,7 +51,7 @@ func Test_jobGet(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"name":"update","id":"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e","nodes":["node1"],"tasks":{"update":{"plugin":"shell","details":{"Command":["sudo apt update \u0026\u0026 sudo apt upgrade -y"]}}}}
+			`{"name":"update","id":"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e","nodes":["node1"],"tasks":{"update":{"plugin":"shell","details":{"command":["sudo apt update \u0026\u0026 sudo apt upgrade -y"]}}}}
 `},
 		{"3", `{"error":"404 3 not found"}
 `},

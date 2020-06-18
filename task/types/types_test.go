@@ -1,6 +1,7 @@
 package types
 
 import (
+	"reflect"
 	"testing"
 	"time"
 )
@@ -10,8 +11,8 @@ var n = &Task{
 	Plugin:  "plugin",
 	State:   StateDone,
 	Node:    "node",
-	Time:    time.Now(),
-	Details: "test",
+	Time:    time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
+	Details: map[string]string{"test": "test"},
 	Log:     []string{"hello", "world"},
 }
 
@@ -34,7 +35,7 @@ func TestTask_GetPlugin(t *testing.T) {
 }
 
 func TestTask_GetState(t *testing.T) {
-	if got := n.GetState(); got != StateDone {
+	if got := n.GetState(); got != n.State {
 		t.Errorf("Task.GetState() = %v, want %v", got, StateDone)
 	}
 }
@@ -46,8 +47,14 @@ func TestTask_GetNode(t *testing.T) {
 }
 
 func TestTask_GetDetails(t *testing.T) {
-	if got := n.GetDetails(); got != "test" {
-		t.Errorf("Task.GetDetails() = %v, want %v", got, "test")
+	if got := n.GetDetails(); !reflect.DeepEqual(got, n.Details) {
+		t.Errorf("Task.GetDetails() = %v, want %v", got, n.Details)
+	}
+}
+
+func TestTask_GetTime(t *testing.T) {
+	if got := n.GetTime(); got != n.Time {
+		t.Errorf("Task.GetTime() = %v, want %v", got, n.Time)
 	}
 }
 

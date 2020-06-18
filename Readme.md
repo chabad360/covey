@@ -62,7 +62,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 ## State of the Project
 
-Covey is in active development, it's written in Go, and uses Postgres as the database. If you are interested in helping with development, open a PR with your changes. At the moment, I've been adding some tests, and doing some refactoring here and there.
+Covey is in active development, it's written in Go, and uses Postgres as the database. If you are interested in helping with development, open a PR with your changes. At the moment, I've begun working on the web interface.
 
 ### Installation Instructions
 
