@@ -1,0 +1,13 @@
+{{ define "taskState" }}
+{{- with print . -}}
+    {{- if eq . "0" -}}
+        <span class="badge bg-danger">Failed</span>
+    {{- else if eq . "1" -}}
+        <span class="badge bg-success">Done</span>
+    {{- else if eq . "2" -}}
+        <span class="badge bg-warning">Running</span>
+    {{- else if eq . "3" -}}
+        <span class="badge bg-secondary">Stopped</span>
+    {{- end -}}
+{{- end -}}
+{{ end }}

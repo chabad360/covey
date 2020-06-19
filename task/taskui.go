@@ -16,16 +16,16 @@ import (
 )
 
 func uiTasks(w http.ResponseWriter, r *http.Request) {
-	var tasks []byte
+	var tasks []types.Task
 	err := storage.DB.QueryRow(context.Background(),
-		"SELECT jsonb_agg(to_jsonb(tasks) - 'log' - 'details') FROM tasks").Scan(&tasks)
+		"SELECT jsonb_agg(to_jsonb(tasks)) FROM tasks").Scan(&tasks)
 	if err != nil {
 		common.ErrorWriter(w, err)
 	}
 	p := &ui.Page{
 		Title:   "Tasks",
 		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Tasks string }{Tasks: string(tasks)},
+		Details: struct{ Tasks []types.Task }{Tasks: tasks},
 	}
 	t := ui.GetTemplate("tasksAll")
 	err = t.ExecuteTemplate(w, "base", p)

@@ -49,6 +49,7 @@ func baseTemplate() *template.Template {
 	b = template.Must(b.Parse(fsMust("/base/sidebar.html")))
 	b = template.Must(b.Parse(fsMust("/base/header.html")))
 	b = template.Must(b.Parse(fsMust("/base/footer.html")))
+	b = template.Must(b.Parse(fsMust("/base/functions.html")))
 	return b
 }
 

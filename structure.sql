@@ -15,7 +15,7 @@ CREATE TABLE tasks (
     state INT NOT NULL,
     node TEXT NOT NULL,
     time TEXT,
-    log JSONB,
+    log JSON,
     details JSONB NOT NULL
 );
 
@@ -25,7 +25,7 @@ CREATE TABLE jobs (
     name TEXT UNIQUE NOT NULL,
     cron TEXT,
     nodes JSONB NOT NULL,
-    tasks JSONB NOT NULL,
+    tasks JSON NOT NULL,
     task_history JSONB
 );
 

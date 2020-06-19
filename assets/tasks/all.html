@@ -4,16 +4,30 @@
         <div class="card">
             <div class="card-header">Tasks</div>
             <div class="card-body">
+                <noscript>This table uses datatables.js to provide sorting and filtering.</noscript>
                 <table id="tasks" class="table table-striped table-bordered table-hover" style="width:100%">
                     <thead>
                         <tr>
+                            <th>ID (Short)</th>
                             <th>Time</th>
                             <th>State</th>
                             <th>Node</th>
                             <th>Plugin</th>
-                            <th>ID (Short)</th>
                         </tr>
                     </thead>
+                    <tbody>
+            {{- range .Details.Tasks -}}
+                <tr>
+                    <td><a href="/tasks/{{ .ID }}">{{ .GetIDShort }}</a></td>
+                    <td>{{ .Time }}</td>
+                    <td>{{ template "taskState" .State }}</td>
+                    <td><a href="/nodes/{{ .Node }}">{{ .Node }}</a></td>
+                    <td>{{ .Plugin }}</td>
+                </tr>
+            {{- else -}}
+            <tr><td>None Yet<td></tr>
+            {{- end -}}
+            </tbody>
                 </table>
             </div>
         </div>
@@ -21,37 +35,8 @@
 </div>
 {{ end }} {{ define "scripts" }}
 <script type="text/javascript">
-    var json = JSON.parse({{.Details.Tasks}})
-        // Really ineficient, I need to figure out a better method, (this whole thing will be too slow when the lists get long).
-    for (var i = 0; i < json.length; i++) {
-        if (json[i].state == "0") {
-            json[i].state = "<span class=\"badge badge-failure\">Failed</span>"
-        } else if (json[i].state == "1") {
-            json[i].state = "<span class=\"badge badge-success\">Done</span>"
-        } else if (json[i].state == "2") {
-            json[i].state = "<span class=\"badge badge-warning\">Running</span>"
-        }
-    }
     $(document).ready(function() {
-        var table = $('#tasks').DataTable({
-            "data": json,
-            columns: [{
-                "data": "time"
-            }, {
-                "data": "state"
-            }, {
-                "data": "node"
-            }, {
-                "data": "plugin"
-            }, {
-                "data": "id_short"
-            }, ]
-        });
-
-        $('#tasks tbody').on('click', 'tr', function() {
-            var data = table.row(this).data();
-            window.location = "/tasks/" + data.id;
-        });
+        var table = $('#tasks').DataTable();
     });
 </script>
 {{ end }}

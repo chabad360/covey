@@ -14,7 +14,7 @@ import (
 )
 
 func uiJobs(w http.ResponseWriter, r *http.Request) {
-	var jobs []byte
+	var jobs []types.Job
 	err := storage.DB.QueryRow(context.Background(),
 		"SELECT jsonb_agg(to_jsonb(jobs) - 'log' - 'details') FROM jobs").Scan(&jobs)
 	if err != nil {
@@ -23,7 +23,7 @@ func uiJobs(w http.ResponseWriter, r *http.Request) {
 	p := &ui.Page{
 		Title:   "Jobs",
 		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Jobs string }{Jobs: string(jobs)},
+		Details: struct{ Jobs []types.Job }{Jobs: jobs},
 	}
 	t := ui.GetTemplate("jobsAll")
 	err = t.ExecuteTemplate(w, "base", p)

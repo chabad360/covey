@@ -47,6 +47,7 @@
         <div class="card">
             <div class="card-header">Task History</div>
             <div class="card-body">
+            <noscript>This table uses datatables.js to provide sorting and filtering.</noscript>
             <table id="task-history" class="table table-bordered table-hover">
             <thead>
                     <th scope="col">ID</th>
@@ -56,19 +57,9 @@
             <tbody>
             {{- range .Details.Job.TaskHistory -}}
                 <tr>
-                    <td>{{ index . "id" }}</td>
+                    <td><a href="/tasks/{{ index . "id" }}">{{ index . "id" }}</a></td>
                     <td>{{ index . "time"}}</td>
-                    <td>{{- with print (index . "state") -}}
-                        {{- if eq . "0" -}}
-                        <span class="badge bg-danger">Failed</span>
-                        {{- else if eq . "1" -}}
-                        <span class="badge bg-success">Done</span>
-                        {{- else if eq . "2" -}}
-                        <span class="badge bg-warning">Running</span>
-                        {{- else if eq . "3" -}}
-                        <span class="badge bg-secondary">Stopped</span>
-                        {{- end -}}
-                    {{- end -}}</td>
+                    <td>{{- template "taskState" (index . "state") -}}</td>
                 </tr>
             {{- else -}}
             <tr><td>None Yet<td></tr>
@@ -86,11 +77,6 @@
         var table = $('#task-history').DataTable({
         "order": [[ 1, "desc" ]]
     });
-
-        $('#task-history tbody').on('click', 'tr', function() {
-            var data = table.row(this).data();
-            window.location = "/tasks/" + data[0];
-        });
     window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
     });
 </script>
