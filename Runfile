@@ -1,0 +1,46 @@
+EXPORT RUN := ${.RUN}
+EXPORT RUNFILE := ${.RUNFILE}
+
+## 
+# Build Covey
+# OPTION LIVE -l, --live Build Covey without bundling any assets.
+# OPTION RELEASE -r, --release Strip symbols and compress Covey binary.
+build:
+    TAGS=""
+    LD=""
+    [[ "${LIVE}" ]] || "${RUN}" -r "${RUNFILE}" pack
+    "${RUN}" -r "${RUNFILE}" plugins --live=${LIVE:-0} --release=${RELEASE:-0}
+    [[ "${LIVE}" ]] && TAGS=-tags=live && echo "Building Covey without assets"
+    [[ "${RELEASE}" ]] && echo "Building Covey without symbols"
+    echo "Building Covey"
+    [[ "${RELEASE}" ]] \
+        && go build -trimpath ${TAGS} -ldflags="-s -w" github.com/chabad360/covey \
+        || go build -trimpath ${TAGS} github.com/chabad360/covey
+    [[ "${RELEASE}" ]] && echo "Compressing binary" && upx covey 
+
+## Package Covey resources
+pack:
+    echo "Bundling covey resources"
+    resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ assets/*
+
+##
+# Build Covey plugins
+# OPTION LIVE -l, --live Build Covey without bundling any assets.
+# OPTION RELEASE -r, --release Strip symbols and compress Covey binary.
+plugins:
+    TAGS=""
+    LD=""
+    [[ "${LIVE}" ]] && TAGS=-tags=live && echo "Building plugins without assets"
+    [[ "${RELEASE}" ]] && echo "Building plugins without symbols"
+    echo "Building plugins"
+    [[ "${RELEASE}" ]] \
+        && go build -o plugins/task/shell.so -ldflags="-s -w" -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/task/shell \
+        || go build -o plugins/task/shell.so -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/task/shell
+    [[ "${RELEASE}" ]] \
+        && go build -o plugins/node/ssh.so -ldflags="-s -w" -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/node/ssh \
+        || go build -o plugins/node/ssh.so -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/node/ssh
+
+## Build and run Covey with -tag live
+run:
+    "${RUN}" -r "${RUNFILE}" build --live
+    ./covey
