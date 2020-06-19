@@ -55,11 +55,10 @@ func tokenGet(user *credentials) (*http.Cookie, error) {
 	return &http.Cookie{
 		Name: "token",
 		// Domain:   r.Host,
-		Value:    token,
-		Expires:  *eTime,
-		MaxAge:   int(time.Until(*eTime).Seconds()),
-		HttpOnly: true,
-		Path:     "/",
+		Value:   token,
+		Expires: *eTime,
+		MaxAge:  int(time.Until(*eTime).Seconds()),
+		Path:    "/",
 	}, nil
 }
 

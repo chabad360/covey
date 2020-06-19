@@ -36,12 +36,12 @@ func RegisterHandlers(r pure.IRouteGroup) {
 func loadHandlers(r *pure.Mux) {
 	r.Use(loggingMiddleware)
 	r.Use(authentication.AuthUserMiddleware)
+	r.Get("/src/*", http.FileServer(asset.FS).ServeHTTP)
 
 	ui.RegisterHandlers(r)
 	authentication.RegisterUIHandlers(r)
 	task.RegisterUIHandlers(r.Group("/tasks"))
 	r.Get("/new/task", task.UITaskNew)
-	r.Post("/new/task", task.UITaskNew)
 	job.RegisterUIHandlers(r.Group("/jobs"))
 
 	apiRouter := r.GroupWithNone("/api/v1")

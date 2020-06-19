@@ -2,9 +2,10 @@
 <div class="container-fluid">
     <div class="fade-in">
         <div class="card">
-            <div class="card-header"><strong>New Task<strong></div>
+            <div class="card-header"><strong>New Task</strong></div>
             <div class="card-body">
-                <form method="POST">
+                <noscript>This form requires JavaScript.</noscript>
+                <form id="taskform" method="POST">
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="plugin">Plugin</label>
@@ -28,12 +29,12 @@
                     <div class="form-row">
                         <div class="form-group col-md-12">
                         <label for="command">Command</label>
-                        <input type="text" class="form-control" id="command" name="command" placeholder="apt-get update ..." required>
+                        <input type="text" class="form-control" id="command" name="details[command]" placeholder="apt-get update ..." required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                        <button class="btn btn-primary" type="submit">Start Task</button>
+                        <button class="btn btn-success" type="submit"><i class="fa fa-play"></i> Start Task</button>
                         </div>
                     </div>
                 </form>
@@ -44,5 +45,23 @@
 {{ end }}
 
 {{ define "scripts" }}
-
+<script type="text/javascript">
+$(document).ready(function() {
+    $("#taskform").on('submit', function(e) {
+        e.preventDefault();
+        var form = $("#taskform").serializeJSON();
+        $.ajax({
+            url : "/api/v1/tasks/new",
+            headers: { "Authorization": 'Bearer ' + getCookieValue("token") },
+            type: "POST",
+            dataType: 'json',
+            data: JSON.stringify(form),
+            contentType: 'application/json',
+            success: function(data) {
+                window.location = "/tasks/" + data.id;
+            }
+        });
+    });
+});
+</script>
 {{ end }}

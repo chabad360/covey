@@ -25,7 +25,7 @@
                     <td>{{ .Plugin }}</td>
                 </tr>
             {{- else -}}
-            <tr><td>None Yet<td></tr>
+            <tr><td colspan="5">None Yet<td></tr>
             {{- end -}}
             </tbody>
                 </table>
@@ -36,7 +36,9 @@
 {{ end }} {{ define "scripts" }}
 <script type="text/javascript">
     $(document).ready(function() {
-        var table = $('#tasks').DataTable();
+        var table = $('#tasks').DataTable({
+        "order": [[ 1, "desc" ]],
+        });
     });
 </script>
 {{ end }}
