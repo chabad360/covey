@@ -41,6 +41,11 @@ var (
 			b = template.Must(b.Parse(fsMust("/jobs/single.html")))
 			return b
 		},
+		"jobsNew": func() *template.Template {
+			b := baseTemplate()
+			b = template.Must(b.Parse(fsMust("/jobs/new.html")))
+			return b
+		},
 	}
 )
 

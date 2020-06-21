@@ -53,6 +53,7 @@ func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UITaskNew returns the form for creating a new task.
 func UITaskNew(w http.ResponseWriter, r *http.Request) {
 	var nodes []string
 	storage.DB.QueryRow(context.Background(), "SELECT jsonb_agg(name) FROM nodes;").Scan(&nodes)

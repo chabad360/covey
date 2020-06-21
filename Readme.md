@@ -31,32 +31,33 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 #### V0.3 Web Interface
 
-* [ ] Design and Implement the Web Interface
-* [x] Implement Basic Authentication
-* [x] Begin Adding Tests
+* [ ] Design and implement the web interface
+* [x] Implement basic authentication
+* [x] Begin adding tests
 * [x] Switch away from mux (too slow...)
 
 #### V0.4 Monitoring
 
 * [ ] Create Node Agent
-* [ ] Integrate With [Netdata](https://github.com/netdata/netdata) for Monitoring
-* [ ] Add Tests
+* [ ] Integrate with [Netdata](https://github.com/netdata/netdata) for monitoring
+* [ ] Add tests
 
 #### V0.5 A Better API
 
+* [ ] Evaluate designing a very basic framework (for keeping things cleaner)
 * [ ] Evaluate GraphQL for the API
-* [ ] Fully Implement (and Test) the API
-* [ ] Swagger (OpenAPI) (Might save that for later)
-* [ ] Fully Document the API
+* [ ] Fully implement (and test) the API
+* [ ] Swagger (OpenAPI) (might save that for later)
+* [ ] Fully document the API
 
 #### V0.6 Alpha
 
-* [ ] Provide Configuration Methods
+* [ ] Provide configuration system
 * [ ] CI
-* [ ] Fix Some Issues With the Plugin System
+* [ ] Fix some issues With the plugin system
 * [ ] Refactor
-* [ ] Add an AUR Package
-* [ ] Add and Refactor Tests (Aim for 80% Coverage)
+* [ ] Add an AUR package
+* [ ] Add and refactor tests (Aim for 80% Coverage)
 
 ---
 
