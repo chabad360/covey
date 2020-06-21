@@ -12,7 +12,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 * RESTful API
 * Plug-able Modules
-* Web Interface (coming soon with v0.3)
+* Web Interface (basic and doesn't work with nodes yet)
 * Node Monitoring (planned for v0.4)
 * Automated Setup
 * Crash-only design
@@ -31,7 +31,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 #### V0.3 Web Interface
 
-* [ ] Design and implement the web interface
+* [x] Design and implement the basic web interface
 * [x] Implement basic authentication
 * [x] Begin adding tests
 * [x] Switch away from mux (too slow...)
@@ -41,6 +41,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Create Node Agent
 * [ ] Integrate with [Netdata](https://github.com/netdata/netdata) for monitoring
 * [ ] Add tests
+* [ ] Add relevant UI elements
 
 #### V0.5 A Better API
 
@@ -58,6 +59,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Refactor
 * [ ] Add an AUR package
 * [ ] Add and refactor tests (Aim for 80% Coverage)
+* [ ] Complete the web UI
 
 ---
 
