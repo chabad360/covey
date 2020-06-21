@@ -36,7 +36,13 @@ func RegisterHandlers(r pure.IRouteGroup) {
 func loadHandlers(r *pure.Mux) {
 	r.Use(loggingMiddleware)
 	r.Use(authentication.AuthUserMiddleware)
-	r.Get("/src/*", http.FileServer(asset.FS).ServeHTTP)
+
+	r.Get("/src/*", func() http.HandlerFunc {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Cache-Control", "max-age=2592000")
+			http.FileServer(asset.FS).ServeHTTP(w, r)
+		})
+	}()) // Make static files cached
 
 	ui.RegisterHandlers(r)
 	authentication.RegisterUIHandlers(r)

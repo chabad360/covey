@@ -26,15 +26,15 @@
                             <input type="text" class="form-control" id="cron" name="cron" />
                         </div>
                     </div>
-        <div class="card form-row">
-            <div class="card-header">Tasks</div>
-            <div class="card-body" id="tasks"></div>
-        </div>
             </div>
             <div class="card-footer">
-                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#job">Add Job</button>
+                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#job">Add Task</button>
                 <button class="btn btn-success" type="submit">Create Job</button>
             </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Tasks</div>
+            <div class="card-body row" id="tasks"></div>
         </div>
         </form>
     </div>
@@ -44,7 +44,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="jobModalLabel">New Job</h5>
+                <h5 class="modal-title" id="jobModalLabel">New Task</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -88,7 +88,10 @@ $(document).ready(function() {
     $("#jobform").on('submit', function(e) {
         e.preventDefault();
         var form = $( this ).serializeJSON({skipFalsyValuesForTypes: ["string"]});
-        console.log(JSON.stringify(form))
+        if (!form.tasks) {
+            alert("Missing Tasks");
+            return;
+        }
         $.ajax({
             url : "/api/v1/jobs/new",
             headers: { "Authorization": 'Bearer ' + getCookieValue("token") },
@@ -110,11 +113,14 @@ $(document).ready(function() {
         var taskform = $( this ).serializeJSON();
         var name = taskform.taskname
         delete taskform.taskname
+        coreui.Modal.getInstance(document.getElementById("job")).hide();
+
+        var container = document.createElement("div");
+        container.setAttribute("class", "col-sm-3");
 
         var task = document.createElement("div");
         task.setAttribute("id", name + "Task");
-        task.setAttribute("class", "card form-group");
-        task.setAttribute("style", "width: 18rem;");
+        task.setAttribute("class", "card");
 
         var taskDiv = document.createElement("div");
         taskDiv.setAttribute("class", "card-body");
@@ -136,9 +142,9 @@ $(document).ready(function() {
         taskDiv.appendChild(taskPlugin);
         taskDiv.appendChild(taskData);
         task.appendChild(taskDiv);
-        $("#tasks").append(task);
-        document.getElementById("taskForm").reset();
-        coreui.Modal.getInstance(document.getElementById("job")).hide();
+        container.appendChild(task);
+        $("#tasks").append(container);
+        document.getElementById("taskform").reset();
     });
 </script>
 {{ end }}
