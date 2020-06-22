@@ -3,8 +3,6 @@ engines:
       enabled: true
       exclude_paths:
         - '**_test.go'
-        - 'asset/asset.go'
-        - 'asset/live.go'
     remark-int:
       enabled: true
       exclude_paths:
@@ -13,28 +11,8 @@ engines:
       enabled: true
       exclude_paths:
         - '.vscode/**'
-    eslint:
-      enabled: true
-      exclude_paths:
-        - 'assets/src/**'
-    revive:
-      enabled: true
-      exclude_paths:
-        - 'asset/asset.go'
-        - 'asset/live.go'
-    coverage:
-      enabled: true
-      exclude_paths:
-        - 'asset/asset.go'
-        - 'asset/live.go'
-        - 'assets/src/**'
-    metrics:
-      enabled: true
-      exclude_paths:
-        - 'asset/asset.go'
-        - 'asset/live.go'
-        - 'assets/src/**'
-    complexity:
-      enabled: true
-      exclude_paths:
-        - 'assets/src/**'
+
+exclude_paths:
+  - 'asset/asset.go'
+  - 'asset/live.go'
+  - 'assets/src/**'
