@@ -4,15 +4,18 @@ import (
 	"fmt"
 	"log"
 	"plugin"
+	"time"
 
 	json "github.com/json-iterator/go"
 
+	"github.com/chabad360/covey/common"
+	"github.com/chabad360/covey/node"
 	"github.com/chabad360/covey/task/types"
 )
 
 // NewTask creates a new task.
-func NewTask(taskJSON []byte) (types.ITask, error) {
-	var t types.Task
+func NewTask(taskJSON []byte) (*types.Task, error) {
+	var t *types.Task
 	if err := json.Unmarshal(taskJSON, &t); err != nil {
 		return nil, err
 	}
@@ -22,21 +25,25 @@ func NewTask(taskJSON []byte) (types.ITask, error) {
 		return nil, err
 	}
 
-	task, err := p.NewTask(taskJSON)
+	cmd, err := p.GetCommand(taskJSON)
 	if err != nil {
 		return nil, err
 	}
 
-	tasks[task.GetID()] = task
-	tasksShort[task.GetIDShort()] = task.GetID()
-	SaveTask(task)
-	return task, nil
-}
+	t.ExitCode = 256
+	t.Log = []string{}
+	t.State = types.StateStarting
+	t.Time = time.Now()
+	t.Command = cmd
+	t.ID = common.GenerateID(t)
 
-// LoadConfig loads up the stored nodes
-// func LoadConfig() {
-// 	log.Println("Placeholder")
-// }
+	tasks[t.GetID()] = t
+	tasksShort[t.GetIDShort()] = t.GetID()
+	SaveTask(t)
+
+	go runTask(t)
+	return t, nil
+}
 
 func loadPlugin(pluginName string) (types.TaskPlugin, error) {
 	p, err := plugin.Open("./plugins/task/" + pluginName + ".so")
@@ -59,7 +66,7 @@ func loadPlugin(pluginName string) (types.TaskPlugin, error) {
 }
 
 // GetTask checks if a task with the identifier exists and returns it.
-func GetTask(identifier string) (types.ITask, bool) {
+func GetTask(identifier string) (*types.Task, bool) {
 	// If the task is still running, return it instead of the db version.
 	if x, ok := tasks[identifier]; ok {
 		return x, true
@@ -79,7 +86,7 @@ func GetTask(identifier string) (types.ITask, bool) {
 }
 
 // SaveTask saves a live task to the database.
-func SaveTask(t types.ITask) {
+func SaveTask(t *types.Task) {
 	// Only useful if the task is still running, i.e. it's in the tasks map.
 	if _, ok := tasks[t.GetID()]; !ok {
 		return
@@ -101,4 +108,30 @@ func SaveTask(t types.ITask) {
 	} else {
 		tasks[t.GetID()] = t
 	}
+}
+
+func runTask(t *types.Task) error {
+	n, ok := node.GetNode(t.Node)
+	if !ok {
+		return fmt.Errorf("%v is not a valid node", t.Node)
+	}
+
+	b, c, err := n.Run([]string{t.Command})
+	if err != nil {
+		return err
+	}
+	t.State = types.StateRunning
+	t.Buffer = b
+
+	e := <-c
+	if e == 0 {
+		t.State = types.StateDone
+	} else {
+		t.State = types.StateError
+	}
+	t.ExitCode = e
+	t.GetLog()
+	SaveTask(t)
+
+	return nil
 }

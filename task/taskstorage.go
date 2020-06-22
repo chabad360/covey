@@ -11,13 +11,14 @@ import (
 var db *pgxpool.Pool
 
 // AddTask adds a task to the database.
-func addTask(task types.ITask) error {
+func addTask(task *types.Task) error {
 	refreshDB()
-	_, err := db.Exec(context.Background(), `INSERT INTO tasks(id, id_short, plugin, state, node, time, log, details) 
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
+	_, err := db.Exec(context.Background(),
+		`INSERT INTO tasks(id, id_short, plugin, state, node, time, log, details, exit_code) 
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
 		task.GetID(), task.GetIDShort(), task.GetPlugin(), task.GetState(), task.GetNode(),
 		func() string { t, _ := task.GetTime().MarshalText(); return string(t) }(),
-		task.GetLog(), task.GetDetails())
+		task.GetLog(), task.GetDetails(), task.GetExitCode())
 	return err
 }
 
@@ -34,10 +35,10 @@ func getTaskJSON(id string) ([]byte, error) {
 }
 
 // UpdateTask updates a task in the database.
-func updateTask(task types.ITask) error {
+func updateTask(task *types.Task) error {
 	refreshDB()
-	_, err := db.Exec(context.Background(), "UPDATE tasks SET state = $1, log = $2, details = $3 WHERE id = $4;",
-		task.GetState(), task.GetLog(), task.GetDetails(), task.GetID())
+	_, err := db.Exec(context.Background(), "UPDATE tasks SET state = $1, log = $2, exit_code = $3 WHERE id = $4;",
+		task.GetState(), task.GetLog(), task.GetExitCode(), task.GetID())
 	return err
 }
 

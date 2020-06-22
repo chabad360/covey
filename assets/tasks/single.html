@@ -38,6 +38,10 @@
             <div class="card-body">
             <table class="table table-bordered">
                 <tbody>
+                    <tr>
+                        <th scope="row">Exit Code</th>
+                        <td><code>{{ .Details.Task.GetExitCode }}</code></td>
+                    </tr>
                     {{ range $key, $val := .Details.Task.Details }}
                     <tr>
                         <th scope="row">{{ title $key }}</th>
@@ -65,7 +69,7 @@
 {{ end }}
 
 {{ define "scripts" }} 
-{{ if eq .Details.Task.GetState 2 }}
+{{ if or (eq .Details.Task.GetState 2) (eq .Details.Task.GetState 6) }}
 <script type="text/javascript">
 function refresh() {
     $.get('', function(data) {

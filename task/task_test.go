@@ -8,12 +8,13 @@ import (
 )
 
 var task1 = &types.Task{
-	ID:      "2778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6c",
-	State:   types.StateRunning,
-	Plugin:  "test",
-	Node:    "test",
-	Time:    time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
-	Details: map[string]string{"test": "test"},
+	ID:       "2778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6c",
+	State:    types.StateRunning,
+	Plugin:   "test",
+	Node:     "test",
+	Time:     time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
+	Details:  map[string]string{"test": "test"},
+	ExitCode: 0,
 }
 
 func TestGetTask(t *testing.T) {
@@ -23,7 +24,7 @@ func TestGetTask(t *testing.T) {
 	tests := []struct {
 		name  string
 		args  args
-		want  types.ITask
+		want  *types.Task
 		want1 bool
 	}{
 		{"db", args{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e"}, task, true},

@@ -29,7 +29,6 @@ func (n *Node) Run(args []string) (*bytes.Buffer, chan int, error) {
 	// session.Stderr = &b
 	go func() {
 		if err := session.Run(strings.Join(args, " ")); err != nil {
-			log.Println(err)
 			if msg, ok := err.(*ssh.ExitError); ok {
 				log.Println(msg.ExitStatus())
 				c <- msg.ExitStatus()

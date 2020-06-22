@@ -1,38 +1,26 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"strconv"
 
-	"github.com/chabad360/covey/node"
-	"github.com/chabad360/covey/task"
 	"github.com/chabad360/covey/task/types"
+	json "github.com/json-iterator/go"
 )
 
-func runTask(t *Task) (*bytes.Buffer, error) {
-	n, ok := node.GetNode(t.Node)
-	if !ok {
-		return nil, fmt.Errorf("%v is not a valid node", t.Node)
+// Plugin is exposed to the module.
+var Plugin plugin
+
+type plugin struct{}
+
+// GetCommand returns the command to run on the node.
+func (p *plugin) GetCommand(taskJSON []byte) (string, error) {
+	var t types.Task
+	if err := json.Unmarshal(taskJSON, &t); err != nil {
+		return "", err
+	}
+	if t.Details["command"] == "" {
+		return "", fmt.Errorf("shellPlugin: missing command")
 	}
 
-	b, c, err := n.Run([]string{t.Details["command"]})
-	if err != nil {
-		return nil, err
-	}
-	t.State = types.StateRunning
-
-	go func() {
-		e := <-c
-		if e == 0 {
-			t.State = types.StateDone
-		} else {
-			t.State = types.StateError
-		}
-		t.Details["exit_status"] = strconv.Itoa(e)
-		t.GetLog()
-		task.SaveTask(t)
-	}()
-
-	return b, nil
+	return t.Details["command"], nil
 }

@@ -5,7 +5,7 @@
             <div class="card-header"><strong>New Task</strong></div>
             <div class="card-body">
                 <noscript>This form requires JavaScript.</noscript>
-                <form id="taskform" method="POST">
+                <form id="taskform" method="post">
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="plugin">Plugin</label>
@@ -53,7 +53,7 @@ $(document).ready(function() {
         $.ajax({
             url : "/api/v1/tasks/new",
             headers: { "Authorization": 'Bearer ' + getCookieValue("token") },
-            type: "POST",
+            type: "post",
             dataType: 'json',
             data: JSON.stringify(form),
             contentType: 'application/json',

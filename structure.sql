@@ -6,7 +6,7 @@ CREATE TABLE nodes (
     name TEXT UNIQUE NOT NULL,
     plugin TEXT NOT NULL,
     details JSONB NOT NULL
-) WITH (DATA_COMPRESSION = ROW);
+);
 
 CREATE TABLE tasks (
     id TEXT PRIMARY KEY NOT NULL,
@@ -15,9 +15,10 @@ CREATE TABLE tasks (
     state INT NOT NULL,
     node TEXT NOT NULL,
     time TEXT,
+    exit_code INT NOT NULL,
     log JSON,
     details JSONB NOT NULL
-) WITH (DATA_COMPRESSION = ROW);
+);
 
 CREATE TABLE jobs (
     id TEXT PRIMARY KEY NOT NULL,
@@ -27,11 +28,10 @@ CREATE TABLE jobs (
     nodes JSONB NOT NULL,
     tasks JSON NOT NULL,
     task_history JSONB
-) WITH (DATA_COMPRESSION = ROW);
+);
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY NOT NULL,
     username TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL
-
-) WITH (DATA_COMPRESSION = ROW);
+);

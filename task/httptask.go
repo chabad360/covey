@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	tasks      = make(map[string]types.ITask)
+	tasks      = make(map[string]*types.Task)
 	tasksShort = make(map[string]string)
 )
 

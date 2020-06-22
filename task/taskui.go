@@ -43,7 +43,7 @@ func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 	p := &ui.Page{
 		Title:   fmt.Sprintf("Task %s", vars.URLParam("task")),
 		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Task types.ITask }{Task: task},
+		Details: struct{ Task *types.Task }{Task: task},
 	}
 
 	t := ui.GetTemplate("tasksSingle")

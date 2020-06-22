@@ -8,6 +8,8 @@
         <span class="badge bg-warning">Running</span>
     {{- else if eq . "3" -}}
         <span class="badge bg-secondary">Stopped</span>
+    {{- else if eq . "6" -}}
+        <span class="badge bg-warning">Starting</span>
     {{- end -}}
 {{- end -}}
 {{ end }}
