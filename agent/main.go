@@ -4,13 +4,15 @@ import (
 	"bytes"
 	"container/list"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
 
-	"github.com/BurntSushi/toml"
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -38,32 +40,16 @@ type task struct {
 	ID      string `json:"id"`
 }
 
-// Config types
 type config struct {
-	Agent  agentConfig  `toml:"agent"`
-	Client clientConfig `toml:"client"`
-}
-
-type agentConfig struct {
-	AgentID  string `toml:"id"`
-	LogLevel int    `toml:"log-level,omitempty"`
-}
-
-type clientConfig struct {
-	Host     string `toml:"host"`
-	HostPort string `toml:"host-port,omitempty"`
+	AgentID  string
+	LogLevel string
+	Host     string
 }
 
 func main() {
-	_, err := toml.DecodeFile("/etc/covey/agent.toml", &agent)
+	var err error
+	agent, err = settings("/etc/covey/agent.conf")
 	errC(err)
-	var hostPort string
-	if hostPort = agent.Client.HostPort; hostPort == "" {
-		hostPort = "8080"
-	}
-	host := agent.Client.Host + ":" + hostPort
-	id := agent.Agent.AgentID
-	agentPath = host + "/agent/" + id
 	// ignoring log level for now
 
 	for {
@@ -72,8 +58,38 @@ func main() {
 	}
 }
 
+func settings(file string) (config, error) {
+	err := godotenv.Load(file)
+	errC(err)
+
+	var conf = config{}
+	var exists bool
+	if conf.AgentID, exists = os.LookupEnv("AGENT_ID"); !exists || conf.AgentID == "" {
+		panic(fmt.Errorf("missing AGENT_ID"))
+	}
+
+	if conf.LogLevel, exists = os.LookupEnv("LOG_LEVEL"); !exists || conf.LogLevel == "" {
+		conf.LogLevel = "INFO"
+	}
+
+	var host string
+	var port string
+	if host, exists = os.LookupEnv("AGENT_HOST"); !exists || host == "" {
+		panic(fmt.Errorf("missing AGENT_HOST"))
+	}
+	if port, exists = os.LookupEnv("AGENT_HOST_POST"); !exists || port == "" {
+		port = "8080"
+	}
+	conf.Host = host + ":" + port
+
+	return conf, nil
+}
+
 func everySecond() {
 	body, err := json.Marshal(activeTask)
+	if string(body) == "null" {
+		body = nil
+	}
 	if activeTask.ExitCode != 257 {
 		activeTask = nil
 	}
@@ -126,8 +142,8 @@ func runner() {
 				close(e)
 			}()
 
-			// This select loop is necessary because the buffer may occasionally be empty/missing \n,
-			// so this is my way of handleing this race condition, and ensuring that a result from echo -n is captured.
+			// This select loop is necessary because the buffer may occasionally be empty/missing \n (echo -n),
+			// this is my way of handleing that race condition, plus echo -n (it doesn't pin a \n to the end of Stdout).
 			for {
 				select {
 				case i := <-e:
@@ -150,6 +166,6 @@ func runner() {
 			buffer.Reset()
 			queue.Remove(qt)
 		}
-		time.Sleep(sleepDuration * 2)
+		time.Sleep(sleepDuration * 2) // Two seconds between each task
 	}
 }
