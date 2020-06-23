@@ -4,10 +4,26 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"time"
 
 	json "github.com/json-iterator/go"
 )
+
+var (
+	random = rand.New(
+		rand.NewSource(time.Now().UnixNano()))
+)
+
+func RandomString() string {
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, 32)
+	for i := range b {
+		b[i] = charset[random.Int63()%int64(len(charset))]
+	}
+	return string(b)
+}
 
 // ErrorWriter writes an error in the JSON format to the http.ResponseWriter.
 func ErrorWriter(w http.ResponseWriter, err error) {

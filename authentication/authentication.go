@@ -2,29 +2,18 @@ package authentication
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 	"time"
 
+	"github.com/chabad360/covey/common"
 	"github.com/gbrlsnchs/jwt/v3"
 )
 
 const key = "asdf" // TODO: Redesign API key system
 
 var (
-	random = rand.New(
-		rand.NewSource(time.Now().UnixNano()))
 	crashKey string
 )
-
-func randomString() string {
-	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	b := make([]byte, 32)
-	for i := range b {
-		b[i] = charset[random.Int63()%int64(len(charset))]
-	}
-	return string(b)
-}
 
 type credentials struct {
 	Username string `json:"username"`
@@ -51,7 +40,7 @@ func createToken(userid string, tokenType string, audience []string) (string, *t
 		Audience:       audience,
 		ExpirationTime: jwt.NumericDate(expirationTime),
 		IssuedAt:       jwt.NumericDate(time.Now()),
-		JWTID:          randomString(),
+		JWTID:          common.RandomString(),
 	}
 
 	var token []byte
@@ -93,6 +82,6 @@ func refreshKey() {
 	if crashKey == "" {
 		// TODO: Don't release with this
 		crashKey = fmt.Sprintf("12345")
-		// crashKey = randomString()
+		// crashKey = commmon.RandomString()
 	}
 }

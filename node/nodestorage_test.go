@@ -13,10 +13,8 @@ import (
 )
 
 var n = &types.Node{
-	Name:    "node",
-	ID:      "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-	Details: struct{ Test string }{Test: "test"},
-	Plugin:  "test",
+	Name: "node",
+	ID:   "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
 }
 
 func TestAddNode(t *testing.T) {
@@ -26,7 +24,7 @@ func TestAddNode(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "name": "node", "plugin": "test", "details": {"Test": "test"}}`},
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "name": "node"}`},
 		{"3", ""},
 	}
 	//revive:enable:line-length-limit

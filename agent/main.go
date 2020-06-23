@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"container/list"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	json "github.com/json-iterator/go"
 )
 
 const (
@@ -24,7 +25,7 @@ var (
 	buffer      = new(bytes.Buffer)
 	currentTask task
 	activeTask  *runningTask
-	agent       config
+	agent       *config
 	agentPath   string
 )
 
@@ -51,6 +52,11 @@ func main() {
 	agent, err = settings("/etc/covey/agent.conf")
 	errC(err)
 	// ignoring log level for now
+	log.Println("Agent ID:", agent.AgentID)
+	log.Println("Host:", agent.Host)
+
+	go runner()
+	log.Println("Covey Agent started!")
 
 	for {
 		go everySecond()
@@ -58,14 +64,13 @@ func main() {
 	}
 }
 
-func settings(file string) (config, error) {
-	err := godotenv.Load(file)
-	errC(err)
+func settings(file string) (*config, error) {
+	godotenv.Load(file)
 
 	var conf = config{}
 	var exists bool
 	if conf.AgentID, exists = os.LookupEnv("AGENT_ID"); !exists || conf.AgentID == "" {
-		panic(fmt.Errorf("missing AGENT_ID"))
+		return nil, fmt.Errorf("missing AGENT_ID")
 	}
 
 	if conf.LogLevel, exists = os.LookupEnv("LOG_LEVEL"); !exists || conf.LogLevel == "" {
@@ -75,26 +80,28 @@ func settings(file string) (config, error) {
 	var host string
 	var port string
 	if host, exists = os.LookupEnv("AGENT_HOST"); !exists || host == "" {
-		panic(fmt.Errorf("missing AGENT_HOST"))
+		return nil, fmt.Errorf("missing AGENT_HOST")
 	}
 	if port, exists = os.LookupEnv("AGENT_HOST_POST"); !exists || port == "" {
 		port = "8080"
 	}
 	conf.Host = host + ":" + port
+	agentPath = conf.Host + "/agent/" + conf.AgentID
 
-	return conf, nil
+	return &conf, nil
 }
 
 func everySecond() {
+	// First read it, then delete it.
 	body, err := json.Marshal(activeTask)
+	errC(err)
+	activeTask.Log = nil // Once we've read once, we don't want to read it again.
 	if string(body) == "null" {
 		body = nil
 	}
 	if activeTask.ExitCode != 257 {
 		activeTask = nil
 	}
-	activeTask.Log = nil
-	errC(err)
 	r, err := http.Post(agentPath, "application/json", strings.NewReader(string(body)))
 	errC(err)
 
@@ -114,16 +121,17 @@ func errC(err error) {
 	}
 }
 
+// TODO: lower complexity levels of this code.
 func runner() {
 	for {
-		if queue.Front() != nil {
+		if qt := queue.Front(); qt != nil {
 			e := make(chan int)
-			qt := queue.Front()
 			t := qt.Value.(task)
 
 			cmd := exec.Command("/bin/sh", t.Command)
 			cmd.Stdout = buffer
 			cmd.Stderr = buffer
+
 			activeTask = &runningTask{
 				ID:       t.ID,
 				ExitCode: 257,
@@ -147,11 +155,14 @@ func runner() {
 			for {
 				select {
 				case i := <-e:
-					for b, _ := buffer.ReadBytes('\n'); ; b, _ = buffer.ReadBytes('\n') {
+					for b, err := buffer.ReadBytes('\n'); ; b, err = buffer.ReadBytes('\n') {
 						if string(b) == "" {
 							break
 						}
 						activeTask.Log = append(activeTask.Log, string(b))
+						if err != nil {
+							break
+						}
 					}
 					activeTask.ExitCode = i
 					goto end

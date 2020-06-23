@@ -4,44 +4,22 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+
+	"golang.org/x/crypto/ssh"
 )
 
-// NodePlugin defines what a node plugin should look like
-type NodePlugin interface {
-	// NewNode returns a new node
-	NewNode(nodeJSON []byte) (INode, error)
-
-	// LoadNode loads the json representation of each node.
-	LoadNode(nodeJSON []byte) (INode, error)
-}
-
-// INode defines the generic node interface.
-type INode interface {
-	// Run a command on the node
-	Run(args []string) (*bytes.Buffer, chan int, error)
-
-	// GetName returns the name of the node
-	GetName() string
-
-	// GetID returns the id of the node.
-	GetID() string
-
-	// GetIDShort returns the first 8 bytes of the node ID.
-	GetIDShort() string
-
-	// GetPlugin returns the plugin of the node.
-	GetPlugin() string
-
-	// GetDetails returns the details of the node.
-	GetDetails() interface{}
-}
-
-// Node contains information about a node and must be implemented alongside the INode interface.
+// Node contains information about a node.
 type Node struct {
-	Name    string      `json:"name"`
-	Plugin  string      `json:"plugin"`
-	Details interface{} `json:"details"`
-	ID      string      `json:"id"`
+	Name       string            `json:"name"`
+	ID         string            `json:"id"`
+	PrivateKey []byte            `json:"private_key"`
+	PublicKey  []byte            `json:"public_key"`
+	HostKey    []byte            `json:"host_key"`
+	IP         string            `json:"ip"`
+	Username   string            `json:"username"`
+	Password   string            `json:"password,omitempty"`
+	Port       string            `json:"port"`
+	Config     *ssh.ClientConfig `json:"-"`
 }
 
 // GetName returns the name of the Node.
@@ -52,12 +30,6 @@ func (n *Node) GetID() string { return n.ID }
 
 // GetIDShort returns the first 8 bytes of the node ID.
 func (n *Node) GetIDShort() string { x, _ := hex.DecodeString(n.ID); return hex.EncodeToString(x[:8]) }
-
-// GetPlugin returns the plugin of the node.
-func (n *Node) GetPlugin() string { return n.Plugin }
-
-// GetDetails returns the details of the node.
-func (n *Node) GetDetails() interface{} { return n.Details }
 
 // Run is a stub implementation of the Run method.
 func (n *Node) Run(_ []string) (*bytes.Buffer, chan int, error) {

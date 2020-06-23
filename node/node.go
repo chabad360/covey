@@ -1,12 +1,9 @@
 package node
 
 import (
-	"fmt"
 	"log"
-	"plugin"
 
-	json "github.com/json-iterator/go"
-
+	nodeSSH "github.com/chabad360/covey/node/ssh"
 	"github.com/chabad360/covey/node/types"
 	"github.com/chabad360/covey/storage"
 )
@@ -16,35 +13,8 @@ import (
 // 	log.Println("Placeholder")
 // }
 
-func loadPlugin(pluginName string) (types.NodePlugin, error) {
-	p, err := plugin.Open("./plugins/node/" + pluginName + ".so")
-	if err != nil {
-		return nil, err
-	}
-
-	n, err := p.Lookup("Plugin")
-	if err != nil {
-		return nil, err
-	}
-
-	s, ok := n.(types.NodePlugin)
-	if !ok {
-		return nil, fmt.Errorf(pluginName, " does not provide a NodePlugin")
-	}
-
-	return s, nil
-}
-
-func loadNode(nodeJSON []byte) (types.INode, error) {
-	var z types.Node
-	if err := json.Unmarshal(nodeJSON, &z); err != nil {
-		log.Fatal(err)
-	}
-	p, err := loadPlugin(z.Plugin)
-	if err != nil {
-		return nil, err
-	}
-	t, err := p.LoadNode(nodeJSON)
+func loadNode(nodeJSON []byte) (*types.Node, error) {
+	t, err := nodeSSH.LoadNode(nodeJSON)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +22,7 @@ func loadNode(nodeJSON []byte) (types.INode, error) {
 }
 
 // GetNode checks if a node with the identifier exists and returns it.
-func GetNode(identifier string) (types.INode, bool) {
+func GetNode(identifier string) (*types.Node, bool) {
 	n, err := storage.GetItem("nodes", identifier)
 	if err != nil {
 		log.Println(err)

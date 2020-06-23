@@ -4,8 +4,12 @@ CREATE TABLE nodes (
     id TEXT PRIMARY KEY NOT NULL,
     id_short TEXT UNIQUE NOT NULL,
     name TEXT UNIQUE NOT NULL,
-    plugin TEXT NOT NULL,
-    details JSONB NOT NULL
+    private_key TEXT NOT NULL,
+    public_key TEXT NOT NULL,
+    host_key TEXT NOT NULL,
+    ip TEXT NOT NULL,
+    username TEXT NOT NULL,
+    port TEXT NOT NULL,
 );
 
 CREATE TABLE tasks (

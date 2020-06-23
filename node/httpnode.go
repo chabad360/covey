@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/chabad360/covey/common"
+	nodeSSH "github.com/chabad360/covey/node/ssh"
 	"github.com/chabad360/covey/node/types"
 	"github.com/go-playground/pure/v5"
 	json "github.com/json-iterator/go"
@@ -27,13 +28,7 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	plugin, err := loadPlugin(node.Plugin)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-
-	n, err := plugin.NewNode(reqBody)
+	n, err := nodeSSH.NewNode(reqBody)
 	if err != nil {
 		common.ErrorWriter(w, err)
 		return
