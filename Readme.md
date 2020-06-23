@@ -55,6 +55,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 #### V0.6 Alpha
 
+* [ ] Fix the plugin system
 * [ ] Provide configuration system
 * [ ] CI
 * [ ] Refactor

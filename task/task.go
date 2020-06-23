@@ -32,7 +32,7 @@ func NewTask(taskJSON []byte) (*types.Task, error) {
 
 	t.ExitCode = 256
 	t.Log = []string{}
-	t.State = types.StateStarting
+	t.State = types.StateQueued
 	t.Time = time.Now()
 	t.Command = cmd
 	t.ID = common.GenerateID(t)
@@ -102,7 +102,7 @@ func SaveTask(t *types.Task) {
 	}
 
 	// Update the task in the tasks map or remove it if it's done.
-	if state := t.GetState(); !(state == types.StateRunning || state == types.StateStarting) {
+	if state := t.GetState(); !(state == types.StateRunning || state == types.StateQueued) {
 		delete(tasks, t.GetID())
 		delete(tasksShort, t.GetIDShort())
 	} else {

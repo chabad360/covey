@@ -17,8 +17,8 @@ const (
 	// StateScheduled should be given if the task is scheduled to be executed.
 	// StateScheduled = 5
 
-	// StateStarting should be given if the task is initializing but hasn't yet started.
-	StateStarting = 6
+	// StateQueued should be given while the task is waiting to be executed.
+	StateQueued = 6
 
 	// StateOther should be avoided.
 	StateOther = 10

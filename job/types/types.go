@@ -42,6 +42,7 @@ func (j *Job) GetIDShort() string { x, _ := hex.DecodeString(j.ID); return hex.E
 
 // Run runs each task in succession on the specified nodes (concurrently).
 // TODO: Jobs don't have a any intelligent method of running, which means the just run right away (no waits).
+// If I decide to use a queue for scheduleing tasks, this should be solved.
 func (j *Job) Run() {
 	for _, t := range j.Tasks {
 		for _, node := range j.Nodes {
