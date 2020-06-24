@@ -48,7 +48,9 @@ func loadHandlers(r *pure.Mux) {
 	authentication.RegisterUIHandlers(r)
 	task.RegisterUIHandlers(r.Group("/tasks"))
 	r.Get("/new/task", task.UITaskNew) // BAD
-	task.RegisterAgentHandlers(r.GroupWithNone("/agent"))
+	agent := r.GroupWithNone("/agent")
+	agent.Use(loggingMiddleware)
+	task.RegisterAgentHandlers(agent)
 	job.RegisterUIHandlers(r.Group("/jobs"))
 	r.Get("/new/job", job.UIJobNew) // BAD
 

@@ -21,8 +21,7 @@ const (
 )
 
 var (
-	queue       = new(tList)
-	buffer      = new(bytes.Buffer)
+	queue       = tList{}
 	currentTask task
 	activeTask  *runningTask
 	agent       *config
@@ -56,8 +55,8 @@ func (l *tList) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	for _, v := range m {
-		l.PushBack(v)
+	for i := 0; i < len(m); i++ {
+		l.PushBack(m[i])
 	}
 	return nil
 }
@@ -101,21 +100,22 @@ func settings(file string) (*config, error) {
 		port = "8080"
 	}
 	conf.Host = host + ":" + port
-	agentPath = conf.Host + "/agent/" + conf.AgentID
+	agentPath = "http://" + conf.Host + "/agent/" + conf.AgentID
 
 	return &conf, nil
 }
 
 func everySecond() {
 	// First read it, then delete it.
-	body, err := json.Marshal(activeTask)
-	errC(err)
-	activeTask.Log = nil // Once we've read once, we don't want to read it again.
-	if string(body) == "null" {
-		body = nil
-	}
-	if activeTask.ExitCode != 257 {
-		activeTask = nil
+	var body = []byte("{}")
+	var err error
+	if activeTask != nil {
+		body, err = json.Marshal(activeTask)
+		errC(err)
+		activeTask.Log = nil // Once we've read once, we don't want to read it again.
+		if activeTask.ExitCode != 257 {
+			activeTask = nil
+		}
 	}
 	r, err := http.Post(agentPath, "application/json", strings.NewReader(string(body)))
 	errC(err)
@@ -137,21 +137,24 @@ func errC(err error) {
 func runner() {
 	for {
 		if qt := queue.Front(); qt != nil {
+			var buffer bytes.Buffer
 			e := make(chan int)
 			t := qt.Value.(task)
 
-			cmd := exec.Command("/bin/sh", t.Command)
-			cmd.Stdout = buffer
-			cmd.Stderr = buffer
+			log.Printf(t.Command)
+			cmd := exec.Command("/bin/bash", "-c", t.Command)
+			cmd.Stdout = &buffer
+			cmd.Stderr = &buffer
 
 			activeTask = &runningTask{
 				ID:       t.ID,
 				ExitCode: 257,
 			}
-			cmd.Start()
+			err := cmd.Start()
+			errC(err)
 
 			go func() {
-				err := cmd.Wait()
+				err = cmd.Wait()
 				if err != nil {
 					if err, ok := err.(*exec.ExitError); ok {
 						e <- err.ExitCode()
@@ -162,25 +165,22 @@ func runner() {
 				close(e)
 			}()
 
-			// This select loop is necessary because the buffer may occasionally be empty/missing \n (echo -n),
-			// this is my way of handleing that race condition, plus echo -n (it doesn't pin a \n to the end of Stdout).
 			for {
 				select {
 				case i := <-e:
-					for b, err := buffer.ReadBytes('\n'); ; b, err = buffer.ReadBytes('\n') {
-						if string(b) == "" {
-							break
-						}
-						activeTask.Log = append(activeTask.Log, string(b))
-						if err != nil {
-							break
-						}
-					}
 					activeTask.ExitCode = i
 					goto end
 				default:
-					for b, err := buffer.ReadBytes('\n'); err == nil; b, err = buffer.ReadBytes('\n') {
-						activeTask.Log = append(activeTask.Log, string(b))
+					// There is an issue where this method fails to capture anything after \r (until the next \n),
+					// please help. Also, random nil pointer dereferences...
+					for b, _ := buffer.ReadBytes('\n'); string(b) != ""; b, _ = buffer.ReadBytes('\n') {
+						if b[len(b)-1] != 0 {
+							if b[len(b)-1] == '\n' {
+								activeTask.Log = append(activeTask.Log, string(b[:len(b)-1]))
+							} else {
+								activeTask.Log = append(activeTask.Log, string(b[:]))
+							}
+						}
 					}
 				}
 			}

@@ -26,9 +26,9 @@ agent:
     LD=""
     echo "Building Covey Agent"
     [[ "${RELEASE}" ]] \
-        && echo "Building Covey Agent without symbols"\
+        && echo "Building Covey Agent without symbols" \
         && go build -trimpath -ldflags="-s -w" -o assets/agent github.com/chabad360/covey/agent \
-        || go build -trimpath -o assets/agent  github.com/chabad360/covey/agent
+        || go build -trimpath -o assets/agent github.com/chabad360/covey/agent
     [[ "${RELEASE}" ]] && echo "Compressing binary" && upx assets/agent
 
 

@@ -29,7 +29,7 @@ func NewTask(taskJSON []byte) (*types.Task, error) {
 		return nil, err
 	}
 
-	t.ExitCode = 257
+	t.ExitCode = 258
 	t.Log = []string{}
 	t.State = types.StateQueued
 	t.Time = time.Now()
@@ -84,13 +84,19 @@ func SaveTask(t *types.TaskInfo) {
 	if !ok {
 		return
 	}
-	if t.ExitCode == 0 {
-		task.State = types.StateDone
-	} else {
-		task.State = types.StateError
-	}
-	task.Log = append(task.Log, t.Log...)
-	if err := updateTask(task); err != nil {
-		log.Println(err)
+	if task.ExitCode != t.ExitCode && t.Log != nil {
+		task.ExitCode = t.ExitCode
+		if t.ExitCode == 0 {
+			task.State = types.StateDone
+		} else if t.ExitCode == 257 {
+			task.State = types.StateRunning
+		} else {
+			task.State = types.StateError
+		}
+		task.Log = append(task.Log, t.Log...)
+
+		if err := updateTask(task); err != nil {
+			log.Println(err)
+		}
 	}
 }

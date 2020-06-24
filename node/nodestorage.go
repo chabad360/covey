@@ -14,10 +14,10 @@ var db *pgxpool.Pool
 func addNode(node *types.Node) error {
 	refreshDB()
 	_, err := db.Exec(context.Background(),
-		`INSERT INTO nodes(id, id_short, name, host_key, private_key, public_key, username, port, ip) 
+		`INSERT INTO nodes(id, id_short, name, private_key, public_key, host_key, username, port, ip) 
 			VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
 		node.GetID(), node.GetIDShort(), node.GetName(),
-		node.HostKey, node.PrivateKey, node.PublicKey, node.Username, node.Port, node.IP)
+		node.PrivateKey, node.PublicKey, node.HostKey, node.Username, node.Port, node.IP)
 	return err
 }
 
@@ -26,7 +26,7 @@ func GetNodeID(identifier string) (string, bool) {
 	refreshDB()
 	var ID string
 	err := db.QueryRow(context.Background(),
-		"SELECT id FROM nodes WHERE id = $1 OR id_short = $1 OR name = $1;").Scan(&ID)
+		"SELECT id FROM nodes WHERE id = $1 OR id_short = $1 OR name = $1;", identifier).Scan(&ID)
 	if err != nil {
 		return "", false
 	}

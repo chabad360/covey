@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/chabad360/covey/common"
@@ -16,7 +17,7 @@ var queues = make(map[string]*types.TaskList)
 
 // QueueTask prepares a task to be sent to the node.
 func QueueTask(nodeID string, taskID string, taskCommand string) error {
-	t := &types.AgentTask{
+	t := types.AgentTask{
 		ID:      taskID,
 		Command: taskCommand,
 	}
@@ -24,7 +25,12 @@ func QueueTask(nodeID string, taskID string, taskCommand string) error {
 	if !ok {
 		return fmt.Errorf("%v is not a valid node ID", nodeID)
 	}
-	q := new(types.TaskList)
+	var q *types.TaskList
+	if queues[id] == nil {
+		q = &types.TaskList{}
+	} else {
+		q = queues[id]
+	}
 	q.PushBack(t)
 	queues[id] = q
 	return nil
@@ -40,6 +46,7 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		common.ErrorWriter(w, err)
 	}
+	log.Printf(string(b))
 	var x types.TaskInfo
 	err = json.Unmarshal(b, &x)
 	if err != nil {
@@ -47,11 +54,10 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	}
 	SaveTask(&x)
 
-	w.Header().Add("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(queues[n])
+	common.Write(w, queues[n])
 	delete(queues, n)
 }
 
 func RegisterAgentHandlers(r pure.IRouteGroup) {
-	r.Post(":agent", agentPost)
+	r.Post("/:node", agentPost)
 }

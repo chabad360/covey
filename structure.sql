@@ -4,12 +4,12 @@ CREATE TABLE nodes (
     id TEXT PRIMARY KEY NOT NULL,
     id_short TEXT UNIQUE NOT NULL,
     name TEXT UNIQUE NOT NULL,
-    private_key TEXT NOT NULL,
-    public_key TEXT NOT NULL,
-    host_key TEXT NOT NULL,
+    private_key BYTEA NOT NULL,
+    public_key BYTEA NOT NULL,
+    host_key BYTEA NOT NULL,
     ip TEXT NOT NULL,
     username TEXT NOT NULL,
-    port TEXT NOT NULL,
+    port TEXT NOT NULL
 );
 
 CREATE TABLE tasks (

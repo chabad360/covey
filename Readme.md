@@ -39,8 +39,8 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 #### V0.4 Monitoring
 
 * [ ] Fix some issues With the plugin system
-* [ ] Rework the task module
-* [ ] Create Node Agent
+* [x] Rework the task module
+* [x] Create Node Agent
 * [ ] Integrate with [Netdata](https://github.com/netdata/netdata) for monitoring
 * [ ] Add tests
 * [ ] Add relevant UI elements
