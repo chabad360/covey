@@ -8,6 +8,7 @@ EXPORT RUNFILE := ${.RUNFILE}
 build:
     TAGS=""
     LD=""
+    "${RUN}" -r "${RUNFILE}" agent --release
     [[ "${LIVE}" ]] || "${RUN}" -r "${RUNFILE}" pack
     "${RUN}" -r "${RUNFILE}" plugins --live=${LIVE:-0} --release=${RELEASE:-0}
     [[ "${LIVE}" ]] && TAGS=-tags=live && echo "Building Covey without assets"
@@ -17,6 +18,19 @@ build:
         && go build -trimpath ${TAGS} -ldflags="-s -w" github.com/chabad360/covey \
         || go build -trimpath ${TAGS} github.com/chabad360/covey
     [[ "${RELEASE}" ]] && echo "Compressing binary" && upx covey 
+
+## 
+# Build Covey Agent
+# OPTION RELEASE -r, --release Strip symbols and compress the Agent binary.
+agent:
+    LD=""
+    echo "Building Covey Agent"
+    [[ "${RELEASE}" ]] \
+        && echo "Building Covey Agent without symbols"\
+        && go build -trimpath -ldflags="-s -w" -o assets/agent github.com/chabad360/covey/agent \
+        || go build -trimpath -o assets/agent  github.com/chabad360/covey/agent
+    [[ "${RELEASE}" ]] && echo "Compressing binary" && upx assets/agent
+
 
 ## Package Covey resources
 pack:
@@ -31,14 +45,13 @@ plugins:
     TAGS=""
     LD=""
     [[ "${LIVE}" ]] && TAGS=-tags=live && echo "Building plugins without assets"
-    [[ "${RELEASE}" ]] && echo "Building plugins without symbols"
     echo "Building plugins"
     [[ "${RELEASE}" ]] \
+        && echo "Building plugins without symbols"\
         && go build -o plugins/task/shell.so -ldflags="-s -w" -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/task/shell \
         || go build -o plugins/task/shell.so -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/task/shell
-    [[ "${RELEASE}" ]] \
-        && go build -o plugins/node/ssh.so -ldflags="-s -w" -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/node/ssh \
-        || go build -o plugins/node/ssh.so -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/node/ssh
+
+
 
 ## Build and run Covey with -tag live
 run:

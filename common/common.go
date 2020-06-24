@@ -1,26 +1,26 @@
 package common
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"net/http"
-	"time"
 
 	json "github.com/json-iterator/go"
 )
 
-var (
-	random = rand.New(
-		rand.NewSource(time.Now().UnixNano()))
-)
-
+// RandomString generates a random 32 byte random string.
 func RandomString() string {
 	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	b := make([]byte, 32)
 	for i := range b {
-		b[i] = charset[random.Int63()%int64(len(charset))]
+		r, err := rand.Int(rand.Reader, big.NewInt(0xffffffff))
+		if err != nil {
+			panic(err)
+		}
+		b[i] = charset[r.Int64()%int64(len(charset))]
 	}
 	return string(b)
 }
@@ -51,9 +51,8 @@ func Write(w http.ResponseWriter, i interface{}) {
 	json.NewEncoder(w).Encode(i)
 }
 
-// GenerateID takes a object and converts it to text and then returns a sha256 hash of the object.
-// Warning: This is not guaranteed to be unique, so include a field that is unique (i.e. time.Now).
+// GenerateID takes an object, converts it to text (appends a 32 byte random string) and returns a sha256 hash from it.
 func GenerateID(item interface{}) string {
-	id := sha256.Sum256([]byte(fmt.Sprintf("%v", item)))
+	id := sha256.Sum256([]byte(fmt.Sprintf("%v%v", item, RandomString())))
 	return hex.EncodeToString(id[:])
 }

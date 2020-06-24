@@ -1,5 +1,8 @@
 package types
 
+// TaskState represents the current state of the task.
+type TaskState int
+
 const (
 	// StateError should be given if the task fails.
 	StateError = 0

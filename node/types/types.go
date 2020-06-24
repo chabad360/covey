@@ -3,7 +3,8 @@ package types
 import (
 	"bytes"
 	"encoding/hex"
-	"fmt"
+	"log"
+	"strings"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -31,7 +32,34 @@ func (n *Node) GetID() string { return n.ID }
 // GetIDShort returns the first 8 bytes of the node ID.
 func (n *Node) GetIDShort() string { x, _ := hex.DecodeString(n.ID); return hex.EncodeToString(x[:8]) }
 
-// Run is a stub implementation of the Run method.
-func (n *Node) Run(_ []string) (*bytes.Buffer, chan int, error) {
-	return nil, nil, fmt.Errorf("not implemented")
+// Run runs a command on the server.
+func (n *Node) Run(args []string) (*bytes.Buffer, chan int, error) {
+	var b bytes.Buffer
+	// Create an initial connection
+	client, err := ssh.Dial("tcp", n.IP+":"+n.Port, n.Config)
+	if err != nil {
+		return nil, nil, err
+	}
+	session, err := client.NewSession()
+	if err != nil {
+		return nil, nil, err
+	}
+	c := make(chan int)
+
+	session.Stdout = &b
+	// session.Stderr = &b
+	go func() {
+		if err := session.Run(strings.Join(args, " ")); err != nil {
+			if msg, ok := err.(*ssh.ExitError); ok {
+				log.Println(msg.ExitStatus())
+				c <- msg.ExitStatus()
+			}
+		} else {
+			c <- 0
+		}
+		close(c)
+		session.Close()
+		client.Close()
+	}()
+	return &b, c, nil
 }

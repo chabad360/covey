@@ -33,9 +33,6 @@ func TestGetTask(t *testing.T) {
 		{"mapShort", args{"2778ffc302b6920c"}, task1, true},
 	}
 
-	tasks[task1.GetID()] = task1
-	tasksShort[task1.GetIDShort()] = task1.GetID()
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1 := GetTask(tt.args.identifier)

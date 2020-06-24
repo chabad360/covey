@@ -7,13 +7,7 @@ import (
 	"strings"
 
 	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/task/types"
 	"github.com/go-playground/pure/v5"
-)
-
-var (
-	tasks      = make(map[string]*types.Task)
-	tasksShort = make(map[string]string)
 )
 
 // TaskNew creates and starts a new task.
@@ -36,9 +30,7 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter404(w, vars.URLParam("task"))
 		return
 	}
-
 	t.GetLog()
-	SaveTask(t)
 
 	if p := strings.Split(r.URL.Path, "/"); len(p) == 6 {
 		common.Write(w, t.GetLog())

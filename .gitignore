@@ -1,6 +1,7 @@
 # Generated Binaries
 covey
 *.so
+agent
 
 # Generated Config
 *.json

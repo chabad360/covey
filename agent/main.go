@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	queue       = list.New()
+	queue       = new(tList)
 	buffer      = new(bytes.Buffer)
 	currentTask task
 	activeTask  *runningTask
@@ -45,6 +45,21 @@ type config struct {
 	AgentID  string
 	LogLevel string
 	Host     string
+}
+
+type tList struct{ list.List }
+
+func (l *tList) UnmarshalJSON(b []byte) error {
+	var m map[int]task
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range m {
+		l.PushBack(v)
+	}
+	return nil
 }
 
 func main() {
@@ -106,12 +121,9 @@ func everySecond() {
 	errC(err)
 
 	taskJSON, err := ioutil.ReadAll(r.Body)
-	if string(taskJSON) != "" {
-		var newTask task
-		err = json.Unmarshal(taskJSON, &newTask)
-		errC(err)
-		queue.PushBack(newTask)
-	}
+	err = json.Unmarshal(taskJSON, &queue)
+	errC(err)
+
 	r.Body.Close()
 }
 

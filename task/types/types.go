@@ -2,12 +2,35 @@ package types
 
 import (
 	"bytes"
+	"container/list"
 	"encoding/hex"
 	"time"
+
+	json "github.com/json-iterator/go"
 )
 
-// TaskState represents the current state of the task.
-type TaskState int
+type AgentTask struct {
+	Command string `json:"command"`
+	ID      string `json:"id"`
+}
+
+type TaskList struct{ list.List }
+
+type TaskInfo struct {
+	Log      []string `json:"log"`
+	ExitCode int      `json:"exit_code"`
+	ID       string   `json:"id"`
+}
+
+func (l *TaskList) MarshalJSON() ([]byte, error) {
+	m := make(map[int]AgentTask)
+	i := 0
+	for e := l.Front(); e != nil; e = e.Next() {
+		m[i] = e.Value.(AgentTask)
+		i++
+	}
+	return json.Marshal(m)
+}
 
 // TaskPlugin defines the interface for Task module plugins.
 type TaskPlugin interface {
@@ -54,32 +77,4 @@ func (t *Task) GetDetails() map[string]string { return t.Details }
 func (t *Task) GetExitCode() int { return t.ExitCode }
 
 // GetLog reads the unread buffer and adds it to the task's log, then returns that log.
-func (t *Task) GetLog() []string {
-	if t.Buffer != nil { // Ensure buffer exists
-		b := t.Buffer.Bytes()
-
-		var line []byte
-		var log []string
-
-		for _, bb := range b { // For each byte...
-			if bb == '\n' { // If that byte is a newline:
-				log = append(log, string(line)) // Add that line to the log
-				line = nil                      // And start the next one
-			} else { // Otherwise,
-				line = append(line, bb) // Add it to the line
-			}
-		}
-
-		if len(line) > 0 { // If the last line didn't end with a newline
-			log = append(log, string(line)) // Append it
-		}
-
-		if len(log) > 0 { // Only set the log if there is stuff on it, otherwise we get empty logs.
-			t.Log = log
-		}
-
-		t.Buffer.Reset() // Finally, reset the buffer.
-	}
-
-	return t.Log
-}
+func (t *Task) GetLog() []string { return t.Log }
