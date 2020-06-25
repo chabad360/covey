@@ -13,8 +13,12 @@ import (
 )
 
 var n = &types.Node{
-	Name: "node",
-	ID:   "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+	Name:       "node",
+	ID:         "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+	PrivateKey: []byte("12345"),
+	PublicKey:  []byte("12345"),
+	HostKey:    []byte("12345"),
+	Username:   "user",
 }
 
 func TestAddNode(t *testing.T) {
@@ -24,7 +28,7 @@ func TestAddNode(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "name": "node"}`},
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "ip": "", "name": "node", "port": "", "host_key": "\\x3132333435", "username": "user", "public_key": "\\x3132333435", "private_key": "\\x3132333435"}`},
 		{"3", ""},
 	}
 	//revive:enable:line-length-limit
@@ -41,6 +45,19 @@ func TestAddNode(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetNodeID(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		if id, ok := GetNodeID(n.Name); !ok && id != n.ID {
+			t.Errorf("GetNodeID() = %v, want %v", id, n.ID)
+		}
+	})
+	t.Run("not ok", func(t *testing.T) {
+		if id, ok := GetNodeID("n"); ok && id == n.ID {
+			t.Errorf("GetNodeID() = %v, want %v", id, n.ID)
+		}
+	})
 }
 
 func TestMain(m *testing.M) {

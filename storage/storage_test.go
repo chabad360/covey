@@ -13,22 +13,26 @@ import (
 )
 
 func TestGetItem(t *testing.T) {
+	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
 		want string
 	}{
-		{"1", `{"id": "1", "name": "1", "plugin": "1", "details": 1, "id_short": "1"}`},
+		{"1", `{"id": "1", "ip": "1", "name": "1", "port": "1", "host_key": "\\x31", "id_short": "1", "username": "1", "public_key": "\\x31", "private_key": "\\x31"}`},
 		{"2", ""},
 	}
+	//revive:enable:line-length-limit
 
-	DB.Exec(context.Background(), "INSERT INTO nodes(id, id_short, name, plugin, details) VALUES($1, $2, $3, $4, $5);",
-		"1", "1", "1", "1", "1")
+	DB.Exec(context.Background(),
+		`INSERT INTO nodes(id, id_short, name, private_key, public_key, host_key, ip, username, port)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
+		"1", "1", "1", "1", "1", "1", "1", "1", "1")
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("%s", tt.id)
 		t.Run(testname, func(t *testing.T) {
-			if got, _ := GetItem("nodes", tt.id); string(got) != tt.want {
-				t.Errorf("GetItem() = %v, want %v", string(got), tt.want)
+			if got, err := GetItem("nodes", tt.id); string(got) != tt.want {
+				t.Errorf("GetItem() = %v, want %v, error: %v", string(got), tt.want, err)
 			}
 		})
 	}

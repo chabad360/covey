@@ -61,14 +61,12 @@ func loadHandlers(r *pure.Mux) {
 	RegisterHandlers(apiRouter)
 	authentication.RegisterAPIHandlers(apiRouter.Group("/auth"))
 
-	node.RegisterHandlers(apiRouter.Group("/nodes"))
-	node.RegisterIndividualHandlers(apiRouter.Group("/node"))
+	node.RegisterHandlers(apiRouter.Group("/nodes"), apiRouter.Group("/node"))
 
 	task.RegisterHandlers(apiRouter.Group("/tasks"))
 	task.RegisterIndividualHandlers(apiRouter.Group("/task"))
 
-	job.RegisterHandlers(apiRouter.Group("/jobs"))
-	job.RegisterIndividualHandlers(apiRouter.Group("/job"))
+	job.RegisterHandlers(apiRouter.Group("/jobs"), apiRouter.Group("/job"))
 }
 
 func initialize() {

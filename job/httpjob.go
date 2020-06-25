@@ -34,10 +34,6 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 
 	job.TaskHistory = []string{}
 	job.ID = common.GenerateID(job)
-	// jobs[job.GetID()] = &job
-	// jobsShort[job.GetIDShort()] = job.GetID()
-	// jobsName[job.GetName()] = job.GetID()
-
 	if err := AddJob(job); err != nil {
 		common.ErrorWriter(w, err)
 		return
@@ -71,14 +67,11 @@ func jobRun(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterHandlers adds the handlers for the node module.
-func RegisterHandlers(r pure.IRouteGroup) {
+func RegisterHandlers(newRoute pure.IRouteGroup, singleRoute pure.IRouteGroup) {
 	log.Println("Registering Job module API handlers...")
-	r.Post("/new", jobNew)
-}
+	newRoute.Post("/new", jobNew)
 
-// RegisterIndividualHandlers adds the handlers for the node module.
-func RegisterIndividualHandlers(r pure.IRouteGroup) {
-	j := r.Group("/:job")
+	j := singleRoute.Group("/:job")
 	j.Post("", jobRun)
 	j.Get("", jobGet)
 }

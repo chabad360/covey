@@ -43,54 +43,6 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 	common.Write(w, n)
 }
 
-// nodeRun runs a command the specified node, POST /api/v1/node/{node}
-func nodeRun(w http.ResponseWriter, r *http.Request) {
-	vars := pure.RequestVars(r)
-	n, ok := GetNode(vars.URLParam("node"))
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("node"))
-		return
-	}
-
-	var s struct {
-		Cmd []string
-	}
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	if err := json.Unmarshal(reqBody, &s); err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-	if len(s.Cmd) == 0 {
-		common.ErrorWriter(w, fmt.Errorf("missing command"))
-		return
-	}
-
-	b, d, err := n.Run(s.Cmd)
-	if err != nil {
-		common.ErrorWriter(w, err)
-		return
-	}
-
-	z := new(struct {
-		Result   []string `json:"result"`
-		ExitCode int      `json:"exit_code"`
-	})
-	e := <-d
-	c := []byte{}
-	l := []string{}
-	for _, bb := range b.Bytes() {
-		if bb == '\n' {
-			l = append(l, string(c))
-			c = nil
-		} else {
-			c = append(c, bb)
-		}
-	}
-	z.Result = l
-	z.ExitCode = e
-	common.Write(w, z)
-}
-
 // nodeGet returns a JSON representation of the specified node, GET /api/v1/node/{node}
 func nodeGet(w http.ResponseWriter, r *http.Request) {
 	vars := pure.RequestVars(r)
@@ -104,15 +56,10 @@ func nodeGet(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterHandlers adds the handlers for the node module.
-func RegisterHandlers(r pure.IRouteGroup) {
+func RegisterHandlers(newRoute pure.IRouteGroup, singleRoute pure.IRouteGroup) {
 	log.Println("Registering Node module API handlers...")
+	newRoute.Post("/add", nodeNew)
 
-	r.Post("/add", nodeNew)
-}
-
-// RegisterIndividualHandlers adds the handlers for the node module.
-func RegisterIndividualHandlers(r pure.IRouteGroup) {
-	n := r.Group("/:node")
-	n.Post("", nodeRun)
+	n := singleRoute.Group("/:node")
 	n.Get("", nodeGet)
 }

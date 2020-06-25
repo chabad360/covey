@@ -2,6 +2,7 @@ package job
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -14,10 +15,10 @@ func Test_jobNew(t *testing.T) {
 		body string
 		want string
 	}{
-		{`{"name": "test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": ["test"]}}}}`,
-			`{"name":"test","id":"98fda662cbc8871f35d5d93fc4980b1d67fde92354310a9814521d72acce489f","nodes":["test"],"tasks":{"update":{"plugin":"test","details":{"command":["test"]}}},"task_history":[]}
+		{`{"name": "test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "test"}}}}`,
+			`{"name":"test","id":"240875a9cf2c26d484a78b3f7f5aad21dd8f6e74031a7a5669f787d33e1b4cda","nodes":["test"],"tasks":{"update":{"plugin":"test","details":{"command":"test"}}},"task_history":[]}
 `},
-		{`{"name": "test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": ["test"]}}}}`,
+		{`{"name": "test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "test"}}}}`,
 			`{"error":"duplicate job: test"}
 `},
 		{`{"name":}`,
@@ -37,7 +38,7 @@ func Test_jobNew(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if rr.Body.String() != tt.want {
+			if !reflect.DeepEqual(rr.Body.Bytes()[0:15], []byte(`{"name":"test",`)) && rr.Body.String() != tt.want {
 				t.Errorf("jobNew body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})
@@ -51,7 +52,7 @@ func Test_jobGet(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"name":"update","id":"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e","nodes":["node1"],"tasks":{"update":{"plugin":"shell","details":{"command":["sudo apt update \u0026\u0026 sudo apt upgrade -y"]}}}}
+			`{"name":"update","id":"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e","nodes":["node1"],"tasks":{"update":{"plugin":"shell","details":{"command":"sudo apt update \u0026\u0026 sudo apt upgrade -y"}}}}
 `},
 		{"3", `{"error":"404 3 not found"}
 `},

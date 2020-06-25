@@ -85,7 +85,7 @@ func saveTask(t *types.TaskInfo) {
 	if task, ok = GetTask(t.ID); !ok {
 		return
 	}
-	if task.ExitCode != t.ExitCode && t.Log != nil {
+	if task.ExitCode != t.ExitCode && t.Log != nil { // Only update if there is something new!
 		if t.ExitCode == 0 {
 			task.State = types.StateDone
 		} else if t.ExitCode == 257 {

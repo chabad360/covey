@@ -51,8 +51,8 @@ func Write(w http.ResponseWriter, i interface{}) {
 	json.NewEncoder(w).Encode(i)
 }
 
-// GenerateID takes an object, converts it to text (appends a 32 byte random string) and returns a sha256 hash from it.
+// GenerateID takes an object, converts it to text (adds two 32 byte random strings) and returns a sha256 hash from it.
 func GenerateID(item interface{}) string {
-	id := sha256.Sum256([]byte(fmt.Sprintf("%v%v", item, RandomString())))
+	id := sha256.Sum256([]byte(fmt.Sprintf("%v%v%v", RandomString(), item, RandomString())))
 	return hex.EncodeToString(id[:])
 }

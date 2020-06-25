@@ -29,8 +29,6 @@ func TestGetTask(t *testing.T) {
 	}{
 		{"db", args{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e"}, task, true},
 		{"noDB", args{"31b079725d0a20bfe6c3b6e"}, nil, false},
-		{"map", args{"2778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6c"}, task1, true},
-		{"mapShort", args{"2778ffc302b6920c"}, task1, true},
 	}
 
 	for _, tt := range tests {
