@@ -2,7 +2,6 @@ package node
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -36,7 +35,7 @@ func TestAddNode(t *testing.T) {
 	testError := addNode(n)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got []byte
 			if db.QueryRow(context.Background(), "SELECT to_jsonb(nodes) - 'id_short' FROM nodes WHERE id = $1;",

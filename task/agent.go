@@ -46,7 +46,7 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		common.ErrorWriter(w, err)
 	}
-	log.Printf(string(b))
+	log.Println(string(b))
 	var x types.TaskInfo
 	err = json.Unmarshal(b, &x)
 	if err != nil {

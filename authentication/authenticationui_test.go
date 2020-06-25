@@ -41,7 +41,7 @@ func Test_loginP(t *testing.T) {
 	h := test.PureBoilerplate("POST", "/login", loginP)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.username)
+		testname := tt.username
 		t.Run(testname, func(t *testing.T) {
 			rr, req, err := test.HTTPBoilerplate("POST", tt.url, strings.NewReader(
 				fmt.Sprintf("username=%s&password=%s", tt.username, tt.password)))

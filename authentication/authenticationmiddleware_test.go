@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -31,7 +30,7 @@ func Test_AuthUserMiddlware(t *testing.T) {
 	//revive:enable:line-length-limit
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.token)
+		testname := tt.token
 		t.Run(testname, func(t *testing.T) {
 			p := pure.New()
 			p.Use(AuthUserMiddleware)
@@ -79,7 +78,7 @@ func Test_AuthAPIMiddlware(t *testing.T) {
 	h := p.Serve()
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.name)
+		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
 			rr, req, err := test.HTTPBoilerplate("GET", "/test", nil)
 			if err != nil {

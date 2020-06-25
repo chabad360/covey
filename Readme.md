@@ -38,12 +38,14 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 #### V0.4 Monitoring
 
-* [ ] Fix some issues With the plugin system
+* [x] Fix some issues with the plugin system
 * [x] Rework the task module
 * [x] Create Node Agent
+* [ ] Persistent queue
+* [ ] Add relevant UI elements
+* [ ] Automatically install agent
 * [ ] Integrate with [Netdata](https://github.com/netdata/netdata) for monitoring
 * [ ] Add tests
-* [ ] Add relevant UI elements
 
 #### V0.5 A Better API
 
@@ -62,12 +64,13 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Add an AUR package
 * [ ] Add and refactor tests (Aim for 80% Coverage)
 * [ ] Complete the web UI
+* [ ] Add SystemD service file to the agent
 
 ---
 
 ## State of the Project
 
-Covey is in active development, it's written in Go, and uses Postgres as the database. If you are interested in helping with development, open a PR with your changes. At the moment, I've begun working on the web interface.
+Covey is in active development, it's written in Go, and uses Postgres as the database. If you are interested in helping with development, open a PR with your changes. At the moment, I've been working on creating an agent that is responsible for executing tasks.
 
 ### Installation Instructions
 

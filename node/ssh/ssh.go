@@ -1,4 +1,4 @@
-package nodeSSH
+package nodessh
 
 import (
 	"crypto/rand"
@@ -137,8 +137,8 @@ func NewNode(nodeJSON []byte) (*types.Node, error) {
 		return nil, err
 	}
 	// log.Println("Generated SSH keys")
-	if _, err := sshRun(client,
-		fmt.Sprint("echo '", string(node.PublicKey), "' | tee -a .ssh/authorized_keys")); err != nil {
+	if _, err := sshRun(client, fmt.Sprint("echo '", string(node.PublicKey),
+		"' | tee -a .ssh/authorized_keys")); err != nil {
 		return nil, err
 	}
 	client.Close()
@@ -146,6 +146,10 @@ func NewNode(nodeJSON []byte) (*types.Node, error) {
 	if err := nodeFactory(node); err != nil {
 		return nil, err
 	}
+	if _, err := sshRun(client, fmt.Sprintf(`sudo mkdir /etc/covey && echo 'AGENT_ID="%s"
+HOST_IP="%s" | sudo tee /etc/covey/agent.conf`, node.ID, "192.168.56.1")); err != nil {
+		return nil, err
+	} // Add config file for agent
 	node.ID = common.GenerateID(node)
 
 	return node, nil

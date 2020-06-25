@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -42,7 +41,7 @@ func TestAddUser(t *testing.T) {
 	testError := AddUser(*u2)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got int
 			if db.QueryRow(context.Background(), `SELECT id FROM users 
@@ -67,7 +66,7 @@ func TestUpdateUser(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got int
 			if db.QueryRow(context.Background(), `SELECT id FROM users 
@@ -91,7 +90,7 @@ func TestGetUser(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			if got, err := GetUser(tt.user); got != tt.want {
 				t.Errorf("GetUser() = %v, want %v, error: %v", got, tt.want, err)

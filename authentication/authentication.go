@@ -81,7 +81,7 @@ func parseToken(tokenString string, tokenType string, audience string) (*jwt.Pay
 func refreshKey() {
 	if crashKey == "" {
 		// TODO: Don't release with this
-		crashKey = fmt.Sprintf("12345")
+		crashKey = "12345"
 		// crashKey = commmon.RandomString()
 	}
 }

@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -23,7 +22,7 @@ func Test_tokenGetAPI(t *testing.T) {
 	h := test.PureBoilerplate("GET", "/api/v1/auth/token", tokenGetAPI)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.userid)
+		testname := tt.userid
 		t.Run(testname, func(t *testing.T) {
 			rr, req, err := test.HTTPBoilerplate("GET", "/api/v1/auth/token", nil)
 			if err != nil {

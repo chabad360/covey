@@ -2,7 +2,6 @@ package job
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -40,7 +39,7 @@ func TestAddJob(t *testing.T) {
 	testError := AddJob(*j)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got []byte
 			if db.QueryRow(context.Background(), "SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = $1;",
@@ -68,7 +67,7 @@ func TestUpdateJob(t *testing.T) {
 	testError := UpdateJob(ju)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got []byte
 			if db.QueryRow(context.Background(), "SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = $1;",
@@ -92,7 +91,7 @@ func TestGetJobWithFullHistory(t *testing.T) {
 	//revive:enable:line-length-limit
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			if got, err := GetJobWithFullHistory(tt.id); string(got) != tt.want {
 				t.Errorf("GetJobWithFullHistory() = %v, want %v, error: %v", string(got), tt.want, err)

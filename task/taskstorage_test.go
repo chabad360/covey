@@ -2,7 +2,6 @@ package task
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -38,7 +37,7 @@ func TestAddTask(t *testing.T) {
 	testError := addTask(task)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got []byte
 			if db.QueryRow(context.Background(), "SELECT to_jsonb(tasks) - 'id_short' FROM tasks WHERE id = $1;",
@@ -66,7 +65,7 @@ func TestUpdateTask(t *testing.T) {
 	testError := updateTask(tu)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got []byte
 			if db.QueryRow(context.Background(), "SELECT to_jsonb(tasks) - 'id_short' FROM tasks WHERE id = $1;",
@@ -90,7 +89,7 @@ func TestGetTaskJSON(t *testing.T) {
 	//revive:enable:line-length-limit
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			if got, err := getTaskJSON(tt.id); string(got) != tt.want {
 				t.Errorf("getTaskJSON() = %v, want %v, error: %v", string(got), tt.want, err)

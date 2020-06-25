@@ -59,7 +59,7 @@ func UITaskNew(w http.ResponseWriter, r *http.Request) {
 	storage.DB.QueryRow(context.Background(), "SELECT jsonb_agg(name) FROM nodes;").Scan(&nodes)
 
 	p := &ui.Page{
-		Title: fmt.Sprintf("New Task"),
+		Title: "New Task",
 		URL:   strings.Split(r.URL.Path, "/"),
 		Details: struct {
 			Plugins []string

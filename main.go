@@ -23,7 +23,7 @@ const (
 
 // GetVersion returns the current version of Covey
 func getVersion(w http.ResponseWriter, _ *http.Request) {
-	fmt.Fprintf(w, version)
+	fmt.Fprintf(w, "%s", version)
 }
 
 // RegisterHandlers registers the core Covey API handlers

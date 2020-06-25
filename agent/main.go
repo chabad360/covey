@@ -20,7 +20,6 @@ const (
 )
 
 var (
-	currentTask     task
 	activeTask      *runningTask
 	agent           *config
 	agentPath       string
@@ -125,6 +124,7 @@ func everySecond() {
 	errC(err)
 
 	taskJSON, err := ioutil.ReadAll(r.Body)
+	errC(err)
 	var m map[int]task
 	err = json.Unmarshal(taskJSON, &m)
 	errC(err)

@@ -2,20 +2,19 @@ package task
 
 import (
 	"testing"
-	"time"
 
 	"github.com/chabad360/covey/task/types"
 )
 
-var task1 = &types.Task{
-	ID:       "2778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6c",
-	State:    types.StateRunning,
-	Plugin:   "test",
-	Node:     "test",
-	Time:     time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
-	Details:  map[string]string{"test": "test"},
-	ExitCode: 0,
-}
+// var task1 = &types.Task{
+// 	ID:       "2778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6c",
+// 	State:    types.StateRunning,
+// 	Plugin:   "test",
+// 	Node:     "test",
+// 	Time:     time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
+// 	Details:  map[string]string{"test": "test"},
+// 	ExitCode: 0,
+// }
 
 func TestGetTask(t *testing.T) {
 	type args struct {

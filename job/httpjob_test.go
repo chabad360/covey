@@ -1,7 +1,6 @@
 package job
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -30,7 +29,7 @@ func Test_jobNew(t *testing.T) {
 	h := test.PureBoilerplate("GET", "/api/v1/jobs/new", jobNew)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.body)
+		testname := tt.body
 		t.Run(testname, func(t *testing.T) {
 			rr, req, err := test.HTTPBoilerplate("GET", "/api/v1/jobs/new", strings.NewReader(tt.body))
 			if err != nil {
@@ -62,7 +61,7 @@ func Test_jobGet(t *testing.T) {
 	h := test.PureBoilerplate("GET", "/api/v1/job/:job", jobGet)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			rr, req, err := test.HTTPBoilerplate("GET", "/api/v1/job/"+tt.id, nil)
 			if err != nil {

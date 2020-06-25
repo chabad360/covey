@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"reflect"
@@ -29,7 +28,7 @@ func TestGetItem(t *testing.T) {
 		"1", "1", "1", "1", "1", "1", "1", "1", "1")
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.id)
+		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			if got, err := GetItem("nodes", tt.id); string(got) != tt.want {
 				t.Errorf("GetItem() = %v, want %v, error: %v", string(got), tt.want, err)

@@ -58,7 +58,8 @@ func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		claim, err := parseToken(tokenString, "api", "all")
-		if err != nil { // This is here incase a user is trying to generate a token
+		if err != nil {
+			// This is here incase a user is trying to generate a token or use the api directly.
 			claim, err = parseToken(tokenString, "user", "all")
 			if err != nil {
 				common.ErrorWriterCustom(w, err, http.StatusUnauthorized)
