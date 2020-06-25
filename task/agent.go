@@ -52,12 +52,13 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		common.ErrorWriter(w, err)
 	}
-	SaveTask(&x)
+	saveTask(&x)
 
 	common.Write(w, queues[n])
 	delete(queues, n)
 }
 
+// RegisterAgentHandlers registers the handler for receiving information from agents.
 func RegisterAgentHandlers(r pure.IRouteGroup) {
 	r.Post("/:node", agentPost)
 }

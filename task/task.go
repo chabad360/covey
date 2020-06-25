@@ -78,14 +78,14 @@ func GetTask(identifier string) (*types.Task, bool) {
 	return &x, true
 }
 
-// SaveTask saves a live task to the database.
-func SaveTask(t *types.TaskInfo) {
-	task, ok := GetTask(t.ID)
-	if !ok {
+// saveTask saves a live task to the database.
+func saveTask(t *types.TaskInfo) {
+	var task *types.Task
+	var ok bool
+	if task, ok = GetTask(t.ID); !ok {
 		return
 	}
 	if task.ExitCode != t.ExitCode && t.Log != nil {
-		task.ExitCode = t.ExitCode
 		if t.ExitCode == 0 {
 			task.State = types.StateDone
 		} else if t.ExitCode == 257 {
@@ -93,6 +93,8 @@ func SaveTask(t *types.TaskInfo) {
 		} else {
 			task.State = types.StateError
 		}
+
+		task.ExitCode = t.ExitCode
 		task.Log = append(task.Log, t.Log...)
 
 		if err := updateTask(task); err != nil {
