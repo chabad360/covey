@@ -1,0 +1,87 @@
+{{ define "main" }}
+<div class="container-fluid">
+        <div class="card">
+            <div class="card-header">Node</div>
+            <div class="card-body">
+            <table class="table table-bordered">
+                <colgroup>
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 30%;">
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 50%;">
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th scope="row">Name</th>
+                        <td>{{ .Details.Node.GetName }}</td>
+                        <th scope="row">id</th>
+                        <td>{{ .Details.Node.GetId }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Stats</div>
+            <div class="card-body">
+            <div class="netdata-chart-row">
+            <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.io" data-dimensions="in" 
+            data-chart-library="easypiechart" data-title="Disk Read" data-width="11%" data-before="0" data-after="-540" data-points="540" 
+            data-common-units="system.io.mainhead" role="application"></div>
+            <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.io" data-dimensions="out" 
+            data-chart-library="easypiechart" data-title="Disk Write" data-width="11%" data-before="0" data-after="-540" data-points="540" 
+            data-common-units="system.io.mainhead" role="application"></div>
+            <div class="netdata-container-gauge" style="margin-right: 10px; width: 20%;" data-netdata="system.cpu" data-chart-library="gauge" 
+            data-title="CPU" data-units="%" data-gauge-max-value="100" data-width="20%" data-after="-540" data-points="540" data-colors="#22AA99" 
+            role="application"></div>
+            <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.net" data-dimensions="received" 
+            data-chart-library="easypiechart" data-title="Net Inbound" data-width="11%" data-before="0" data-after="-540" data-points="540" 
+            data-common-units="system.net.mainhead" role="application"></div>
+            <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.net" data-dimensions="sent" 
+            data-chart-library="easypiechart" data-title="Net Outbound" data-width="11%" data-before="0" data-after="-540" data-points="540" 
+            data-common-units="system.net.mainhead" role="application"></div>
+            <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 9%;" data-netdata="system.ram" 
+            data-dimensions="used|buffers|active|wired" data-append-options="percentage" data-chart-library="easypiechart" data-title="Used RAM" 
+            data-units="%" data-easypiechart-max-value="100" data-width="9%" data-after="-540" data-points="540" data-colors="#EE9911" role="application"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Tasks</div>
+            <div class="card-body">
+            <noscript>This table uses datatables.js to provide sorting and filtering.</noscript>
+                <table id="tasks" class="table table-striped table-bordered table-hover" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID (Short)</th>
+                            <th>Time</th>
+                            <th>State</th>
+                            <th>Plugin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            {{- range .Details.Tasks -}}
+                <tr>
+                    <td><a href="/tasks/{{ .ID }}">{{ .GetIDShort }}</a></td>
+                    <td>{{ .Time }}</td>
+                    <td>{{ template "taskState" .State }}</td>
+                    <td>{{ .Plugin }}</td>
+                </tr>
+            {{- else -}}
+            <tr><td colspan="5">None Yet<td></tr>
+            {{- end -}}
+            </tbody>
+                </table>
+            </div>
+        </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+<script type="text/javascript">
+    $(document).ready(function() {
+        var table = $('#tasks').DataTable({
+        "order": [[ 1, "desc" ]],
+        });
+    });
+</script>
+{{ end }}

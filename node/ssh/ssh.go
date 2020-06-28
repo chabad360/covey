@@ -158,8 +158,9 @@ HOST_IP="%s" | sudo tee /etc/covey/agent.conf`, node.ID, "192.168.56.1")); err !
 // LoadNode takes the node information and converts it into a usable node.
 func LoadNode(nodeJSON []byte) (*types.Node, error) {
 	var n types.Node
+	log.Println(string(nodeJSON))
 	if err := json.Unmarshal(nodeJSON, &n); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unmarshal error: %v", err)
 	}
 
 	if err := nodeFactory(&n); err != nil {

@@ -44,6 +44,7 @@ func loadHandlers(r *pure.Mux) {
 		})
 	}()) // Make static files cached
 
+	// TODO: Clean up
 	ui.RegisterHandlers(r)
 	authentication.RegisterUIHandlers(r)
 	task.RegisterUIHandlers(r.Group("/tasks"))
@@ -53,6 +54,8 @@ func loadHandlers(r *pure.Mux) {
 	task.RegisterAgentHandlers(agent)
 	job.RegisterUIHandlers(r.Group("/jobs"))
 	r.Get("/new/job", job.UIJobNew) // BAD
+
+	node.RegisterUIHandlers(r.Group("/nodes"))
 
 	apiRouter := r.GroupWithNone("/api/v1")
 	apiRouter.Use(loggingMiddleware)

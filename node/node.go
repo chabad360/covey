@@ -12,12 +12,12 @@ import (
 func GetNode(identifier string) (*types.Node, bool) {
 	n, err := storage.GetItem("nodes", identifier)
 	if err != nil {
-		log.Println(err)
+		log.Printf("GetNode: %v", err)
 		return nil, false
 	}
 	t, err := nodeSSH.LoadNode(n)
 	if err != nil {
-		log.Println(err)
+		log.Printf("LoadNode: %v", err)
 		return nil, false
 	}
 
