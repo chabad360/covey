@@ -55,7 +55,8 @@ func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
 		Details: struct {
 			Node  *types.Node
 			Tasks []taskTypes.Task
-		}{node, tasks},
+			Host  string
+		}{node, tasks, "localhost"},
 	}
 
 	t := ui.GetTemplate("nodesSingle")

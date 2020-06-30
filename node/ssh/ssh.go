@@ -158,14 +158,12 @@ AGENT_HOST="%s"' | sudo tee /etc/covey/agent.conf`, node.ID, "192.168.56.1")); e
 // LoadNode takes the node information and converts it into a usable node.
 func LoadNode(nodeJSON []byte, privateKey []byte, publicKey []byte, hostKey []byte) (*types.Node, error) {
 	var n types.Node
-	log.Println(string(nodeJSON))
 	if err := json.Unmarshal(nodeJSON, &n); err != nil {
 		return nil, fmt.Errorf("unmarshal error: %v", err)
 	}
 	n.PrivateKey = privateKey
 	n.PublicKey = publicKey
 	n.HostKey = hostKey
-	log.Printf("j: %s, pk: %v, puk: %v, hk: %v", nodeJSON, n.PrivateKey, n.PublicKey, n.HostKey)
 
 	if err := nodeFactory(&n); err != nil {
 		return nil, err
