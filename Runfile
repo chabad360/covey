@@ -55,5 +55,4 @@ plugins:
 
 ## Build and run Covey with -tag live
 run:
-    "${RUN}" -r "${RUNFILE}" build --live
-    ./covey
+    "${RUN}" -r "${RUNFILE}" build --live && ./covey

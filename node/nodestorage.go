@@ -33,6 +33,36 @@ func GetNodeID(identifier string) (string, bool) {
 	return ID, true
 }
 
+// getNodeAndKeys returns the JSON of a node and its keys seperately.
+func getNodeAndKeys(id string) ([]byte, []byte, []byte, []byte, error) {
+	refreshDB()
+	var j []byte
+	var privateKey []byte
+	var publicKey []byte
+	var hostKey []byte
+	if err := db.QueryRow(context.Background(),
+		`SELECT to_jsonb(nodes) - 'private_key' - 'public_key' - 'host_key' 
+		FROM nodes WHERE id = $1 OR id_short = $1 OR name = $1;`, id).Scan(&j); err != nil {
+		return nil, nil, nil, nil, err
+	}
+	if err := db.QueryRow(context.Background(),
+		`SELECT private_key 
+		FROM nodes WHERE id = $1 OR id_short = $1 OR name = $1;`, id).Scan(&privateKey); err != nil {
+		return nil, nil, nil, nil, err
+	}
+	if err := db.QueryRow(context.Background(),
+		`SELECT public_key 
+		FROM nodes WHERE id = $1 OR id_short = $1 OR name = $1;`, id).Scan(&publicKey); err != nil {
+		return nil, nil, nil, nil, err
+	}
+	if err := db.QueryRow(context.Background(),
+		`SELECT host_key 
+		FROM nodes WHERE id = $1 OR id_short = $1 OR name = $1;`, id).Scan(&hostKey); err != nil {
+		return nil, nil, nil, nil, err
+	}
+	return j, privateKey, publicKey, hostKey, nil
+}
+
 func refreshDB() {
 	if db == nil {
 		db = storage.DB

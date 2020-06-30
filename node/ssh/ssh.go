@@ -141,27 +141,31 @@ func NewNode(nodeJSON []byte) (*types.Node, error) {
 		"' | tee -a .ssh/authorized_keys")); err != nil {
 		return nil, err
 	}
-	client.Close()
 
 	if err := nodeFactory(node); err != nil {
 		return nil, err
 	}
+	node.ID = common.GenerateID(node)
 	if _, err := sshRun(client, fmt.Sprintf(`sudo mkdir /etc/covey && echo 'AGENT_ID="%s"
-HOST_IP="%s" | sudo tee /etc/covey/agent.conf`, node.ID, "192.168.56.1")); err != nil {
+AGENT_HOST="%s"' | sudo tee /etc/covey/agent.conf`, node.ID, "192.168.56.1")); err != nil {
 		return nil, err
 	} // Add config file for agent
-	node.ID = common.GenerateID(node)
+	client.Close()
 
 	return node, nil
 }
 
 // LoadNode takes the node information and converts it into a usable node.
-func LoadNode(nodeJSON []byte) (*types.Node, error) {
+func LoadNode(nodeJSON []byte, privateKey []byte, publicKey []byte, hostKey []byte) (*types.Node, error) {
 	var n types.Node
 	log.Println(string(nodeJSON))
 	if err := json.Unmarshal(nodeJSON, &n); err != nil {
 		return nil, fmt.Errorf("unmarshal error: %v", err)
 	}
+	n.PrivateKey = privateKey
+	n.PublicKey = publicKey
+	n.HostKey = hostKey
+	log.Printf("j: %s, pk: %v, puk: %v, hk: %v", nodeJSON, n.PrivateKey, n.PublicKey, n.HostKey)
 
 	if err := nodeFactory(&n); err != nil {
 		return nil, err

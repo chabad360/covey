@@ -9,6 +9,7 @@ import (
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/node/types"
 	"github.com/chabad360/covey/storage"
+	taskTypes "github.com/chabad360/covey/task/types"
 	"github.com/chabad360/covey/ui"
 	"github.com/go-playground/pure/v5"
 )
@@ -40,15 +41,25 @@ func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter404(w, vars.URLParam("node"))
 		return
 	}
+	var tasks []taskTypes.Task
+	err := storage.DB.QueryRow(context.Background(),
+		"SELECT jsonb_agg(to_jsonb(tasks)) FROM tasks WHERE node = $1;", node.Name).Scan(&tasks)
+	if err != nil {
+		common.ErrorWriter(w, err)
+		return
+	}
 
 	p := &ui.Page{
-		Title:   fmt.Sprintf("Node %s", vars.URLParam("node")),
-		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Node *types.Node }{node},
+		Title: fmt.Sprintf("Node %s", vars.URLParam("node")),
+		URL:   strings.Split(r.URL.Path, "/"),
+		Details: struct {
+			Node  *types.Node
+			Tasks []taskTypes.Task
+		}{node, tasks},
 	}
 
 	t := ui.GetTemplate("nodesSingle")
-	err := t.ExecuteTemplate(w, "base", p)
+	err = t.ExecuteTemplate(w, "base", p)
 	if err != nil {
 		common.ErrorWriter(w, err)
 	}
