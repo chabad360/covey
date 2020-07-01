@@ -1,10 +1,10 @@
 package task
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/chabad360/covey/common"
@@ -46,7 +46,6 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		common.ErrorWriter(w, err)
 	}
-	log.Println(string(b))
 	var x types.TaskInfo
 	err = json.Unmarshal(b, &x)
 	if err != nil {
@@ -56,6 +55,36 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 
 	common.Write(w, queues[n])
 	delete(queues, n)
+}
+
+func Init() error {
+	var j []types.Task
+	refreshDB()
+	if err := db.QueryRow(context.Background(),
+		"SELECT jsonb_agg(to_jsonb(tasks) - 'id_short') FROM tasks WHERE state = $1;",
+		types.StateQueued).Scan(&j); err != nil {
+		return err
+	}
+	for i := range j {
+		jt := j[i]
+		t, err := json.Marshal(jt)
+		if err != nil {
+			return err
+		}
+		p, err := loadPlugin(jt.Plugin)
+		if err != nil {
+			return err
+		}
+
+		cmd, err := p.GetCommand(t)
+		if err != nil {
+			return err
+		}
+		if err = QueueTask(jt.Node, jt.ID, cmd); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // RegisterAgentHandlers registers the handler for receiving information from agents.

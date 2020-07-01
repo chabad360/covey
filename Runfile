@@ -16,7 +16,7 @@ build:
     echo "Building Covey"
     [[ "${RELEASE}" ]] \
         && go build -trimpath ${TAGS} -ldflags="-s -w" github.com/chabad360/covey \
-        || go build -trimpath ${TAGS} github.com/chabad360/covey
+        || go build ${TAGS} github.com/chabad360/covey
     [[ "${RELEASE}" ]] && echo "Compressing binary" && upx covey 
 
 ## 
@@ -28,7 +28,7 @@ agent:
     [[ "${RELEASE}" ]] \
         && echo "Building Covey Agent without symbols" \
         && go build -trimpath -ldflags="-s -w" -o assets/agent github.com/chabad360/covey/agent \
-        || go build -trimpath -o assets/agent github.com/chabad360/covey/agent
+        || go build -o assets/agent github.com/chabad360/covey/agent
     [[ "${RELEASE}" ]] && echo "Compressing binary" && upx assets/agent
 
 
@@ -49,7 +49,7 @@ plugins:
     [[ "${RELEASE}" ]] \
         && echo "Building plugins without symbols"\
         && go build -o plugins/task/shell.so -ldflags="-s -w" -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/task/shell \
-        || go build -o plugins/task/shell.so -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/task/shell
+        || go build -o plugins/task/shell.so -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/task/shell
 
 
 

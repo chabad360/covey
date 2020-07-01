@@ -75,6 +75,9 @@ func loadHandlers(r *pure.Mux) {
 func initialize() {
 	storage.Init()
 	job.Init()
+	if err := task.Init(); err != nil {
+		log.Fatal(err)
+	}
 
 	// Ensure files are available
 	if asset.FS == nil {

@@ -2,7 +2,7 @@
 
 ## A lightweight Linux cluster orchestration server written in Go
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/b6e797a0fb5a498199b2a2d3ae494c82)](https://www.codacy.com/manual/chabad360/covey?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=chabad360/covey&amp;utm_campaign=Badge_Grade) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/b6e797a0fb5a498199b2a2d3ae494c82)](https://www.codacy.com/manual/chabad360/covey?utm_source=github.com&utm_medium=referral&utm_content=chabad360/covey&utm_campaign=Badge_Coverage)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/b6e797a0fb5a498199b2a2d3ae494c82)](https://www.codacy.com/manual/chabad360/covey?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=chabad360/covey&amp;utm_campaign=Badge_Grade) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/b6e797a0fb5a498199b2a2d3ae494c82)](https://www.codacy.com/manual/chabad360/covey?utm_source=github.com&utm_medium=referral&utm_content=chabad360/covey&utm_campaign=Badge_Coverage) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4095/badge)](https://bestpractices.coreinfrastructure.org/projects/4095)
 
 Covey is a project designed to fill a certain void, the lack of a nice lightweight cluster management system. The are tools like Rundeck (which Covey takes after), that are quite capable, but are far too heavy to be useful.
 
@@ -44,7 +44,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Persistent queue
 * [ ] Add relevant UI elements
 * [ ] Automatically install agent
-* [ ] Integrate with [Netdata](https://github.com/netdata/netdata) for monitoring
+* [x] Integrate with [Netdata](https://github.com/netdata/netdata) for monitoring
 * [ ] Add tests
 
 #### V0.5 A Better API

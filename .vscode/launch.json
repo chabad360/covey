@@ -22,6 +22,8 @@
             "program": "/home/mendel/Documents/Projects/Untitled/covey",
             "env": {},
             "args": [""],
+            "preLaunchTask": "Build",
         }
-    ]
+    ],
+    
 }
