@@ -14,12 +14,13 @@ import (
 )
 
 func uiTasks(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+
 	var tasks []types.Task
 	err := storage.DB.QueryRow(context.Background(),
 		"SELECT jsonb_agg(to_jsonb(tasks)) FROM tasks").Scan(&tasks)
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	common.ErrorWriter(w, err)
+
 	p := &ui.Page{
 		Title:   "Tasks",
 		URL:     strings.Split(r.URL.Path, "/"),
@@ -27,17 +28,14 @@ func uiTasks(w http.ResponseWriter, r *http.Request) {
 	}
 	t := ui.GetTemplate("tasksAll")
 	err = t.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	common.ErrorWriter(w, err)
 }
 
 func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 	vars := pure.RequestVars(r)
-	task, ok := GetTask(vars.URLParam("task"))
+	task, ok := getTask(vars.URLParam("task"))
 	if !ok {
 		common.ErrorWriter404(w, vars.URLParam("task"))
-		return
 	}
 
 	p := &ui.Page{
@@ -48,15 +46,17 @@ func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 
 	t := ui.GetTemplate("tasksSingle")
 	err := t.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	common.ErrorWriter(w, err)
 }
 
 // UITaskNew returns the form for creating a new task.
 func UITaskNew(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+
 	var nodes []string
-	storage.DB.QueryRow(context.Background(), "SELECT jsonb_agg(name) FROM nodes;").Scan(&nodes)
+
+	err := storage.DB.QueryRow(context.Background(), "SELECT jsonb_agg(name) FROM nodes;").Scan(&nodes)
+	common.ErrorWriter(w, err)
 
 	p := &ui.Page{
 		Title: "New Task",
@@ -68,10 +68,8 @@ func UITaskNew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := ui.GetTemplate("tasksNew")
-	err := t.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	err = t.ExecuteTemplate(w, "base", p)
+	common.ErrorWriter(w, err)
 }
 
 // RegisterUIHandlers registers the HTTP handlers for the task UI.

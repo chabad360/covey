@@ -21,13 +21,12 @@ const (
 	version = "v0.1"
 )
 
-// GetVersion returns the current version of Covey
+// GetVersion returns the current version of Covey.
 func getVersion(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprintf(w, "%s", version)
 }
 
-// RegisterHandlers registers the core Covey API handlers
-func RegisterHandlers(r pure.IRouteGroup) {
+func registerHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Core module API handlers...")
 
 	r.Get("/version", getVersion)
@@ -61,20 +60,18 @@ func loadHandlers(r *pure.Mux) {
 	apiRouter.Use(loggingMiddleware)
 	apiRouter.Use(authentication.AuthAPIMiddleware)
 
-	RegisterHandlers(apiRouter)
+	registerHandlers(apiRouter)
 	authentication.RegisterAPIHandlers(apiRouter.Group("/auth"))
 
 	node.RegisterHandlers(apiRouter.Group("/nodes"), apiRouter.Group("/node"))
-
-	task.RegisterHandlers(apiRouter.Group("/tasks"))
-	task.RegisterIndividualHandlers(apiRouter.Group("/task"))
-
+	task.RegisterHandlers(apiRouter.Group("/tasks"), apiRouter.Group("/task"))
 	job.RegisterHandlers(apiRouter.Group("/jobs"), apiRouter.Group("/job"))
 }
 
 func initialize() {
 	storage.Init()
 	job.Init()
+
 	if err := task.Init(); err != nil {
 		log.Fatal(err)
 	}
@@ -84,6 +81,7 @@ func initialize() {
 		log.Fatal(`Remember to run 
 		'resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*'`)
 	}
+
 	if _, err := asset.FS.Open("/base/base.html"); err != nil {
 		log.Fatalf("Failed to open filesystem: %v", err)
 	}

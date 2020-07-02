@@ -5,3 +5,14 @@ agent
 
 # Generated Config
 *.json
+/.idea/.gitignore
+/.idea/dataSources.xml
+/.idea/dbnavigator.xml
+/go_build_github_com_chabad360_covey
+/.idea/runConfigurations/go_build_github_com_chabad360_covey.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/Untitled.iml
+/.idea/vcs.xml
+/.idea/deployment.xml
+.idea/inspectionProfiles/

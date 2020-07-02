@@ -18,17 +18,19 @@ func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				next(w, r)
 				return
 			}
+
 			http.Redirect(w, r, "/login?url="+r.URL.Path, http.StatusFound)
 			return
 		}
 
 		_, err = parseToken(c.Value, "user", "all")
 		if err != nil {
-			// if it's a bad cookie, we log them out, effectively deleteing the cookie.
+			// if it's a bad cookie, we log them out, effectively deleting the cookie.
 			if r.URL.Path == "/logout" {
 				next(w, r)
 				return
 			}
+
 			http.Redirect(w, r, "/logout", http.StatusFound)
 			return
 		}
@@ -45,6 +47,8 @@ func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 // AuthAPIMiddleware handles authentication for the API.
 func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		defer common.Recover()
+
 		var tokenString string
 		header := r.Header.Get("Authorization")
 		if header != "" {
@@ -54,20 +58,18 @@ func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		if tokenString == "" {
 			common.ErrorWriterCustom(w, fmt.Errorf("forbidden"), http.StatusForbidden)
-			return
 		}
 
 		claim, err := parseToken(tokenString, "api", "all")
 		if err != nil {
-			// This is here incase a user is trying to generate a token or use the api directly.
+			// This is here in case a user is trying to generate a token or use the api directly.
 			claim, err = parseToken(tokenString, "user", "all")
 			if err != nil {
 				common.ErrorWriterCustom(w, err, http.StatusUnauthorized)
-				return
 			}
 		}
 
-		r.Header.Add("X-User-ID", string(claim.Subject))
+		r.Header.Add("X-User-ID", claim.Subject)
 		next(w, r)
 	}
 }

@@ -14,34 +14,41 @@ import (
 )
 
 func uiJobs(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+
 	var jobs []types.Job
 	err := storage.DB.QueryRow(context.Background(),
 		"SELECT jsonb_agg(to_jsonb(jobs) - 'log' - 'details') FROM jobs").Scan(&jobs)
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	common.ErrorWriter(w, err)
+
 	p := &ui.Page{
 		Title:   "Jobs",
 		URL:     strings.Split(r.URL.Path, "/"),
 		Details: struct{ Jobs []types.Job }{Jobs: jobs},
 	}
+
 	t := ui.GetTemplate("jobsAll")
 	err = t.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	common.ErrorWriter(w, err)
 }
 
 func uiJobSingle(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+
 	vars := pure.RequestVars(r)
-	job, ok := GetJobWithTasks(vars.URLParam("job"))
+
+	job, ok := GetJobWithTasks(vars.URLParam("job")) // This goes first so we dont need to confirm existence anymore.
 	if !ok {
 		common.ErrorWriter404(w, vars.URLParam("job"))
 	}
+
 	if r.URL.Query().Get("run") == "true" {
 		j, _ := GetJob(vars.URLParam("job"))
 		j.Run()
-		UpdateJob(*j)
+
+		err := UpdateJob(*j)
+		common.ErrorWriter(w, err)
+
 		job, _ = GetJobWithTasks(vars.URLParam("job"))
 	}
 
@@ -53,15 +60,16 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 
 	t := ui.GetTemplate("jobsSingle")
 	err := t.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	common.ErrorWriter(w, err)
 }
 
 // UIJobNew returns the form for creating a new task.
 func UIJobNew(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+
 	var nodes []string
-	storage.DB.QueryRow(context.Background(), "SELECT jsonb_agg(name) FROM nodes;").Scan(&nodes)
+	err := storage.DB.QueryRow(context.Background(), "SELECT jsonb_agg(name) FROM nodes;").Scan(&nodes)
+	common.ErrorWriter(w, err)
 
 	p := &ui.Page{
 		Title: "New Job",
@@ -73,10 +81,8 @@ func UIJobNew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := ui.GetTemplate("jobsNew")
-	err := t.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	err = t.ExecuteTemplate(w, "base", p)
+	common.ErrorWriter(w, err)
 }
 
 // RegisterUIHandlers registers the HTTP handlers for the jobs UI.

@@ -11,11 +11,11 @@ import (
 )
 
 func dashboard(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+
 	base := GetTemplate("dashboard")
 	err := base.ExecuteTemplate(w, "base", &Page{Title: "Dashboard", URL: strings.Split(r.URL.Path, "/")})
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	common.ErrorWriter(w, err)
 }
 
 func fsMust(f string) string {
@@ -23,6 +23,7 @@ func fsMust(f string) string {
 	if !ok {
 		panic(fmt.Errorf("fsMust: invalid file %v", f))
 	}
+
 	return str
 }
 

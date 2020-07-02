@@ -7,6 +7,7 @@ engines:
       enabled: true
       exclude_paths:
         - 'Readme.md'
+        - 'GOALS.md'
     jacksonlinter:
       enabled: true
       exclude_paths:

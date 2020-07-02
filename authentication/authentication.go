@@ -12,7 +12,12 @@ import (
 const key = "asdf" // TODO: Redesign API key system
 
 var (
-	crashKey string
+	crashKey string //nolint:gochecknoglobals
+)
+
+const (
+	user = "user"
+	api  = "api"
 )
 
 type credentials struct {
@@ -22,11 +27,13 @@ type credentials struct {
 
 func createToken(userid string, tokenType string, audience []string) (string, *time.Time, error) {
 	refreshKey()
+
 	var err error
 	var expirationTime time.Time
-	if tokenType == "user" {
+
+	if tokenType == user {
 		expirationTime = time.Now().Add(20 * time.Minute)
-	} else if tokenType == "api" {
+	} else if tokenType == api {
 		expirationTime = time.Now().Add(4 * (7 * (24 * time.Hour)))
 	}
 
@@ -44,14 +51,15 @@ func createToken(userid string, tokenType string, audience []string) (string, *t
 	}
 
 	var token []byte
-	if tokenType == "user" {
+	if tokenType == user {
 		token, err = jwt.Sign(claim, jwt.NewHS256([]byte(crashKey)))
-	} else if tokenType == "api" {
+	} else if tokenType == api {
 		token, err = jwt.Sign(claim, jwt.NewHS256([]byte(key)))
 	}
 	if err != nil {
 		return "", nil, err
 	}
+
 	return string(token), &expirationTime, nil
 }
 
@@ -59,16 +67,18 @@ func parseToken(tokenString string, tokenType string, audience string) (*jwt.Pay
 	refreshKey()
 	var claim jwt.Payload
 	var err error
+
 	iss := jwt.IssuerValidator(strings.Join([]string{"covey", tokenType}, "-"))
 	exp := jwt.ExpirationTimeValidator(time.Now())
 	aud := jwt.AudienceValidator(jwt.Audience{audience})
 	validate := jwt.ValidatePayload(&claim, iss, exp, aud)
 
-	if tokenType == "user" {
+	switch tokenType {
+	case user:
 		_, err = jwt.Verify([]byte(tokenString), jwt.NewHS256([]byte(crashKey)), &claim, validate)
-	} else if tokenType == "api" {
+	case api:
 		_, err = jwt.Verify([]byte(tokenString), jwt.NewHS256([]byte(key)), &claim, validate)
-	} else {
+	default:
 		return nil, fmt.Errorf("parseToken: invalid token type")
 	}
 	if err != nil {
@@ -82,6 +92,6 @@ func refreshKey() {
 	if crashKey == "" {
 		// TODO: Don't release with this
 		crashKey = "12345"
-		// crashKey = commmon.RandomString()
+		// crashKey = common.RandomString()
 	}
 }

@@ -12,27 +12,29 @@ import (
 )
 
 func login(w http.ResponseWriter, r *http.Request) {
-	login := ui.GetTemplate("login")
-	err := login.ExecuteTemplate(w, "login",
+	defer common.Recover()
+
+	l := ui.GetTemplate("login")
+	err := l.ExecuteTemplate(w, "login",
 		&ui.Page{Title: "Login", URL: strings.Split(r.URL.Path, "/"), Details: true})
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	common.ErrorWriter(w, err)
 }
 
 func loginP(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+
 	login := ui.GetTemplate("login")
+
 	cookie, err := tokenGet(&credentials{Username: r.FormValue("username"), Password: r.FormValue("password")})
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		err := login.ExecuteTemplate(w, "login",
+		err = login.ExecuteTemplate(w, "login",
 			&ui.Page{Title: "Login", URL: strings.Split(r.URL.Path, "/"), Details: false})
-		if err != nil {
-			common.ErrorWriter(w, err)
-		}
+		common.ErrorWriter(w, err)
 	}
 
 	http.SetCookie(w, cookie)
+
 	if r.URL.Query().Get("url") != "" {
 		http.Redirect(w, r, r.URL.Query().Get("url"), http.StatusFound)
 		return

@@ -35,9 +35,13 @@ func NewTask(taskJSON []byte) (*types.Task, error) {
 	t.Time = time.Now()
 	t.Command = cmd
 	t.ID = common.GenerateID(t)
-	addTask(t)
 
-	err = QueueTask(t.Node, t.ID, t.Command)
+	err = addTask(t)
+	if err != nil {
+		return nil, err
+	}
+
+	err = queueTask(t.Node, t.ID, t.Command)
 	if err != nil {
 		return nil, err
 	}
@@ -57,6 +61,7 @@ func loadPlugin(pluginName string) (types.TaskPlugin, error) {
 	}
 
 	var s types.TaskPlugin
+
 	s, ok := n.(types.TaskPlugin)
 	if !ok {
 		return nil, fmt.Errorf(pluginName, " does not provide a TaskPlugin")
@@ -66,15 +71,17 @@ func loadPlugin(pluginName string) (types.TaskPlugin, error) {
 }
 
 // GetTask checks if a task with the identifier exists and returns it.
-func GetTask(identifier string) (*types.Task, bool) {
+func getTask(identifier string) (*types.Task, bool) {
 	t, err := getTaskJSON(identifier)
 	if err != nil {
 		return nil, false
 	}
+
 	var x types.Task
 	if err := json.Unmarshal(t, &x); err != nil {
 		return nil, false
 	}
+
 	return &x, true
 }
 
@@ -82,15 +89,18 @@ func GetTask(identifier string) (*types.Task, bool) {
 func saveTask(t *types.TaskInfo) {
 	var task *types.Task
 	var ok bool
-	if task, ok = GetTask(t.ID); !ok {
+
+	if task, ok = getTask(t.ID); !ok {
 		return
 	}
+
 	if task.ExitCode != t.ExitCode && t.Log != nil { // Only update if there is something new!
-		if t.ExitCode == 0 {
+		switch t.ExitCode {
+		case 0:
 			task.State = types.StateDone
-		} else if t.ExitCode == 257 {
+		case 257:
 			task.State = types.StateRunning
-		} else {
+		default:
 			task.State = types.StateError
 		}
 
