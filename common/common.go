@@ -5,23 +5,46 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"math/big"
 	"net/http"
 
 	json "github.com/json-iterator/go"
 )
 
+type writerError struct {
+	err error
+}
+
+func (w *writerError) Error() error {
+	return w.err
+}
+
+// Recover allows you to recover from a writerError and to exit a function.
+func Recover() {
+	if r := recover(); r != nil {
+		if err, ok := r.(*writerError); ok {
+			log.Println(err.Error())
+			return
+		}
+		panic(fmt.Errorf("r: %v, type: %T", r, r))
+	}
+}
+
 // RandomString generates a random 32 byte random string.
 func RandomString() string {
 	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	b := make([]byte, 32)
+
 	for i := range b {
 		r, err := rand.Int(rand.Reader, big.NewInt(0xffffffff))
 		if err != nil {
 			panic(err)
 		}
+
 		b[i] = charset[r.Int64()%int64(len(charset))]
 	}
+
 	return string(b)
 }
 
@@ -37,18 +60,26 @@ func ErrorWriter404(w http.ResponseWriter, name string) {
 
 // ErrorWriterCustom writes an error in the JSON format to the http.ResponseWriter with a custom status code.
 func ErrorWriterCustom(w http.ResponseWriter, err error, code int) {
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(struct {
-		Error string `json:"error"`
-	}{err.Error()})
+	if err != nil {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(code)
+		jErr := json.NewEncoder(w).Encode(struct {
+			Error string `json:"error"`
+		}{err.Error()})
+		if jErr != nil {
+			panic(&writerError{jErr})
+		}
+
+		panic(&writerError{err})
+	}
 }
 
 // Write writes the interface as a JSON to the ResponseWriter.
 func Write(w http.ResponseWriter, i interface{}) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(i)
+	err := json.NewEncoder(w).Encode(i)
+	ErrorWriter(w, err)
 }
 
 // GenerateID takes an object, converts it to text (adds two 32 byte random strings) and returns a sha256 hash from it.

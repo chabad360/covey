@@ -15,75 +15,124 @@ import (
 
 var queues = make(map[string]*types.TaskList)
 
-// QueueTask prepares a task to be sent to the node.
-func QueueTask(nodeID string, taskID string, taskCommand string) error {
+func queueTask(nodeID string, taskID string, taskCommand string) error {
 	t := types.AgentTask{
 		ID:      taskID,
 		Command: taskCommand,
 	}
+
 	id, ok := node.GetNodeID(nodeID)
 	if !ok {
 		return fmt.Errorf("%v is not a valid node ID", nodeID)
 	}
+
 	var q *types.TaskList
 	if queues[id] == nil {
 		q = &types.TaskList{}
 	} else {
 		q = queues[id]
 	}
+
 	q.PushBack(t)
+
 	queues[id] = q
+
 	return nil
 }
 
 func agentPost(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+
 	vars := pure.RequestVars(r)
+
 	n, ok := node.GetNodeID(vars.URLParam("node"))
 	if !ok {
 		common.ErrorWriter404(w, vars.URLParam("node"))
 	}
+
 	b, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		common.ErrorWriter(w, err)
-	}
+	common.ErrorWriter(w, err)
+
 	var x types.TaskInfo
+
 	err = json.Unmarshal(b, &x)
-	if err != nil {
-		common.ErrorWriter(w, err)
+	common.ErrorWriter(w, err)
+
+	if x.ID == "hello" {
+		if n, ok = node.GetNodeName(n); !ok {
+			common.ErrorWriter(w, fmt.Errorf("node %s not found", n))
+		}
+
+		if err = initAgent(n); err != nil {
+			common.ErrorWriter(w, err)
+		}
+	} else {
+		saveTask(&x)
 	}
-	saveTask(&x)
 
 	common.Write(w, queues[n])
 	delete(queues, n)
 }
 
-func Init() error {
-	var j []types.Task
-	refreshDB()
-	if err := db.QueryRow(context.Background(),
-		"SELECT jsonb_agg(to_jsonb(tasks) - 'id_short') FROM tasks WHERE state = $1;",
-		types.StateQueued).Scan(&j); err != nil {
-		return err
-	}
-	for i := range j {
-		jt := j[i]
-		t, err := json.Marshal(jt)
-		if err != nil {
-			return err
-		}
-		p, err := loadPlugin(jt.Plugin)
+func initQueues(tasks []types.Task) error {
+	for i := range tasks {
+		t := tasks[i]
+
+		j, err := json.Marshal(t)
 		if err != nil {
 			return err
 		}
 
-		cmd, err := p.GetCommand(t)
+		p, err := loadPlugin(t.Plugin)
 		if err != nil {
 			return err
 		}
-		if err = QueueTask(jt.Node, jt.ID, cmd); err != nil {
+
+		cmd, err := p.GetCommand(j)
+		if err != nil {
+			return err
+		}
+
+		if err = queueTask(t.Node, t.ID, cmd); err != nil {
 			return err
 		}
 	}
+
+	return nil
+}
+
+func initAgent(agent string) error {
+	refreshDB()
+
+	var t []types.Task
+	if err := db.QueryRow(context.Background(),
+		"SELECT jsonb_agg(to_jsonb(tasks) - 'id_short') FROM tasks WHERE state = $1 AND node = $2;",
+		types.StateQueued, agent).Scan(&t); err != nil {
+		return err
+	}
+
+	if err := initQueues(t); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Init initializes the agent queues.
+func Init() error {
+	refreshDB()
+
+	var t []types.Task
+	if err := db.QueryRow(context.Background(),
+		"SELECT jsonb_agg(to_jsonb(tasks) - 'id_short') FROM tasks WHERE state = $1;",
+		types.StateQueued).Scan(&t); err != nil {
+		return err
+	}
+
+	if err := initQueues(t); err != nil {
+		return err
+	}
+
 	return nil
 }
 

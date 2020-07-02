@@ -20,7 +20,7 @@ const (
 )
 
 var (
-	activeTask      *runningTask
+	activeID        string
 	agent           *config
 	agentPath       string
 	logChannel      = make(chan string, 1024)
@@ -55,6 +55,12 @@ func main() {
 	log.Println("Agent ID:", agent.AgentID)
 	log.Println("Host:", agent.Host)
 
+	activeID = "hello"
+
+	go func() {
+		logChannel <- "hello"
+		exitCodeChannel <- 1
+	}()
 	go runner()
 	log.Println("Covey Agent started!")
 
@@ -65,10 +71,13 @@ func main() {
 }
 
 func settings(file string) (*config, error) {
-	godotenv.Load(file)
-
-	var conf = config{}
 	var exists bool
+
+	if err := godotenv.Load(file); err != nil {
+		return nil, err
+	}
+
+	conf := config{}
 	if conf.AgentID, exists = os.LookupEnv("AGENT_ID"); !exists || conf.AgentID == "" {
 		return nil, fmt.Errorf("missing AGENT_ID")
 	}
@@ -78,13 +87,15 @@ func settings(file string) (*config, error) {
 	}
 
 	var host string
-	var port string
 	if host, exists = os.LookupEnv("AGENT_HOST"); !exists || host == "" {
 		return nil, fmt.Errorf("missing AGENT_HOST")
 	}
+
+	var port string
 	if port, exists = os.LookupEnv("AGENT_HOST_POST"); !exists || port == "" {
 		port = "8080"
 	}
+
 	conf.Host = host + ":" + port
 	agentPath = "http://" + conf.Host + "/agent/" + conf.AgentID
 
@@ -92,39 +103,43 @@ func settings(file string) (*config, error) {
 }
 
 func everySecond() {
-	// First read it, then delete it.
-	var body = []byte("{}")
 	var err error
-	if activeTask != nil {
-		var at *runningTask
-		activeTask.Log = []string{<-logChannel}
+
+	body := []byte("{}")
+
+	if activeID != "" {
+		at := &runningTask{
+			ID: activeID,
+		}
+		at.Log = []string{<-logChannel}
+
 		select {
 		case e := <-exitCodeChannel:
-			activeTask.ExitCode = e
-			at = nil
+			at.ExitCode = e
+			activeID = ""
 		default:
-			activeTask.ExitCode = 257
-			at = activeTask
+			at.ExitCode = 257
 		}
-		body, err = json.Marshal(activeTask)
+
+		body, err = json.Marshal(at)
 		errC(err)
-		activeTask = at
 	} else {
 		select {
 		case t := <-taskIDChannel:
-			activeTask = &runningTask{
-				ID:       t,
-				ExitCode: 257,
-			}
+			activeID = t
 		default:
 			break
 		}
 	}
-	r, err := http.Post(agentPath, "application/json", strings.NewReader(string(body)))
+
+	log.Println(string(body))
+	r, err := http.Post(agentPath, "application/json", strings.NewReader(string(body))) //nolint:gosec
 	errC(err)
 
 	taskJSON, err := ioutil.ReadAll(r.Body)
 	errC(err)
+	log.Println(string(taskJSON))
+
 	var m map[int]task
 	err = json.Unmarshal(taskJSON, &m)
 	errC(err)
@@ -133,7 +148,8 @@ func everySecond() {
 		queue <- m[i]
 	}
 
-	r.Body.Close()
+	err = r.Body.Close()
+	errC(err)
 }
 
 func errC(err error) {
@@ -147,7 +163,7 @@ func runner() {
 		t := <-queue
 
 		taskIDChannel <- t.ID
-		cmd := exec.Command("/bin/bash", "-c", t.Command)
+		cmd := exec.Command("/bin/bash", "-c", t.Command) //nolint:gosec
 		stdout, err := cmd.StdoutPipe()
 		errC(err)
 
@@ -157,12 +173,13 @@ func runner() {
 		bb := bufio.NewScanner(stdout)
 		for bb.Scan() {
 			logChannel <- bb.Text()
+
 			log.Println(bb.Text())
 		}
-		err = cmd.Wait()
-		if err != nil {
-			if err, ok := err.(*exec.ExitError); ok {
-				exitCodeChannel <- err.ExitCode()
+
+		if err = cmd.Wait(); err != nil {
+			if e, ok := err.(*exec.ExitError); ok {
+				exitCodeChannel <- e.ExitCode()
 			}
 		} else {
 			exitCodeChannel <- 0
