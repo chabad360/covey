@@ -9,7 +9,7 @@ import (
 
 var token string
 
-func Test_createToken(t *testing.T) {
+func TestCreateToken(t *testing.T) {
 	type args struct {
 		userid        string
 		tokenType     string
@@ -39,7 +39,7 @@ func Test_createToken(t *testing.T) {
 	}
 }
 
-func Test_parseToken(t *testing.T) {
+func TestParseToken(t *testing.T) {
 	type args struct {
 		tokenString string
 		tokenType   string
@@ -64,7 +64,7 @@ func Test_parseToken(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := parseToken(tt.args.tokenString, tt.args.tokenType, "all")
 			if (err != nil) != tt.wantErr {
-				t.Errorf("parseToken() error = %v, wantErr %v, got = %v", err, tt.wantErr, got)
+				t.Errorf("parseToken() error = %v, wantErr %v, got = %v, sent = %v", err, tt.wantErr, got, tt.args)
 				return
 			}
 			// if got != tt.want {

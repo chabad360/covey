@@ -9,7 +9,7 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-// AgentTask contains the information about a task that is send to an agent
+// AgentTask contains the information about a task that is send to an agent.
 type AgentTask struct {
 	Command string `json:"command"`
 	ID      string `json:"id"`

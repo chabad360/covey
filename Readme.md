@@ -49,7 +49,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [x] Add relevant UI elements
 * [ ] Automatically install agent
 * [x] Integrate with [Netdata](https://github.com/netdata/netdata) for monitoring
-* [ ] Add tests
+* [ ] ~~Add tests~~
 
 #### V0.5 A Better API
 

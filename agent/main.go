@@ -132,13 +132,20 @@ func everySecond() {
 		}
 	}
 
-	log.Println(string(body))
-	r, err := http.Post(agentPath, "application/json", strings.NewReader(string(body))) //nolint:gosec
-	errC(err)
+	var r *http.Response
+	for {
+		r, err = http.Post(agentPath, "application/json", strings.NewReader(string(body))) //nolint:gosec
+		if err == nil {
+			break
+		}
+
+		log.Printf("Couldn't connect to the host: %v\n", err)
+		log.Println("Trying again in 5 seconds...")
+		time.Sleep(4 * time.Second)
+	}
 
 	taskJSON, err := ioutil.ReadAll(r.Body)
 	errC(err)
-	log.Println(string(taskJSON))
 
 	var m map[int]task
 	err = json.Unmarshal(taskJSON, &m)

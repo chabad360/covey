@@ -7,13 +7,14 @@ import (
 )
 
 var n = &Task{
-	ID:      "a7a39b72f29718e653e73503210fbb597057b7a1c77d1fe321a1afcff041d4e1",
-	Plugin:  "plugin",
-	State:   StateDone,
-	Node:    "node",
-	Time:    time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
-	Details: map[string]string{"test": "test"},
-	Log:     []string{"hello", "world"},
+	ID:       "a7a39b72f29718e653e73503210fbb597057b7a1c77d1fe321a1afcff041d4e1",
+	Plugin:   "plugin",
+	State:    StateDone,
+	Node:     "node",
+	Time:     time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
+	Details:  map[string]string{"test": "test"},
+	Log:      []string{"hello", "world"},
+	ExitCode: 1,
 }
 
 func TestTask_GetID(t *testing.T) {
@@ -55,6 +56,12 @@ func TestTask_GetDetails(t *testing.T) {
 func TestTask_GetTime(t *testing.T) {
 	if got := n.GetTime(); got != n.Time {
 		t.Errorf("Task.GetTime() = %v, want %v", got, n.Time)
+	}
+}
+
+func TestTask_GetExitCode(t *testing.T) {
+	if got := n.GetExitCode(); got != n.ExitCode {
+		t.Errorf("Task.GetExitCode() = %v, want %v", got, n.ExitCode)
 	}
 }
 

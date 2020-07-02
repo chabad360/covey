@@ -24,5 +24,7 @@ Here goes:
 * [ ] CLI tool
 * [ ] Postgres might not be the best way to store logs
 * [ ] Vendor dependencies (maybe, I don't know how necessary it really is)
-* [ ] Deal with properly logging
+* [ ] Proper logging
 * [ ] Postgres might not be the best place to store keys
+* [ ] Figure out a testing system that can deal with "nodes"
+* [ ] Input validation

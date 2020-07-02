@@ -3,7 +3,6 @@ package node
 import (
 	"log"
 
-	nodeSSH "github.com/chabad360/covey/node/ssh"
 	"github.com/chabad360/covey/node/types"
 )
 
@@ -14,7 +13,7 @@ func GetNode(identifier string) (*types.Node, bool) {
 		log.Printf("GetNode: %v", err)
 		return nil, false
 	}
-	t, err := nodeSSH.LoadNode(n, pk, puk, hk)
+	t, err := loadNode(n, pk, puk, hk)
 	if err != nil {
 		log.Printf("LoadNode: %v", err)
 		return nil, false
