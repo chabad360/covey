@@ -1,17 +1,17 @@
 engines:
-    duplication:
-      enabled: true
-      exclude_paths:
-        - '**_test.go'
-    remark-int:
-      enabled: true
-      exclude_paths:
-        - 'Readme.md'
-        - 'GOALS.md'
-    jacksonlinter:
-      enabled: true
-      exclude_paths:
-        - '.vscode/**'
+  duplication:
+    enabled: true
+    exclude_paths:
+      - '**_test.go'
+  remark-int:
+    enabled: true
+    exclude_paths:
+      - 'Readme.md'
+      - 'GOALS.md'
+  jacksonlinter:
+    enabled: true
+    exclude_paths:
+      - '.vscode/**'
 
 exclude_paths:
   - 'asset/asset.go'

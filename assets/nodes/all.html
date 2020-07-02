@@ -1,38 +1,41 @@
 {{ define "main" }}
-<div class="container-fluid">
-    <div class="fade-in">
-        <div class="card">
-            <div class="card-header">Nodes</div>
-            <div class="card-body">
-                <noscript>This table uses datatables.js to provide sorting and filtering.</noscript>
-                <table id="nodes" class="table table-striped table-bordered table-hover" style="width:100%">
-                    <thead>
+    <div class="container-fluid">
+        <div class="fade-in">
+            <div class="card">
+                <div class="card-header">Nodes</div>
+                <div class="card-body">
+                    <noscript>This table uses datatables.js to provide sorting and filtering.</noscript>
+                    <table id="nodes" class="table table-striped table-bordered table-hover" style="width:100%">
+                        <thead>
                         <tr>
                             <th>Name</th>
                             <th>Status</th>
                             <th>ID (Short)</th>
                         </tr>
-                    </thead>
-                    <tbody>
-            {{- range .Details.Nodes -}}
-                <tr>
-                    <td><a href="/nodes/{{ .ID }}">{{ .Name }}</a></td>
-                    <td>?</td>
-                    <td>{{ .GetIDShort }}</td>
-                </tr>
-            {{- else -}}
-            <tr><td colspan="5">None Yet<td></tr>
-            {{- end -}}
-            </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {{- range .Details.Nodes -}}
+                            <tr>
+                                <td><a href="/nodes/{{ .ID }}">{{ .Name }}</a></td>
+                                <td>?</td>
+                                <td>{{ .GetIDShort }}</td>
+                            </tr>
+                        {{- else -}}
+                            <tr>
+                                <td colspan="5">None Yet
+                                <td>
+                            </tr>
+                        {{- end -}}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {{ end }} {{ define "scripts" }}
-<script type="text/javascript">
-    $(document).ready(function() {
-        var table = $('#nodes').DataTable();
-    });
-</script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var table = $('#nodes').DataTable();
+        });
+    </script>
 {{ end }}

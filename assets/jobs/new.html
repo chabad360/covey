@@ -1,150 +1,152 @@
 {{ define "main" }}
-<div class="container-fluid">
-    <div class="fade-in">
-        <form id="jobform" method="post">
-        <div class="card">
-            <div class="card-header"><strong>Job Info</strong></div>
-            <div class="card-body">
-                <noscript>This form requires JavaScript.</noscript>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="name">Name</label>
-                            <input type="node" class="form-control" id="name" name="name" required />
+    <div class="container-fluid">
+        <div class="fade-in">
+            <form id="jobform" method="post">
+                <div class="card">
+                    <div class="card-header"><strong>Job Info</strong></div>
+                    <div class="card-body">
+                        <noscript>This form requires JavaScript.</noscript>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="name">Name</label>
+                                <input type="node" class="form-control" id="name" name="name" required/>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="nodes">Nodes</label>
+                                <select class="form-control" id="nodes" name="nodes[]" multiple="mutiple" required>
+                                    {{ range .Details.Nodes }}
+                                        <option value="{{ . }}">{{ . }}</option>
+                                    {{ end }}
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-group col-md-6">
-                            <label for="nodes">Nodes</label>
-                            <select class="form-control" id="nodes" name="nodes[]" multiple="mutiple" required>
-                                {{ range .Details.Nodes }}
-                                <option value="{{ . }}">{{ . }}</option>
-                                {{ end }}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="cron">Cron</label>
-                            <input type="text" class="form-control" id="cron" name="cron" />
-                        </div>
-                    </div>
-            </div>
-            <div class="card-footer">
-                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#job">Add Task</button>
-                <button class="btn btn-success" type="submit">Create Job</button>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">Tasks</div>
-            <div class="card-body row" id="tasks"></div>
-        </div>
-        </form>
-    </div>
-</div>
-
-<div class="modal fade" id="job" tabindex="-1" role="dialog" aria-labelledby="jobModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="jobModalLabel">New Task</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-            </div>
-            <form id="taskform" action="#">
-                <div class="modal-body">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="name">Name</label>
-                            <input type="text" class="form-control" id="taskname" name="taskname" required />
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="plugin">Plugin</label>
-                            <select class="form-control" id="plugin" name="plugin" required>
-                                <option value="">Please select</option>
-                                {{ range .Details.Plugins }}
-                                <option value="{{ . }}">{{ . }}</option>
-                                {{ end }}
-                            </select>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="cron">Cron</label>
+                                <input type="text" class="form-control" id="cron" name="cron"/>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-12">
-                        <label for="command">Command</label>
-                        <input type="text" class="form-control" id="command" name="details[command]:string" placeholder="apt-get update ..." required />
-                        </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#job">Add Task
+                        </button>
+                        <button class="btn btn-success" type="submit">Create Job</button>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" type="submit">Save</button>
+                <div class="card">
+                    <div class="card-header">Tasks</div>
+                    <div class="card-body row" id="tasks"></div>
                 </div>
             </form>
         </div>
     </div>
-</div>
+
+    <div class="modal fade" id="job" tabindex="-1" role="dialog" aria-labelledby="jobModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="jobModalLabel">New Task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="taskform" action="#">
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="name">Name</label>
+                                <input type="text" class="form-control" id="taskname" name="taskname" required/>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="plugin">Plugin</label>
+                                <select class="form-control" id="plugin" name="plugin" required>
+                                    <option value="">Please select</option>
+                                    {{ range .Details.Plugins }}
+                                        <option value="{{ . }}">{{ . }}</option>
+                                    {{ end }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="command">Command</label>
+                                <input type="text" class="form-control" id="command" name="details[command]:string"
+                                       placeholder="apt-get update ..." required/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {{ end }}
 
 {{ define "scripts" }}
-<script type="text/javascript">
-$(document).ready(function() {
-    $("#jobform").on('submit', function(e) {
-        e.preventDefault();
-        var form = $( this ).serializeJSON({skipFalsyValuesForTypes: ["string"]});
-        if (!form.tasks) {
-            alert("Missing Tasks");
-            return;
-        }
-        $.ajax({
-            url : "/api/v1/jobs/new",
-            headers: { "Authorization": 'Bearer ' + getCookieValue("token") },
-            type: "post",
-            dataType: 'json',
-            data: JSON.stringify(form),
-            contentType: 'application/json',
-            success: function(data) {
-                window.location = "/jobs/" + data.name;
-            },
-            error: function(data) {
-                alert(data);
-            },
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#jobform").on('submit', function (e) {
+                e.preventDefault();
+                var form = $(this).serializeJSON({skipFalsyValuesForTypes: ["string"]});
+                if (!form.tasks) {
+                    alert("Missing Tasks");
+                    return;
+                }
+                $.ajax({
+                    url: "/api/v1/jobs/new",
+                    headers: {"Authorization": 'Bearer ' + getCookieValue("token")},
+                    type: "post",
+                    dataType: 'json',
+                    data: JSON.stringify(form),
+                    contentType: 'application/json',
+                    success: function (data) {
+                        window.location = "/jobs/" + data.name;
+                    },
+                    error: function (data) {
+                        alert(data);
+                    },
+                });
+            });
         });
-    });
-});
-    $("#taskform").on('submit', function(e) {
-        e.preventDefault();
-        var taskform = $( this ).serializeJSON();
-        var name = taskform.taskname
-        delete taskform.taskname
-        coreui.Modal.getInstance(document.getElementById("job")).hide();
+        $("#taskform").on('submit', function (e) {
+            e.preventDefault();
+            var taskform = $(this).serializeJSON();
+            var name = taskform.taskname
+            delete taskform.taskname
+            coreui.Modal.getInstance(document.getElementById("job")).hide();
 
-        var container = document.createElement("div");
-        container.setAttribute("class", "col-sm-3");
+            var container = document.createElement("div");
+            container.setAttribute("class", "col-sm-3");
 
-        var task = document.createElement("div");
-        task.setAttribute("id", name + "Task");
-        task.setAttribute("class", "card");
+            var task = document.createElement("div");
+            task.setAttribute("id", name + "Task");
+            task.setAttribute("class", "card");
 
-        var taskDiv = document.createElement("div");
-        taskDiv.setAttribute("class", "card-body");
+            var taskDiv = document.createElement("div");
+            taskDiv.setAttribute("class", "card-body");
 
-        var taskName = document.createElement("h5");
-        taskName.setAttribute("class", "card-title");
-        taskName.textContent = name;
+            var taskName = document.createElement("h5");
+            taskName.setAttribute("class", "card-title");
+            taskName.textContent = name;
 
-        var taskPlugin = document.createElement("h6");
-        taskPlugin.setAttribute("class", "card-subtitle mb-2 text-muted");
-        taskPlugin.textContent = "Plugin: " + taskform.plugin;
-        
-        var taskData = document.createElement("input");
-        taskData.setAttribute("type", "hidden");
-        taskData.setAttribute("name", "tasks[" +name +"]:object");
-        taskData.setAttribute("value", JSON.stringify(taskform));
+            var taskPlugin = document.createElement("h6");
+            taskPlugin.setAttribute("class", "card-subtitle mb-2 text-muted");
+            taskPlugin.textContent = "Plugin: " + taskform.plugin;
 
-        taskDiv.appendChild(taskName);
-        taskDiv.appendChild(taskPlugin);
-        taskDiv.appendChild(taskData);
-        task.appendChild(taskDiv);
-        container.appendChild(task);
-        $("#tasks").append(container);
-        document.getElementById("taskform").reset();
-    });
-</script>
+            var taskData = document.createElement("input");
+            taskData.setAttribute("type", "hidden");
+            taskData.setAttribute("name", "tasks[" + name + "]:object");
+            taskData.setAttribute("value", JSON.stringify(taskform));
+
+            taskDiv.appendChild(taskName);
+            taskDiv.appendChild(taskPlugin);
+            taskDiv.appendChild(taskData);
+            task.appendChild(taskDiv);
+            container.appendChild(task);
+            $("#tasks").append(container);
+            document.getElementById("taskform").reset();
+        });
+    </script>
 {{ end }}

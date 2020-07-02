@@ -1,27 +1,29 @@
 {{ define "header" }}
-<header class="c-header c-header-light c-header-fixed justify-content-between px-3">
-    <button class="c-header-toggler c-class-toggler d-lg-none mfe-auto" type="button" data-target="#sidebar" data-class="c-sidebar-show" responsive="true">
-        <i class="c-icon c-icon-lg fa fa-bars"></i>
-    </button>
-    <ol class="breadcrumb border-0 m-1 px-0 px-md-3">
-        <li class="breadcrumb-item"><a href="/dashboard">Covey</a></li>
-        {{ $path := "" }} {{ range .URL }} {{ if . }} {{ $path = printf "%v/%v" $path .}}
-        <li class="breadcrumb-item"><a href={{ $path }}>{{ title . }}</a></li>
-        {{ end }} {{ end }}
-    </ol>
-    <ul class="c-header-nav mfs-auto"></ul>
-    <ul class="c-header-nav">
-        <li class="c-header-nav-item dropdown">
-            <a class="c-header-nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                <div class="c-avatar"><i class="c-icon c-avatar fa fa-user"></i></div>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right pt-0">
-                <a class="dropdown-item" href="#">
-                    <i class="c-icon mfe-2 fa fa-cog"></i> Settings</a>
-                <a class="dropdown-item" href="/logout">
-                    <i class="c-icon mfe-2 fa fa-sign-out-alt"></i> Logout</a>
-            </div>
-        </li>
-    </ul>
-</header>
+    <header class="c-header c-header-light c-header-fixed justify-content-between px-3">
+        <button class="c-header-toggler c-class-toggler d-lg-none mfe-auto" type="button" data-target="#sidebar"
+                data-class="c-sidebar-show" responsive="true">
+            <i class="c-icon c-icon-lg fa fa-bars"></i>
+        </button>
+        <ol class="breadcrumb border-0 m-1 px-0 px-md-3">
+            <li class="breadcrumb-item"><a href="/dashboard">Covey</a></li>
+            {{ $path := "" }} {{ range .URL }} {{ if . }} {{ $path = printf "%v/%v" $path .}}
+            <li class="breadcrumb-item"><a href={{ $path }}>{{ title . }}</a></li>
+            {{ end }} {{ end }}
+        </ol>
+        <ul class="c-header-nav mfs-auto"></ul>
+        <ul class="c-header-nav">
+            <li class="c-header-nav-item dropdown">
+                <a class="c-header-nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                   aria-expanded="false">
+                    <div class="c-avatar"><i class="c-icon c-avatar fa fa-user"></i></div>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right pt-0">
+                    <a class="dropdown-item" href="#">
+                        <i class="c-icon mfe-2 fa fa-cog"></i> Settings</a>
+                    <a class="dropdown-item" href="/logout">
+                        <i class="c-icon mfe-2 fa fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </li>
+        </ul>
+    </header>
 {{ end }}

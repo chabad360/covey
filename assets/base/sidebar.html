@@ -1,46 +1,47 @@
 {{ define "sidebar" }}
-<nav id="sidebar" class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show">
-    <div class="c-sidebar-brand d-md-down-none">Covey</div>
-    <ul class="c-sidebar-nav ps ps--active-y">
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link" href="/dashboard">
-                <i class="c-sidebar-nav-icon fas fa-tachometer-alt"></i> Dashboard
-            </a>
-        </li>
-        <li class="c-sidebar-nav-title">Nodes</li>
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link" href="/new/node">
-                <i class="c-sidebar-nav-icon far fa-plus-square"></i> New
-            </a>
-        </li>
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link" href="/nodes">
-                <i class="c-sidebar-nav-icon fa fa-server"></i> All
-            </a>
-        </li>
-        <li class="c-sidebar-nav-title">Tasks</li>
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link" href="/new/task">
-                <i class="c-sidebar-nav-icon fa fa-plus"></i> New Task
-            </a>
-        </li>
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link" href="/tasks">
+    <nav id="sidebar" class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show">
+        <div class="c-sidebar-brand d-md-down-none">Covey</div>
+        <ul class="c-sidebar-nav ps ps--active-y">
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="/dashboard">
+                    <i class="c-sidebar-nav-icon fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="c-sidebar-nav-title">Nodes</li>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="/new/node">
+                    <i class="c-sidebar-nav-icon far fa-plus-square"></i> New
+                </a>
+            </li>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="/nodes">
+                    <i class="c-sidebar-nav-icon fa fa-server"></i> All
+                </a>
+            </li>
+            <li class="c-sidebar-nav-title">Tasks</li>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="/new/task">
+                    <i class="c-sidebar-nav-icon fa fa-plus"></i> New Task
+                </a>
+            </li>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="/tasks">
                     <i class="c-sidebar-nav-icon fa fa-tasks"></i> All
-            </a>
-        </li>
-    <li class="c-sidebar-nav-title">Jobs</li>
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link" href="/new/job">
-                <i class="c-sidebar-nav-icon far fa-calendar-plus"></i> New Job
-            </a>
-        </li>
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link" href="/jobs">
-                <i class="c-sidebar-nav-icon fas fa-layer-group"></i> All
-            </a>
-        </li>
-    </ul>
-    <button class="c-sidebar-minimizer c-class-toggler" type="button" data-target="_parent" data-class="c-sidebar-minimized"></button>
-</nav>
+                </a>
+            </li>
+            <li class="c-sidebar-nav-title">Jobs</li>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="/new/job">
+                    <i class="c-sidebar-nav-icon far fa-calendar-plus"></i> New Job
+                </a>
+            </li>
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="/jobs">
+                    <i class="c-sidebar-nav-icon fas fa-layer-group"></i> All
+                </a>
+            </li>
+        </ul>
+        <button class="c-sidebar-minimizer c-class-toggler" type="button" data-target="_parent"
+                data-class="c-sidebar-minimized"></button>
+    </nav>
 {{ end }}

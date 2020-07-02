@@ -1,87 +1,92 @@
 {{ define "main" }}
-<div class="container-fluid">
-    <div class="fade-in">
-        <div class="card">
-            <div class="card-header"><strong>Job</strong></div>
-            <div class="card-body">
-            <table class="table table-bordered">
-                <colgroup>
-                    <col span="1" style="width: 10%;">
-                    <col span="1" style="width: 45%;">
-                    <col span="1" style="width: 10%;">
-                    <col span="1" style="width: 35%;">
-                </colgroup>
-                <tbody>
-                    <tr>
-                        <th scope="row">Name</th>
-                        <td>{{ .Details.Job.Name }}</td>
-                        <th scope="row">ID</th>
-                        <td>{{ .Details.Job.GetID }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Cron</th>
-                        <td><code>{{ or .Details.Job.Cron "N/A" }}</code></td>
-                        <th scope="row">Nodes</th>
-                        <td>{{ range .Details.Job.Nodes }}<a href="/nodes/.">{{ . }}</a> {{ end }}</td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="container-fluid">
+        <div class="fade-in">
+            <div class="card">
+                <div class="card-header"><strong>Job</strong></div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <colgroup>
+                            <col span="1" style="width: 10%;">
+                            <col span="1" style="width: 45%;">
+                            <col span="1" style="width: 10%;">
+                            <col span="1" style="width: 35%;">
+                        </colgroup>
+                        <tbody>
+                        <tr>
+                            <th scope="row">Name</th>
+                            <td>{{ .Details.Job.Name }}</td>
+                            <th scope="row">ID</th>
+                            <td>{{ .Details.Job.GetID }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Cron</th>
+                            <td><code>{{ or .Details.Job.Cron "N/A" }}</code></td>
+                            <th scope="row">Nodes</th>
+                            <td>{{ range .Details.Job.Nodes }}<a href="/nodes/.">{{ . }}</a> {{ end }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer"><a class="btn btn-success" href="?run=true"><i class="fa fa-play"></i> Start
+                        Job</a></div>
             </div>
-            <div class="card-footer"><a class="btn btn-success" href="?run=true"><i class="fa fa-play"></i> Start Job</a></div>
-        </div>
-        <div class="card">
-            <div class="card-header">Tasks</div>
-            <div class="card-body row">
-            {{- range $key, $value := .Details.Job.Tasks -}}
-            <div class="col-sm-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ title $key }}</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">Plugin: {{ $value.Plugin }}</h6>
-                        <p class="card-text">{{ range $k, $v := $value.Details }}<strong>{{ $k }}:</strong> {{ $v }}<br />{{end}}</p>
-                        <a href="#" class="card-link">Edit</a>
-                    </div>
+            <div class="card">
+                <div class="card-header">Tasks</div>
+                <div class="card-body row">
+                    {{- range $key, $value := .Details.Job.Tasks -}}
+                        <div class="col-sm-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ title $key }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">Plugin: {{ $value.Plugin }}</h6>
+                                    <p class="card-text">{{ range $k, $v := $value.Details }}
+                                            <strong>{{ $k }}:</strong> {{ $v }}<br/>{{end}}</p>
+                                    <a href="#" class="card-link">Edit</a>
+                                </div>
+                            </div>
+                        </div>
+                    {{- end -}}
                 </div>
             </div>
-            {{- end -}}
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">Task History</div>
-            <div class="card-body">
-            <noscript>This table uses datatables.js to provide sorting and filtering.</noscript>
-            <table id="task-history" class="table table-bordered table-hover">
-            <thead>
-                    <th scope="col">ID</th>
-                    <th scope="col">Node</th>
-                    <th scope="col">Time</th>
-                    <th scope="col">State</th>
-                </thead>
-            <tbody>
-            {{- range .Details.Job.TaskHistory -}}
-                <tr>
-                    <td><a href="/tasks/{{ index . "id" }}">{{ index . "id" }}</a></td>
-                    <td><a href="/nodes/{{ index . "node" }}">{{ index . "node" }}</a></td>
-                    <td>{{ index . "time"}}</td>
-                    <td>{{- template "taskState" (index . "state") -}}</td>
-                </tr>
-            {{- else -}}
-            <tr><td>None Yet<td></tr>
-            {{- end -}}
-            </tbody>
-            </table>
+            <div class="card">
+                <div class="card-header">Task History</div>
+                <div class="card-body">
+                    <noscript>This table uses datatables.js to provide sorting and filtering.</noscript>
+                    <table id="task-history" class="table table-bordered table-hover">
+                        <thead>
+                        <th scope="col">ID</th>
+                        <th scope="col">Node</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">State</th>
+                        </thead>
+                        <tbody>
+                        {{- range .Details.Job.TaskHistory -}}
+                            <tr>
+                                <td><a href="/tasks/{{ index . "id" }}">{{ index . "id" }}</a></td>
+                                <td><a href="/nodes/{{ index . "node" }}">{{ index . "node" }}</a></td>
+                                <td>{{ index . "time"}}</td>
+                                <td>{{- template "taskState" (index . "state") -}}</td>
+                            </tr>
+                        {{- else -}}
+                            <tr>
+                                <td>None Yet
+                                <td>
+                            </tr>
+                        {{- end -}}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {{ end }}
-{{ define "scripts" }} 
-<script type="text/javascript">
-    $(document).ready(function() {
-        var table = $('#task-history').DataTable({
-        "order": [[ 2, "desc" ]]
-    });
-    window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
-    });
-</script>
+{{ define "scripts" }}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var table = $('#task-history').DataTable({
+                "order": [[2, "desc"]]
+            });
+            window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
+        });
+    </script>
 {{ end }}

@@ -1,16 +1,16 @@
 {{ define "main" }}
-<div class="container-fluid">
+    <div class="container-fluid">
         <div class="card">
             <div class="card-header">Task</div>
             <div class="card-body">
-            <table class="table table-bordered">
-                <colgroup>
-                    <col span="1" style="width: 10%;">
-                    <col span="1" style="width: 50%;">
-                    <col span="1" style="width: 10%;">
-                    <col span="1" style="width: 30%;">
-                </colgroup>
-                <tbody>
+                <table class="table table-bordered">
+                    <colgroup>
+                        <col span="1" style="width: 10%;">
+                        <col span="1" style="width: 50%;">
+                        <col span="1" style="width: 10%;">
+                        <col span="1" style="width: 30%;">
+                    </colgroup>
+                    <tbody>
                     <tr>
                         <th scope="row">ID</th>
                         <td>{{ .Details.Task.GetID }}</td>
@@ -29,56 +29,59 @@
                         <th scope="row">Plugin</th>
                         <td>{{ .Details.Task.GetPlugin }}</td>
                     </tr>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
             </div>
         </div>
         <div class="card">
             <div class="card-header">Details</div>
             <div class="card-body">
-            <table class="table table-bordered">
-                <tbody>
+                <table class="table table-bordered">
+                    <tbody>
                     <tr>
                         <th scope="row">Exit Code</th>
                         <td><code>{{ .Details.Task.GetExitCode }}</code></td>
                     </tr>
                     {{ range $key, $val := .Details.Task.Details }}
-                    <tr>
-                        <th scope="row">{{ title $key }}</th>
-                        <td><code>{{ $val }}</code></td>
-                    </tr>
+                        <tr>
+                            <th scope="row">{{ title $key }}</th>
+                            <td><code>{{ $val }}</code></td>
+                        </tr>
                     {{ end }}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
             </div>
         </div>
         <div class="card">
             <div class="card-header">Log</div>
             <div class="card-body">
-            {{ if eq .Details.Task.GetState 2 }}<noscript>This log uses JS to automatically reload the log.</noscript>{{ end }}
-            <div id="log" class="overflow-auto" style="height: 100%"><pre>
+                {{ if eq .Details.Task.GetState 2 }}
+                    <noscript>This log uses JS to automatically reload the log.</noscript>{{ end }}
+                <div id="log" class="overflow-auto" style="height: 100%"><pre>
             {{- range .Details.Task.GetLog -}}
-                <samp>{{ . }}</samp><br />
+                <samp>{{ . }}</samp><br/>
             {{- else -}}
                 <samp>No Logs Yet</samp>
             {{- end -}}
-            </pre></div>
+            </pre>
+                </div>
             </div>
         </div>
-</div>
+    </div>
 {{ end }}
 
-{{ define "scripts" }} 
-{{ if or (eq .Details.Task.GetState 2) (eq .Details.Task.GetState 6) }}
-<script type="text/javascript">
-function refresh() {
-    $.get('', function(data) {
-        $(document.body).html(data);    
-    });
-}
-$(function() {
-    setTimeout(refresh,1000);
-});
-</script>
-{{ end }}
+{{ define "scripts" }}
+    {{ if or (eq .Details.Task.GetState 2) (eq .Details.Task.GetState 6) }}
+        <script type="text/javascript">
+            function refresh() {
+                $.get('', function (data) {
+                    $(document.body).html(data);
+                });
+            }
+
+            $(function () {
+                setTimeout(refresh, 1000);
+            });
+        </script>
+    {{ end }}
 {{ end }}

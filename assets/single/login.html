@@ -1,20 +1,20 @@
 {{ define "login" }}
-<!doctype html>
-<html lang="en">
+    <!doctype html>
+    <html lang="en">
 
-<head>
-    <title>{{ .Title }}</title>
+    <head>
+        <title>{{ .Title }}</title>
 
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- CoreUI CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/@coreui/coreui@3.2.0/dist/css/coreui.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/@coreui/icons@2.0.0-beta.3/css/all.min.css">
-</head>
+        <!-- CoreUI CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/@coreui/coreui@3.2.0/dist/css/coreui.min.css">
+        <link rel="stylesheet" href="https://unpkg.com/@coreui/icons@2.0.0-beta.3/css/all.min.css">
+    </head>
 
-<body class="c-app flex-row align-items-center">
+    <body class="c-app flex-row align-items-center">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -26,13 +26,19 @@
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend"><span class="input-group-text">
 <i class="c-icon cil-user"></i></span></div>
-                                <input class="form-control {{ if eq .Details false }}is-invalid{{ end }}" type="text" placeholder="Username" name="username" style="background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 16px; background-position: calc(100% - 4px) 50%; background-image: url(&quot;moz-extension://80e27b99-80cd-41e7-82fe-ff5b05bbbf81/skin/icon-light.png&quot;); cursor: auto;">
+                                <input class="form-control {{ if eq .Details false }}is-invalid{{ end }}" type="text"
+                                       placeholder="Username" name="username"
+                                       style="background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 16px; background-position: calc(100% - 4px) 50%; background-image: url(&quot;moz-extension://80e27b99-80cd-41e7-82fe-ff5b05bbbf81/skin/icon-light.png&quot;); cursor: auto;">
                             </div>
                             <div class="input-group mb-4">
                                 <div class="input-group-prepend"><span class="input-group-text">
 <i class="c-icon cil-lock-locked"></i></span></div>
-                                <input class="form-control {{ if eq .Details false }}is-invalid{{ end }}" type="password" placeholder="Password" name="password" style="background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 16px; background-position: calc(100% - 4px) 50%; background-image: url(&quot;moz-extension://80e27b99-80cd-41e7-82fe-ff5b05bbbf81/skin/icon-light.png&quot;); cursor: auto;">
-                                {{ if eq .Details false }}<div class="invalid-feedback">Entered username or password is incorrect.</div>{{ end }}
+                                <input class="form-control {{ if eq .Details false }}is-invalid{{ end }}"
+                                       type="password" placeholder="Password" name="password"
+                                       style="background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 16px; background-position: calc(100% - 4px) 50%; background-image: url(&quot;moz-extension://80e27b99-80cd-41e7-82fe-ff5b05bbbf81/skin/icon-light.png&quot;); cursor: auto;">
+                                {{ if eq .Details false }}
+                                    <div class="invalid-feedback">Entered username or password is incorrect.
+                                    </div>{{ end }}
                             </div>
                             <div class="row">
                                 <div class="col-6">
@@ -52,7 +58,7 @@
     </div>
     <!-- CoreUI JavaScript -->
     <script src="https://unpkg.com/@coreui/coreui@3.2.0/dist/js/coreui.bundle.min.js"></script>
-</body>
+    </body>
 
-</html>
+    </html>
 {{ end }}
