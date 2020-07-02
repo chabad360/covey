@@ -5,13 +5,13 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/chabad360/covey/asset"
 	"log"
 
 	"fmt"
 	"net"
 
 	scp "github.com/bramvdbogaerde/go-scp"
+	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/node/types"
 	json "github.com/json-iterator/go"
@@ -66,22 +66,53 @@ func sshRun(client *ssh.Client, command string) ([]byte, error) {
 	return output, nil
 }
 
-func installAgent(node string, config *ssh.ClientConfig) error {
+func installAgent(node string, id string, config *ssh.ClientConfig, sshClient *ssh.Client) error {
+	log.Println("installing agent...")
+
 	client := scp.NewClient(node, config)
 	if err := client.Connect(); err != nil {
 		return err
 	}
-
-	f, err := asset.FS.Open("/agent")
+	f, err := asset.FS.Open("/agent/agent")
+	if err != nil {
+		return err
+	}
+	f2, err := asset.FS.Open("/agent/covey-agent.service")
 	if err != nil {
 		return err
 	}
 
 	defer client.Close()
 	defer f.Close()
+	defer f2.Close()
 
 	if err = client.CopyFile(f, "/tmp/agent", "0755"); err != nil {
 		return err
+	}
+
+	if err := client.Connect(); err != nil {
+		return err
+	}
+	if err = client.CopyFile(f2, "/tmp/covey-agent.service", "0644"); err != nil {
+		return err
+	}
+	log.Println("Copied files")
+
+	if _, err = sshRun(sshClient, "sudo chown root:root /tmp/agent && sudo chown root:root /tmp/covey-agent.service"); err != nil {
+		return fmt.Errorf("chown: %v", err)
+	}
+	if _, err = sshRun(sshClient, "sudo mv /tmp/agent /usr/bin/"); err != nil {
+		return fmt.Errorf("install agent: %v", err)
+	}
+	if _, err = sshRun(sshClient, "sudo mv /tmp/covey-agent.service /usr/lib/systemd/system/"); err != nil {
+		return fmt.Errorf("install service: %v", err)
+	}
+	if _, err := sshRun(sshClient, fmt.Sprintf(`sudo mkdir /etc/covey; echo 'AGENT_ID="%s"
+AGENT_HOST="%s"' | sudo tee /etc/covey/agent.conf`, id, "192.168.56.1")); err != nil {
+		return fmt.Errorf("install config: %v", err)
+	} // Add config file for agent
+	if _, err = sshRun(sshClient, "sudo systemctl enable --now covey-agent.service"); err != nil {
+		return fmt.Errorf("install service: %v", err)
 	}
 
 	return nil
@@ -179,18 +210,10 @@ func newNode(nodeJSON []byte) (*types.Node, error) {
 	}
 	node.ID = common.GenerateID(node)
 
-	if err = installAgent(node.IP+":"+node.Port, config); err != nil {
+	if err = installAgent(node.IP+":"+node.Port, node.ID, config, client); err != nil {
 		return nil, err
 	}
 
-	if output, err := sshRun(client, "sudo mv /tmp/agent /usr/bin/"); err != nil {
-		return nil, fmt.Errorf("mv /tmp/agent: %v, error: %v", output, err)
-	}
-
-	if _, err := sshRun(client, fmt.Sprintf(`sudo mkdir /etc/covey && echo 'AGENT_ID="%s"
-AGENT_HOST="%s"' | sudo tee /etc/covey/agent.conf`, node.ID, "192.168.56.1")); err != nil {
-		return nil, err
-	} // Add config file for agent
 	client.Close()
 
 	return node, nil

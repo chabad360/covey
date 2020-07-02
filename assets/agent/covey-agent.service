@@ -1,0 +1,15 @@
+[Unit]
+Description=Covey management agent
+Requires=network.target
+AssertPathExists=/etc/covey/agent.conf
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/agent
+Restart=on-failure
+EnvironmentFile=/etc/covey/agent.conf
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

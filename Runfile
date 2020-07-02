@@ -29,7 +29,7 @@ agent:
         && echo "Building Covey Agent without symbols" \
         && go build -trimpath -ldflags="-s -w" -o assets/agent/agent github.com/chabad360/covey/agent \
         || go build -o assets/agent/agent github.com/chabad360/covey/agent
-    [[ "${RELEASE}" ]] && echo "Compressing binary" && upx assets/agent
+    [[ "${RELEASE}" ]] && echo "Compressing binary" && upx assets/agent/agent
 
 
 ## Package Covey resources

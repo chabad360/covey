@@ -4,7 +4,6 @@ covey
 agent
 
 # Generated Config
-*.json
 /.idea/.gitignore
 /.idea/dataSources.xml
 /.idea/dbnavigator.xml
@@ -16,3 +15,6 @@ agent
 /.idea/vcs.xml
 /.idea/deployment.xml
 .idea/inspectionProfiles/
+.idea/copyright/
+.idea/scopes/
+

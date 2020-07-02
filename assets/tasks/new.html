@@ -53,7 +53,7 @@
                 e.preventDefault();
                 var form = $("#taskform").serializeJSON();
                 $.ajax({
-                    url: "/api/v1/tasks/new",
+                    url: "/api/v1/task/new",
                     headers: {"Authorization": 'Bearer ' + getCookieValue("token")},
                     type: "post",
                     dataType: 'json',

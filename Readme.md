@@ -47,7 +47,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [x] Create Node Agent
 * [x] Persistent queue
 * [x] Add relevant UI elements
-* [ ] Automatically install agent
+* [x] Automatically install agent
 * [x] Integrate with [Netdata](https://github.com/netdata/netdata) for monitoring
 * [ ] ~~Add tests~~
 

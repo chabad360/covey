@@ -29,7 +29,6 @@ var (
 	queue           = make(chan task, 1024)
 )
 
-// Task info
 type runningTask struct {
 	Log      []string `json:"log"`
 	ExitCode int      `json:"exit_code"`
@@ -49,6 +48,8 @@ type config struct {
 
 func main() {
 	var err error
+	t := time.NewTicker(sleepDuration)
+
 	agent, err = settings("/etc/covey/agent.conf")
 	errC(err)
 	// ignoring log level for now
@@ -58,15 +59,15 @@ func main() {
 	activeID = "hello"
 
 	go func() {
-		logChannel <- "hello"
 		exitCodeChannel <- 1
+		logChannel <- "hello"
 	}()
 	go runner()
 	log.Println("Covey Agent started!")
 
 	for {
+		<-t.C
 		everySecond()
-		time.Sleep(sleepDuration)
 	}
 }
 
@@ -103,34 +104,8 @@ func settings(file string) (*config, error) {
 }
 
 func everySecond() {
-	var err error
-
-	body := []byte("{}")
-
-	if activeID != "" {
-		at := &runningTask{
-			ID: activeID,
-		}
-		at.Log = []string{<-logChannel}
-
-		select {
-		case e := <-exitCodeChannel:
-			at.ExitCode = e
-			activeID = ""
-		default:
-			at.ExitCode = 257
-		}
-
-		body, err = json.Marshal(at)
-		errC(err)
-	} else {
-		select {
-		case t := <-taskIDChannel:
-			activeID = t
-		default:
-			break
-		}
-	}
+	body, err := getBody()
+	errC(err)
 
 	var r *http.Response
 	for {
@@ -180,7 +155,6 @@ func runner() {
 		bb := bufio.NewScanner(stdout)
 		for bb.Scan() {
 			logChannel <- bb.Text()
-
 			log.Println(bb.Text())
 		}
 
@@ -188,8 +162,47 @@ func runner() {
 			if e, ok := err.(*exec.ExitError); ok {
 				exitCodeChannel <- e.ExitCode()
 			}
-		} else {
+		} else if err == nil {
 			exitCodeChannel <- 0
 		}
+		log.Println("Done")
 	}
+}
+
+func getBody() ([]byte, error) {
+	body := []byte("{}")
+
+	if activeID != "" {
+		at := &runningTask{
+			ID: activeID,
+		}
+
+		select {
+		case e := <-exitCodeChannel:
+			at.ExitCode = e
+			activeID = ""
+		default:
+			at.ExitCode = 257
+		}
+
+		for {
+			select {
+			case s := <-logChannel:
+				at.Log = append(at.Log, s)
+			default:
+				goto cont
+			}
+		}
+
+	cont:
+		return json.Marshal(at)
+	} else {
+		select {
+		case t := <-taskIDChannel:
+			activeID = t
+		default:
+			break
+		}
+	}
+	return body, nil
 }
