@@ -57,7 +57,7 @@ func nodeGet(w http.ResponseWriter, r *http.Request) {
 // RegisterHandlers adds the handlers for the node module.
 func RegisterHandlers(newRoute pure.IRouteGroup, singleRoute pure.IRouteGroup) {
 	log.Println("Registering Node module API handlers...")
-	newRoute.Post("/add", nodeNew)
+	newRoute.Post("/new", nodeNew)
 
 	n := singleRoute.Group("/:node")
 	n.Get("", nodeGet)

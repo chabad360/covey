@@ -7,7 +7,8 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4095/badge)](https://bestpractices.coreinfrastructure.org/projects/4095)
 [![Chat on discord](https://img.shields.io/discord/727820939013783582?logo=discord&logoColor=white)](https://discord.gg/kWXPrWg)
 
-Covey is a project designed to fill a certain void, the lack of a nice lightweight cluster management system. The are tools like Rundeck (which Covey takes after), that are quite capable, but are far too heavy to be useful.
+Covey is a project designed to fill a certain void, the lack of a nice lightweight cluster management system.
+There are tools like Rundeck (which Covey takes after), that are quite capable, but are far too heavy to be useful.
 
 ### Features
 
@@ -44,8 +45,8 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [x] Fix some issues with the plugin system
 * [x] Rework the task module
 * [x] Create Node Agent
-* [ ] Persistent queue
-* [ ] Add relevant UI elements
+* [x] Persistent queue
+* [x] Add relevant UI elements
 * [ ] Automatically install agent
 * [x] Integrate with [Netdata](https://github.com/netdata/netdata) for monitoring
 * [ ] Add tests
@@ -73,7 +74,9 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 ## State of the Project
 
-Covey is in active development, it's written in Go, and uses Postgres as the database. If you are interested in helping with development, open a PR with your changes. At the moment, I've been working on creating an agent that is responsible for executing tasks.
+Covey is in active development, it's written in Go, and uses Postgres as the database.
+If you are interested in helping with development, open a PR with your changes.
+At the moment, I've been working on creating an agent that is responsible for executing tasks.
 
 ### Installation Instructions
 
