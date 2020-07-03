@@ -1,0 +1,582 @@
+openapi: 3.0.0
+info:
+  title: Covey API
+  version: v0.1
+  description: Orchestration and management engine.
+servers:
+  - url: 'http://{host}:{port}/api/v1'
+    variables:
+      host:
+        description: Address of the Covey server.
+        default: localhost
+      port:
+        description: Port Covey is listening on.
+        default: '8080'
+paths:
+  /nodes:
+    summary: Group of nodes (and adding to it).
+    post:
+      summary: Add a new Node.
+      description: >
+        Running this will SSH into the specified server (`{ip}:{port}`), using
+        the specified credentials. Covey will then proceed to install  and start
+        the agent onto the server.
+      operationId: newNode
+      requestBody:
+        description: The information about the node to add.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Node'
+            examples:
+              newNode:
+                $ref: '#/components/examples/newNode'
+      responses:
+        '200':
+          $ref: '#/components/responses/node'
+        '401':
+          $ref: '#/components/responses/unauth'
+        '409':
+          description: A node with the specifed name exsists.
+      tags:
+        - nodes
+    get:
+      summary: Get a list of all node names.
+      description: ''
+      operationId: getNodes
+      responses:
+        '200':
+          description: Successfully retrieved nodes.
+          content:
+            application/json:
+              example:
+                - node1
+                - node2
+        '401':
+          $ref: '#/components/responses/unauth'
+      tags:
+        - nodes
+  '/nodes/{nodeId}':
+    summary: Get the information of an individual node.
+    get:
+      summary: Get a node.
+      description: ''
+      operationId: getNode
+      parameters:
+        - in: path
+          name: nodeId
+          schema:
+            type: string
+          required: true
+          description: 'ID, short ID or name of the node to get.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+              examples:
+                getNode:
+                  $ref: '#/components/examples/getNode'
+        '401':
+          $ref: '#/components/responses/unauth'
+        '404':
+          description: No such node exists.
+      tags:
+        - nodes
+    delete:
+      summary: Delete a node.
+      description: ''
+      operationId: deleteNode
+      parameters:
+        - in: path
+          name: nodeId
+          schema:
+            type: string
+          required: true
+          description: 'ID, short ID or name of the node to delete.'
+      responses:
+        '200':
+          description: Successfully deleted node.
+        '401':
+          $ref: '#/components/responses/unauth'
+        '404':
+          description: No such node exists.
+      tags:
+        - nodes
+  /tasks:
+    summary: Running things on nodes.
+    post:
+      summary: Add a new task.
+      description: ''
+      operationId: newTask
+      requestBody:
+        description: The task to run.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+            examples:
+              newTask:
+                $ref: '#/components/examples/newTask'
+      responses:
+        '200':
+          $ref: '#/components/responses/task'
+        '401':
+          $ref: '#/components/responses/unauth'
+      tags:
+        - tasks
+    get:
+      summary: Get a list of all tasks.
+      operationId: getTasks
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              example:
+                - a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+                - e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
+        '401':
+          $ref: '#/components/responses/unauth'
+      tags:
+        - tasks
+  '/tasks/{taskId}':
+    summary: Get the information of an individual task.
+    get:
+      summary: Get a task.
+      description: ''
+      operationId: getTask
+      parameters:
+        - in: path
+          name: taskId
+          schema:
+            type: string
+          required: true
+          description: 'ID or short ID of the task to get.'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              examples:
+                getNode:
+                  $ref: '#/components/examples/getTask'
+        '401':
+          $ref: '#/components/responses/unauth'
+        '404':
+          description: No such task exists.
+      tags:
+        - tasks
+  /jobs:
+    description: All the jobs.
+    post:
+      summary: Add a job.
+      operationId: newJob
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+            examples:
+              newJob:
+                $ref: '#/components/examples/newJob'
+      responses:
+        '200':
+          $ref: '#/components/responses/job'
+        '401':
+          $ref: '#/components/responses/unauth'
+        '409':
+          description: A job with the specifed name exsists.
+      tags:
+        - jobs
+    get:
+      summary: List of all jobs (name).
+      operationId: getJobs
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              example:
+                - update
+                - backup
+      tags:
+        - jobs
+  '/jobs/{jobId}':
+    summary: Get the information of an individual job.
+    parameters:
+      - in: path
+        name: jobId
+        schema:
+          type: string
+        required: true
+        description: 'ID, short ID or name of the job.'
+    get:
+      summary: Get a job.
+      description: ''
+      operationId: getJob
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+              examples:
+                getNode:
+                  $ref: '#/components/examples/getJob'
+          links:
+            GetTaskFromJobHistory:
+              $ref: '#/components/links/GetTaskFromJobHistory'
+        '401':
+          $ref: '#/components/responses/unauth'
+        '404':
+          description: No such job exists.
+      tags:
+        - jobs
+    post:
+      summary: Run the job.
+      operationId: runJob
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              example:
+                - a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+                - e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
+          links:
+            GetTaskFromJob:
+              $ref: '#/components/links/GetTaskFromJob'
+        '401':
+          $ref: '#/components/responses/unauth'
+        '404':
+          description: No such job exists.
+      tags:
+        - jobs
+    delete:
+      summary: Delete a job.
+      description: ''
+      operationId: deleteJob
+      responses:
+        '200':
+          description: Successfully deleted job.
+        '401':
+          $ref: '#/components/responses/unauth'
+        '404':
+          description: No such job exists.
+      tags:
+        - jobs
+
+
+components:
+  examples:
+    getNode:
+      value:
+        name: node1
+        id: a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+        ip: 192.168.1.100
+        port: '22'
+        username: root
+    newNode:
+      value:
+        name: node1
+        ip: 192.168.1.100
+        port: '22'
+        username: root
+        password: root
+    newTask:
+      value:
+        plugin: shell
+        node: node1
+        details: {
+          command: echo hello world
+        }
+    getTask:
+      value:
+        id: a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+        time: '2020-06-29T23:39:10.071485063-07:00'
+        state: 0
+        exit_code: 0
+        plugin: shell
+        node: node1
+        details:
+          command: echo hello world
+        log:
+          - hello world
+    newJob:
+      value:
+        name: update
+        nodes:
+          - node1
+          - node2
+        cron: '0 0 1 1 *'
+        tasks:
+          update:
+            plugin: shell
+            details:
+              command: apt-get update
+          upgrade:
+            plugin: shell
+            details:
+              command: apt-get upgrade -y
+    getNewJob:
+      value:
+        id: a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+        name: update
+        nodes:
+          - node1
+          - node2
+        cron: '0 0 1 1 *'
+        tasks:
+          update:
+            plugin: shell
+            details:
+              command: apt-get update
+          upgrade:
+            plugin: shell
+            details:
+              command: apt-get upgrade -y
+    getJob:
+      value:
+        id: a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+        name: update
+        nodes:
+          - node1
+          - node2
+        cron: '0 0 1 1 *'
+        tasks:
+          update:
+            plugin: shell
+            details:
+              command: apt-get update
+          upgrade:
+            plugin: shell
+            details:
+              command: apt-get upgrade -y
+        task_history:
+          - a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+          - e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
+
+  links:
+    GetNodeByID:
+      operationId: getNode
+      parameters:
+        nodeId: '$response.body#/id'
+    GetNodeByName:
+      operationId: getNode
+      parameters:
+        nodeId: '$response.body#/name'
+    GetTask:
+      operationId: getTask
+      parameters:
+        taskId: '$response.body#/id'
+    GetJobByID:
+      operationId: getJob
+      parameters:
+        jobId: '$response.body#/id'
+    GetJobByName:
+      operationId: getJob
+      parameters:
+        jobId: '$response.body#/name'
+    GetTaskFromJobHistory:
+      operationId: getTask
+      parameters:
+        taskId: '$response.body#/task_history/1'
+    GetTaskFromJob:
+      operationId: getTask
+      parameters:
+        taskId: '$response.body#/1'
+
+  schemas:
+    Node:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the node.
+          readOnly: true
+        name:
+          type: string
+          format: hostname
+          description: Name of the node.
+        ip:
+          type: string
+          description: IP address of the node.
+        port:
+          type: string
+          description: SSH port of the node.
+          default: '22'
+        username:
+          type: string
+          description: Username used to SSH into the node.
+        password:
+          type: string
+          format: password
+          description: Password used for initial SSH connection.
+          writeOnly: true
+      required:
+        - id
+        - name
+        - ip
+        - username
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the plugin
+          readOnly: true
+        time:
+          type: string
+          description: The creation time of the task.
+          readOnly: true
+        exit_code:
+          type: integer
+          description: The exit code from the task.
+          readOnly: true
+        state:
+          type: integer
+          enum: [0, 1, 2, 3, 6, 10, 11]
+          description: >
+            The state of the task:
+              * `0`: Done
+              * `1`: Error
+              * `2`: Running
+              * `3`: Aborted
+              * `6`: Queued
+              * `10`: Other
+              * `11`: Internal Error
+          readOnly: true
+        plugin:
+          type: string
+          description: The plugin to use for the task.
+        node:
+          type: string
+          description: The node to run the task on.
+        details:
+          type: object
+          description: The argurments to provide to the plugin.
+          additionalProperties:
+            type: string
+        log:
+          type: array
+          description: The Stdout and Stderr from the task.
+          readOnly: true
+          items:
+            type: string
+      required:
+        - plugin
+        - node
+        - details
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the job.
+          readOnly: true
+        name:
+          type: string
+          description: The name of the job.
+        nodes:
+          type: array
+          description: The nodes to run the job on.
+          items:
+            type: string
+        cron:
+          type: string
+          description: A crontab schedule for the the job.
+        tasks:
+          type: object
+          description: The tasks to run.
+          additionalProperties:
+            type: object
+            properties:
+              plugin:
+                type: string
+                description: The plugin to run the task with.
+              details:
+                type: object
+                description: The arguments to provide to the plugin.
+                additionalProperties:
+                  type: string
+        task_history:
+          type: array
+          description: All the tasks (ID) run from this job.
+          items:
+            type: string
+          uniqueItems: true
+          readOnly: true
+      required:
+        - name
+        - nodes
+        - tasks
+
+  responses:
+    unauth:
+      description: Access token is missing or invalid.
+    node:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Node'
+          examples:
+            getNode:
+              $ref: '#/components/examples/getNode'
+      links:
+        GetNodeByID:
+          $ref: '#/components/links/GetNodeByID'
+        GetNodeByName:
+          $ref: '#/components/links/GetNodeByName'
+
+    task:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Task'
+          examples:
+            getNode:
+              $ref: '#/components/examples/getTask'
+      links:
+        GetTask:
+          $ref: '#/components/links/GetTask'
+
+    job:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Job'
+          examples:
+            getJob:
+              $ref: '#/components/examples/getNewJob'
+      links:
+        GetJobByID:
+          $ref: '#/components/links/GetJobByID'
+        GetJobByName:
+          $ref: '#/components/links/GetJobByName'
+
+  securitySchemes:
+    Token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - Token: []
+tags:
+  - name: nodes
+    description: Management and info about nodes.
+  - name: tasks
+    description: Task creation and information.
+  - name: jobs
+    description: 'Job creation, management and more.'

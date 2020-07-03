@@ -48,15 +48,16 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [x] Persistent queue
 * [x] Add relevant UI elements
 * [x] Automatically install agent
+* [x] Add SystemD service file to the agent
 * [x] Integrate with [Netdata](https://github.com/netdata/netdata) for monitoring
 * [ ] ~~Add tests~~
 
 #### V0.5 A Better API
 
 * [ ] Evaluate designing a very basic framework (for keeping things cleaner)
-* [ ] Evaluate GraphQL for the API
+* [ ] ~~Evaluate GraphQL for the API~~
 * [ ] Fully implement (and test) the API
-* [ ] Swagger (OpenAPI) (might save that for later)
+* [ ] Swagger (OpenAPI)
 * [ ] Fully document the API
 
 #### V0.6 Alpha
@@ -68,7 +69,6 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Add an AUR package
 * [ ] Add and refactor tests (Aim for 80% Coverage)
 * [ ] Complete the web UI
-* [ ] Add SystemD service file to the agent
 
 ---
 
@@ -76,7 +76,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 Covey is in active development, it's written in Go, and uses Postgres as the database.
 If you are interested in helping with development, open a PR with your changes.
-At the moment, I've been working on creating an agent that is responsible for executing tasks.
+At the moment, I've begun working on completing the API.
 
 ### Installation Instructions
 

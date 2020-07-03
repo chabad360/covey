@@ -1,7 +1,6 @@
 package types
 
 import (
-	"bytes"
 	"container/list"
 	"encoding/hex"
 	"time"
@@ -53,7 +52,6 @@ type Task struct {
 	Time     time.Time         `json:"time"`
 	ExitCode int               `json:"exit_code"`
 	Command  string            `json:"-"`
-	Buffer   *bytes.Buffer     `json:"-"`
 }
 
 // GetID returns the ID of the task.
