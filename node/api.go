@@ -1,6 +1,7 @@
 package node
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -39,6 +40,17 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 	common.Write(w, n)
 }
 
+func nodesGet(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+	refreshDB()
+
+	var nodes []string
+	err := db.QueryRow(context.Background(), "SELECT jsonb_agg(name) FROM nodes;").Scan(&nodes)
+	common.ErrorWriter(w, err)
+
+	common.Write(w, nodes)
+}
+
 // nodeGet returns a JSON representation of the specified node, GET /api/v1/node/{node}.
 func nodeGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
@@ -53,10 +65,10 @@ func nodeGet(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterHandlers adds the handlers for the node module.
-func RegisterHandlers(newRoute pure.IRouteGroup, singleRoute pure.IRouteGroup) {
+func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Node module API handlers...")
-	newRoute.Post("/new", nodeNew)
-
-	n := singleRoute.Group("/:node")
+	r.Post("", nodeNew)
+	r.Get("", nodesGet)
+	n := r.Group("/:node")
 	n.Get("", nodeGet)
 }

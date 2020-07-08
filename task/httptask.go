@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -20,6 +21,22 @@ func taskNew(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Location", "/api/v1/task/"+t.GetIDShort())
 	common.Write(w, t)
+}
+
+func tasksGet(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+	refreshDB()
+
+	log.Println(r.URL.Query())
+	var q common.QueryParams
+	err := pure.DecodeQueryParams(r, 1, &q)
+	common.ErrorWriter(w, err)
+
+	var tasks []string
+	err = db.QueryRow(context.Background(), q.Query("tasks")).Scan(&tasks)
+	common.ErrorWriter(w, err)
+
+	common.Write(w, tasks)
 }
 
 func taskGet(w http.ResponseWriter, r *http.Request) {
@@ -42,12 +59,12 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterHandlers registers the handlers for the task module.
-func RegisterHandlers(singleRoute pure.IRouteGroup, newRoute pure.IRouteGroup) {
+func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Task module API handlers...")
 
-	newRoute.Post("/new", taskNew)
-
-	t := singleRoute.Group("/:task")
+	r.Post("", taskNew)
+	r.Get("", tasksGet)
+	t := r.Group("/:task")
 	t.Get("", taskGet)
 	t.Get("/log", taskGet)
 }

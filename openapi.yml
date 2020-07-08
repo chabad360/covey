@@ -45,6 +45,11 @@ paths:
       summary: Get a list of all node names.
       description: ''
       operationId: getNodes
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/expand'
       responses:
         '200':
           description: Successfully retrieved nodes.
@@ -132,6 +137,13 @@ paths:
     get:
       summary: Get a list of all tasks.
       operationId: getTasks
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/nodes'
+        - $ref: '#/components/parameters/jobs'
+        - $ref: '#/components/parameters/expand'
       responses:
         '200':
           description: Success
@@ -173,6 +185,29 @@ paths:
           description: No such task exists.
       tags:
         - tasks
+  /tasks/{taskId}/log:
+    description: Get the log from a task.
+    get:
+      summary: Get the log.
+      operationId: getTaskLog
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example:
+                - 'hello'
+                - 'world'
+        '401':
+          $ref: '#/components/responses/unauth'
+        '404':
+          description: No such task exists.
+      tags:
+        - tasks
   /jobs:
     description: All the jobs.
     post:
@@ -198,6 +233,11 @@ paths:
     get:
       summary: List of all jobs (name).
       operationId: getJobs
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/expand'
       responses:
         '200':
           description: Success
@@ -307,7 +347,7 @@ components:
         plugin: shell
         node: node1
         details:
-          command: echo hello world
+          command: echo hello && echo world
         log:
           - hello world
     newJob:
@@ -360,9 +400,6 @@ components:
             plugin: shell
             details:
               command: apt-get upgrade -y
-        task_history:
-          - a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
-          - e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
 
   links:
     GetNodeByID:
@@ -394,6 +431,62 @@ components:
       parameters:
         taskId: '$response.body#/1'
 
+  parameters:
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of pages to skip.
+    limit:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+      description: The numbers of items to return (per page).
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: asc
+    nodes:
+      in: query
+      name: nodes
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      description: The nodes to filter the tasks by.
+    jobs:
+      in: query
+      name: jobs
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      description: The jobs to filter the tasks by.
+    expand:
+      in: query
+      name: expand
+      required: false
+      schema:
+        type: boolean
+        default: 'false'
+      description: Whether or not to expand the returned items (instead of just the ID).
+
   schemas:
     Node:
       type: object
@@ -408,6 +501,7 @@ components:
           description: Name of the node.
         ip:
           type: string
+          format: ip
           description: IP address of the node.
         port:
           type: string
@@ -436,12 +530,19 @@ components:
           readOnly: true
         time:
           type: string
+          format: 'date-time'
           description: The creation time of the task.
           readOnly: true
         exit_code:
           type: integer
-          description: The exit code from the task.
+          description: >
+            The exit code from the task.
+            * `0-256`: Ordinary exit code
+            * `257`: Task Running
+            * `258`: Task Queued
           readOnly: true
+          minimum: 0
+          maximum: 258
         state:
           type: integer
           enum: [0, 1, 2, 3, 6, 10, 11]
@@ -466,12 +567,6 @@ components:
           description: The argurments to provide to the plugin.
           additionalProperties:
             type: string
-        log:
-          type: array
-          description: The Stdout and Stderr from the task.
-          readOnly: true
-          items:
-            type: string
       required:
         - plugin
         - node
@@ -493,6 +588,7 @@ components:
             type: string
         cron:
           type: string
+          format: crontab
           description: A crontab schedule for the the job.
         tasks:
           type: object
@@ -508,13 +604,6 @@ components:
                 description: The arguments to provide to the plugin.
                 additionalProperties:
                   type: string
-        task_history:
-          type: array
-          description: All the tasks (ID) run from this job.
-          items:
-            type: string
-          uniqueItems: true
-          readOnly: true
       required:
         - name
         - nodes

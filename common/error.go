@@ -22,4 +22,5 @@ func Recover() {
 		}
 		panic(fmt.Errorf("r: %v, type: %T", r, r))
 	}
+
 }

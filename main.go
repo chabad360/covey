@@ -35,6 +35,7 @@ func registerHandlers(r pure.IRouteGroup) {
 func loadHandlers(r *pure.Mux) {
 	r.Use(loggingMiddleware)
 	r.Use(authentication.AuthUserMiddleware)
+	r.Use(options)
 
 	r.Get("/src/*", func() http.HandlerFunc {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -44,6 +45,7 @@ func loadHandlers(r *pure.Mux) {
 	}()) // Make static files cached
 
 	// TODO: Clean up
+	r.RegisterAutomaticOPTIONS(options)
 	ui.RegisterHandlers(r)
 	authentication.RegisterUIHandlers(r)
 
@@ -62,13 +64,14 @@ func loadHandlers(r *pure.Mux) {
 
 	apiRouter := r.GroupWithNone("/api/v1")
 	apiRouter.Use(loggingMiddleware)
+	apiRouter.Use(options)
 	apiRouter.Use(authentication.AuthAPIMiddleware)
 
 	registerHandlers(apiRouter)
 	authentication.RegisterAPIHandlers(apiRouter.Group("/auth"))
 
-	node.RegisterHandlers(apiRouter.Group("/nodes"), apiRouter.Group("/node"))
-	task.RegisterHandlers(apiRouter.Group("/tasks"), apiRouter.Group("/task"))
+	node.RegisterHandlers(apiRouter.Group("/nodes"))
+	task.RegisterHandlers(apiRouter.Group("/tasks"))
 	job.RegisterHandlers(apiRouter.Group("/jobs"), apiRouter.Group("/job"))
 }
 
@@ -109,6 +112,15 @@ func main() {
 func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Called", r.Method, r.RequestURI)
+		next(w, r)
+	}
+}
+
+func options(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		o := r.Header.Get("origin")
+		w.Header().Set("Access-Control-Allow-Origin", o)
+		w.Header().Set("Access-Control-Allow-Headers", "*")
 		next(w, r)
 	}
 }
