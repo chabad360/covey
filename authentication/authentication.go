@@ -20,11 +20,6 @@ const (
 	api  = "api"
 )
 
-type credentials struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 func createToken(userid string, tokenType string, audience []string) (string, *time.Time, error) {
 	refreshKey()
 

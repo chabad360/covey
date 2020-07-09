@@ -1,34 +1,32 @@
 package job
 
 import (
-	"context"
 	"fmt"
+	"github.com/chabad360/covey/models"
 	"net/http"
 	"strings"
 
 	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/job/types"
-	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/ui"
 	"github.com/go-playground/pure/v5"
 )
 
 func uiJobs(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
+	refreshDB()
 
-	var jobs []types.Job
-	err := storage.DB.QueryRow(context.Background(),
-		"SELECT jsonb_agg(to_jsonb(jobs) - 'log' - 'details') FROM jobs").Scan(&jobs)
-	common.ErrorWriter(w, err)
+	var jobs []models.Job
+	result := db.Find(&jobs)
+	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
 		Title:   "Jobs",
 		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Jobs []types.Job }{Jobs: jobs},
+		Details: struct{ Jobs []models.Job }{Jobs: jobs},
 	}
 
 	t := ui.GetTemplate("jobsAll")
-	err = t.ExecuteTemplate(w, "base", p)
+	err := t.ExecuteTemplate(w, "base", p)
 	common.ErrorWriter(w, err)
 }
 
@@ -37,25 +35,25 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 
-	job, ok := GetJobWithTasks(vars.URLParam("job")) // This goes first so we dont need to confirm existence anymore.
+	job, ok := GetJob(vars.URLParam("job")) // This goes first so we dont need to confirm existence anymore.
 	if !ok {
 		common.ErrorWriter404(w, vars.URLParam("job"))
 	}
 
 	if r.URL.Query().Get("run") == "true" {
 		j, _ := GetJob(vars.URLParam("job"))
-		j.Run()
+		Run(j)
 
 		err := UpdateJob(*j)
 		common.ErrorWriter(w, err)
 
-		job, _ = GetJobWithTasks(vars.URLParam("job"))
+		job, _ = GetJob(vars.URLParam("job"))
 	}
 
 	p := &ui.Page{
 		Title:   fmt.Sprintf("Job %s", vars.URLParam("job")),
 		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Job *types.JobWithTasks }{job},
+		Details: struct{ Job *models.Job }{job},
 	}
 
 	t := ui.GetTemplate("jobsSingle")
@@ -66,10 +64,11 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 // UIJobNew returns the form for creating a new task.
 func UIJobNew(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
+	refreshDB()
 
 	var nodes []string
-	err := storage.DB.QueryRow(context.Background(), "SELECT jsonb_agg(name) FROM nodes;").Scan(&nodes)
-	common.ErrorWriter(w, err)
+	result := db.Table("nodes").Select("name").Scan(&nodes)
+	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
 		Title: "New Job",
@@ -81,7 +80,7 @@ func UIJobNew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := ui.GetTemplate("jobsNew")
-	err = t.ExecuteTemplate(w, "base", p)
+	err := t.ExecuteTemplate(w, "base", p)
 	common.ErrorWriter(w, err)
 }
 

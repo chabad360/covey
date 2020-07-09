@@ -1,7 +1,7 @@
 package task
 
 import (
-	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -33,8 +33,8 @@ func tasksGet(w http.ResponseWriter, r *http.Request) {
 	common.ErrorWriter(w, err)
 
 	var tasks []string
-	err = db.QueryRow(context.Background(), q.Query("tasks")).Scan(&tasks)
-	common.ErrorWriter(w, err)
+	result := db.Select("id").Find(&tasks)
+	common.ErrorWriter(w, result.Error)
 
 	common.Write(w, tasks)
 }
@@ -44,15 +44,11 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 
-	t, ok := getTask(vars.URLParam("task"))
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("task"))
-	}
-
-	t.GetLog()
+	t, err := getTask(vars.URLParam("task"))
+	common.ErrorWriter404(w, fmt.Sprintf("%v", err))
 
 	if p := strings.Split(r.URL.Path, "/"); len(p) == 6 {
-		common.Write(w, t.GetLog())
+		common.Write(w, t.Log)
 	} else {
 		common.Write(w, t)
 	}

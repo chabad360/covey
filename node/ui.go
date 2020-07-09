@@ -1,64 +1,59 @@
 package node
 
 import (
-	"context"
 	"fmt"
+	"github.com/chabad360/covey/models"
 	"net/http"
 	"strings"
 
 	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/node/types"
-	"github.com/chabad360/covey/storage"
-	taskTypes "github.com/chabad360/covey/task/types"
 	"github.com/chabad360/covey/ui"
 	"github.com/go-playground/pure/v5"
 )
 
 func uiNodes(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
+	refreshDB()
 
-	var nodes []types.Node
-	err := storage.DB.QueryRow(context.Background(),
-		"SELECT jsonb_agg(to_jsonb(nodes) - 'private_key' - 'public_key' - 'host_key') FROM nodes;").Scan(&nodes)
-	common.ErrorWriter(w, err)
+	var nodes []models.Node
+	result := db.Select("name", "id", "host_key", "ip", "username", "port").Find(&nodes)
+	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
 		Title:   "Nodes",
 		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Nodes []types.Node }{nodes},
+		Details: struct{ Nodes []models.Node }{nodes},
 	}
 	t := ui.GetTemplate("nodesAll")
-	err = t.ExecuteTemplate(w, "base", p)
+	err := t.ExecuteTemplate(w, "base", p)
 	common.ErrorWriter(w, err)
 }
 
 func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
+	refreshDB()
 
 	vars := pure.RequestVars(r)
-
 	node, ok := GetNode(vars.URLParam("node"))
 	if !ok {
 		common.ErrorWriter404(w, vars.URLParam("node"))
 	}
-	var tasks []taskTypes.Task
-
-	err := storage.DB.QueryRow(context.Background(),
-		"SELECT jsonb_agg(to_jsonb(tasks)) FROM tasks WHERE node = $1;", node.Name).Scan(&tasks)
-	common.ErrorWriter(w, err)
+	var tasks []models.Task
+	result := db.Table("tasks").Where("node = ?", node.ID).Find(&tasks)
+	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
 		Title: fmt.Sprintf("Node %s", vars.URLParam("node")),
 		URL:   strings.Split(r.URL.Path, "/"),
 		Details: struct {
-			Node  *types.Node
-			Tasks []taskTypes.Task
+			Node  *models.Node
+			Tasks []models.Task
 			Host  string
 		}{node, tasks, "localhost"},
 	}
 
 	t := ui.GetTemplate("nodesSingle")
-	err = t.ExecuteTemplate(w, "base", p)
+	err := t.ExecuteTemplate(w, "base", p)
 	common.ErrorWriter(w, err)
 }
 

@@ -15,13 +15,15 @@ require (
 	github.com/go-playground/pure/v5 v5.0.5
 	github.com/google/go-cmp v0.5.0 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
-	github.com/jackc/pgx/v4 v4.6.0
+	github.com/jackc/pgx/v4 v4.7.1
 	github.com/joho/godotenv v1.3.0
 	github.com/json-iterator/go v1.1.10
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/robfig/cron/v3 v3.0.1
-	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	gorm.io/driver/postgres v0.2.5
+	gorm.io/gorm v0.2.19
 	gotest.tools v2.2.0+incompatible // indirect
 )

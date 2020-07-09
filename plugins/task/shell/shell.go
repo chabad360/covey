@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/models"
 
-	"github.com/chabad360/covey/task/types"
 	json "github.com/json-iterator/go"
 )
 
@@ -14,7 +14,7 @@ type plugin struct{}
 
 // GetCommand returns the command to run on the node.
 func (p *plugin) GetCommand(taskJSON []byte) (string, error) {
-	var t types.Task
+	var t models.Task
 	if err := json.Unmarshal(taskJSON, &t); err != nil {
 		return "", err
 	}

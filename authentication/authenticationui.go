@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/models"
 	"net/http"
 	"strings"
 	"time"
@@ -25,7 +26,7 @@ func loginP(w http.ResponseWriter, r *http.Request) {
 
 	login := ui.GetTemplate("login")
 
-	cookie, err := tokenGet(&credentials{Username: r.FormValue("username"), Password: r.FormValue("password")})
+	cookie, err := tokenGet(&models.User{Username: r.FormValue("username"), Password: r.FormValue("password")})
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		err = login.ExecuteTemplate(w, "login",
@@ -43,7 +44,7 @@ func loginP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
-func tokenGet(user *credentials) (*http.Cookie, error) {
+func tokenGet(user *models.User) (*http.Cookie, error) {
 	id, err := GetUser(*user)
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package types
+package models
 
 // TaskState represents the current state of the task.
 type TaskState int

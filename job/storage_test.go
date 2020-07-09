@@ -2,20 +2,20 @@ package job
 
 import (
 	"context"
+	"github.com/chabad360/covey/models"
 	"log"
 	"os"
 	"testing"
 
-	"github.com/chabad360/covey/job/types"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
 )
 
-var j = &types.Job{
+var j = &models.Job{
 	Name:  "update",
 	ID:    "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
 	Nodes: []string{"node1"},
-	Tasks: map[string]types.JobTask{
+	Tasks: map[string]models.JobTask{
 		"update": {
 			Plugin:  "shell",
 			Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},

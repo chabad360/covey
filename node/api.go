@@ -1,14 +1,13 @@
 package node
 
 import (
-	"context"
 	"fmt"
+	"github.com/chabad360/covey/models"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/node/types"
 	"github.com/go-playground/pure/v5"
 	json "github.com/json-iterator/go"
 )
@@ -17,7 +16,7 @@ import (
 func nodeNew(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
-	var node types.Node
+	var node models.Node
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	if err := json.Unmarshal(reqBody, &node); err != nil {
@@ -36,7 +35,7 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter(w, err)
 	}
 
-	w.Header().Add("Location", "/api/v1/node/"+n.GetID())
+	w.Header().Add("Location", "/api/v1/node/"+n.ID)
 	common.Write(w, n)
 }
 
@@ -45,8 +44,8 @@ func nodesGet(w http.ResponseWriter, r *http.Request) {
 	refreshDB()
 
 	var nodes []string
-	err := db.QueryRow(context.Background(), "SELECT jsonb_agg(name) FROM nodes;").Scan(&nodes)
-	common.ErrorWriter(w, err)
+	result := db.Select("id").Find(&nodes)
+	common.ErrorWriter(w, result.Error)
 
 	common.Write(w, nodes)
 }

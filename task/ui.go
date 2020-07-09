@@ -1,14 +1,13 @@
 package task
 
 import (
-	"context"
 	"fmt"
+	"github.com/chabad360/covey/models"
 	"net/http"
 	"strings"
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/storage"
-	"github.com/chabad360/covey/task/types"
 	"github.com/chabad360/covey/ui"
 	"github.com/go-playground/pure/v5"
 )
@@ -16,18 +15,17 @@ import (
 func uiTasks(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
-	var tasks []types.Task
-	err := storage.DB.QueryRow(context.Background(),
-		"SELECT jsonb_agg(to_jsonb(tasks)) FROM tasks").Scan(&tasks)
-	common.ErrorWriter(w, err)
+	var tasks []models.Task
+	result := db.Find(&tasks)
+	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
 		Title:   "Tasks",
 		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Tasks []types.Task }{Tasks: tasks},
+		Details: struct{ Tasks []models.Task }{Tasks: tasks},
 	}
 	t := ui.GetTemplate("tasksAll")
-	err = t.ExecuteTemplate(w, "base", p)
+	err := t.ExecuteTemplate(w, "base", p)
 	common.ErrorWriter(w, err)
 }
 
@@ -41,7 +39,7 @@ func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 	p := &ui.Page{
 		Title:   fmt.Sprintf("Task %s", vars.URLParam("task")),
 		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Task *types.Task }{Task: task},
+		Details: struct{ Task *models.Task }{Task: task},
 	}
 
 	t := ui.GetTemplate("tasksSingle")
@@ -54,9 +52,7 @@ func UITaskNew(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	var nodes []string
-
-	err := storage.DB.QueryRow(context.Background(), "SELECT jsonb_agg(name) FROM nodes;").Scan(&nodes)
-	common.ErrorWriter(w, err)
+	storage.DB.Table("nodes").Select("name").Scan(&nodes)
 
 	p := &ui.Page{
 		Title: "New Task",
@@ -68,7 +64,7 @@ func UITaskNew(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := ui.GetTemplate("tasksNew")
-	err = t.ExecuteTemplate(w, "base", p)
+	err := t.ExecuteTemplate(w, "base", p)
 	common.ErrorWriter(w, err)
 }
 

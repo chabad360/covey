@@ -2,19 +2,19 @@ package task
 
 import (
 	"context"
+	"github.com/chabad360/covey/models"
 	"log"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/chabad360/covey/storage"
-	"github.com/chabad360/covey/task/types"
 	"github.com/chabad360/covey/test"
 )
 
-var task = &types.Task{
+var task = &models.Task{
 	ID:       "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-	State:    types.StateRunning,
+	State:    models.StateRunning,
 	Plugin:   "test",
 	Node:     "test",
 	Time:     time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
@@ -40,8 +40,7 @@ func TestAddTask(t *testing.T) {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got []byte
-			if db.QueryRow(context.Background(), "SELECT to_jsonb(tasks) - 'id_short' FROM tasks WHERE id = $1;",
-				tt.id).Scan(&got); string(got) != tt.want {
+			if db.Where("id = ?", tt.id).First(&got); string(got) != tt.want {
 				t.Errorf("addTask() = %v, want %v, error: %v", string(got), tt.want, testError)
 			}
 		})
@@ -62,7 +61,7 @@ func TestUpdateTask(t *testing.T) {
 
 	tu := task
 	tu.Log = []string{"hello", "world"}
-	testError := updateTask(tu)
+	saveTask(tu)
 
 	for _, tt := range tests {
 		testname := tt.id
@@ -91,7 +90,7 @@ func TestGetTaskJSON(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if got, err := getTaskJSON(tt.id); string(got) != tt.want {
+			if got, err := getTask(tt.id); string(got) != tt.want {
 				t.Errorf("getTaskJSON() = %v, want %v, error: %v", string(got), tt.want, err)
 			}
 		})

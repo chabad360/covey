@@ -1,26 +1,23 @@
 package job
 
 import (
-	"context"
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/task"
 	"log"
 
-	"github.com/chabad360/covey/job/types"
 	"github.com/chabad360/covey/storage"
 	json "github.com/json-iterator/go"
 	"github.com/robfig/cron/v3"
 )
 
 var (
-	// jobs      = make(map[string]*types.Job)
-	// jobsShort = make(map[string]string)
-	// jobsName  = make(map[string]string)
 	cronTab = cron.New()
 )
 
 // Init loads up the the jobs and starts the cronTab.
 func Init() {
 	db := storage.DB
-	q, err := db.Query(context.Background(), "SELECT id, cron FROM jobs WHERE cron != '';")
+	q, err := db.Table("job").Where("cron != ''").Select("id", "cron").Rows()
 	if err != nil {
 		log.Panic(err)
 	}
@@ -28,11 +25,11 @@ func Init() {
 
 	for q.Next() {
 		var id string
-		var cron string
-		if err = q.Scan(&id, &cron); err != nil {
+		var c string
+		if err = q.Scan(&id, &c); err != nil {
 			log.Panic(err)
 		}
-		if err = addCron(id, cron); err != nil {
+		if err = addCron(id, c); err != nil {
 			log.Panic(err)
 		}
 	}
@@ -40,44 +37,27 @@ func Init() {
 	cronTab.Start()
 }
 
-// GetJob checks if a job with the identifier exists and returns it.
-func GetJob(identifier string) (*types.Job, bool) {
-	var t types.Job
-	j, err := storage.GetItem("jobs", identifier)
-	if err != nil {
-		log.Println(err)
-		return nil, false
-	}
-	err = json.Unmarshal(j, &t)
-	if err != nil {
-		log.Println(err)
-		return nil, false
-	}
-
-	return &t, true
-}
-
-// GetJobWithTasks checks if a job with the identifier exists and returns it along with its tasks.
-func GetJobWithTasks(identifier string) (*types.JobWithTasks, bool) {
-	var t types.JobWithTasks
-	j, err := GetJobWithFullHistory(identifier)
-	if err != nil {
-		log.Println(err)
-		return nil, false
-	}
-	if err = json.Unmarshal(j, &t); err != nil {
-		log.Println(err)
-		return nil, false
-	}
-
-	return &t, true
-}
+//// GetJobWithTasks checks if a job with the identifier exists and returns it along with its tasks.
+//func GetJobWithTasks(identifier string) (*models.Job, bool) {
+//	var t models.Job
+//	j, err := GetJobWithFullHistory(identifier)
+//	if err != nil {
+//		log.Println(err)
+//		return nil, false
+//	}
+//	if err = json.Unmarshal(j, &t); err != nil {
+//		log.Println(err)
+//		return nil, false
+//	}
+//
+//	return &t, true
+//}
 
 func addCron(id string, cron string) error {
 	_, err := cronTab.AddFunc(cron, func() func() {
 		return func() { // This little bundle of joy allows the job to occur despite not being an object.
 			j, _ := GetJob(id)
-			j.Run()
+			Run(j)
 			if err := UpdateJob(*j); err != nil {
 				log.Panic(err)
 			}
@@ -87,4 +67,26 @@ func addCron(id string, cron string) error {
 		return err
 	}
 	return nil
+}
+
+// Run runs each task in succession on the specified nodes (concurrently).
+// There seems to be a bug where the tasks can occasionally be sent in the wrong order
+func Run(j *models.Job) {
+	for _, t := range j.Tasks {
+		for _, node := range j.Nodes {
+			t.Node = node
+			x, err := json.Marshal(t)
+			if err != nil {
+				log.Panic(err)
+			}
+
+			r, err := task.NewTask(x)
+			if err != nil {
+				log.Panic(err)
+			}
+
+			j.TaskHistory = append(j.TaskHistory, *r)
+		}
+	}
+	UpdateJob(*j)
 }

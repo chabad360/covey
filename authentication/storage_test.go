@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"context"
+	"github.com/chabad360/covey/models"
 	"log"
 	"os"
 	"strconv"
@@ -12,17 +13,17 @@ import (
 )
 
 var (
-	u = &credentials{
+	u = &models.User{
 		Username: "user",
 		Password: "password",
 	}
 
-	uu = &credentials{
+	uu = &models.User{
 		Username: "user",
 		Password: "pass",
 	}
 
-	u2 = &credentials{
+	u2 = &models.User{
 		Username: "user2",
 		Password: "password",
 	}
@@ -31,7 +32,7 @@ var (
 func TestAddUser(t *testing.T) {
 	var tests = []struct {
 		id   string
-		user credentials
+		user models.User
 		want string
 	}{
 		{"1", *u, "1"},
@@ -58,7 +59,7 @@ func TestUpdateUser(t *testing.T) {
 
 	var tests = []struct {
 		id   string
-		user credentials
+		user models.User
 		want string
 	}{
 		{"1", *u, "0"},
@@ -81,7 +82,7 @@ func TestUpdateUser(t *testing.T) {
 func TestGetUser(t *testing.T) {
 	var tests = []struct {
 		id   string
-		user credentials
+		user models.User
 		want string
 	}{
 		{"1", *u, ""},

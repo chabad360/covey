@@ -4,6 +4,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/models"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 
@@ -76,7 +78,6 @@ func loadHandlers(r *pure.Mux) {
 }
 
 func initialize() {
-	storage.Init()
 	job.Init()
 
 	if err := task.Init(); err != nil {
@@ -94,12 +95,52 @@ func initialize() {
 	}
 }
 
+func initStorage() (*gorm.DB, error) {
+	log.Println("Setup DB")
+
+	err := storage.Init()
+	if err != nil {
+		return nil, err
+	}
+	db := storage.DB
+
+	db.Exec("CREATE EXTENSION pgcrypto;")
+
+	err = db.AutoMigrate(&models.Node{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.AutoMigrate(&models.Task{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.AutoMigrate(&models.Job{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
 func main() {
 	log.Printf("Starting up Covey %s", version)
 	fmt.Println()
 
 	r := pure.New()
 	loadHandlers(r)
+
+	_, err := initStorage()
+	if err != nil {
+		log.Fatal(err)
+	}
+	//defer db.Close()
 
 	initialize()
 

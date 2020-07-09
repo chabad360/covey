@@ -2,16 +2,16 @@ package node
 
 import (
 	"context"
+	"github.com/chabad360/covey/models"
 	"log"
 	"os"
 	"testing"
 
-	"github.com/chabad360/covey/node/types"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
 )
 
-var n = &types.Node{
+var n = &models.Node{
 	Name:       "node",
 	ID:         "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
 	PrivateKey: []byte("12345"),
@@ -48,12 +48,12 @@ func TestAddNode(t *testing.T) {
 
 func TestGetNodeID(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
-		if id, ok := GetNodeID(n.Name); !ok && id != n.ID {
+		if id, ok := GetNodeIDorName(n.Name); !ok && id != n.ID {
 			t.Errorf("GetNodeID() = %v, want %v", id, n.ID)
 		}
 	})
 	t.Run("not ok", func(t *testing.T) {
-		if id, ok := GetNodeID("n"); ok && id == n.ID {
+		if id, ok := GetNodeIDorName("n"); ok && id == n.ID {
 			t.Errorf("GetNodeID() = %v, want %v", id, n.ID)
 		}
 	})

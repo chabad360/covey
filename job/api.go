@@ -2,12 +2,12 @@ package job
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/models"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/job/types"
 	"github.com/go-playground/pure/v5"
 	json "github.com/json-iterator/go"
 )
@@ -17,7 +17,7 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	var job types.Job
+	var job models.Job
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	if err := json.Unmarshal(reqBody, &job); err != nil {
@@ -34,9 +34,6 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	job.TaskHistory = []string{}
-	job.ID = common.GenerateID(job)
-
 	if err := AddJob(job); err != nil {
 		common.ErrorWriter(w, err)
 	}
@@ -48,7 +45,7 @@ func jobGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-	job, ok := GetJobWithTasks(vars.URLParam("job"))
+	job, ok := GetJob(vars.URLParam("job"))
 	if !ok {
 		common.ErrorWriter404(w, vars.URLParam("job"))
 	}
@@ -65,7 +62,7 @@ func jobRun(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter404(w, vars.URLParam("job"))
 	}
 
-	j.Run()
+	Run(j)
 
 	if err := UpdateJob(*j); err != nil {
 		log.Panic(err)

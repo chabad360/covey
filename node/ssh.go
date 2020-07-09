@@ -5,20 +5,20 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"github.com/chabad360/covey/models"
 	"log"
 
 	"fmt"
 	"net"
 
-	scp "github.com/bramvdbogaerde/go-scp"
+	"github.com/bramvdbogaerde/go-scp"
 	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/node/types"
 	json "github.com/json-iterator/go"
 	"golang.org/x/crypto/ssh"
 )
 
-func generateAndAddKeys(n *types.Node) error {
+func generateAndAddKeys(n *models.Node) error {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func generateAndAddKeys(n *types.Node) error {
 	return nil
 }
 
-func hostKeyCallback(n *types.Node) ssh.HostKeyCallback {
+func hostKeyCallback(n *models.Node) ssh.HostKeyCallback {
 	return func(hostname string, remote net.Addr, key ssh.PublicKey) error {
 		if len(n.HostKey) == 0 {
 			n.HostKey = key.Marshal()
@@ -118,31 +118,19 @@ AGENT_HOST="%s"' | sudo tee /etc/covey/agent.conf`, id, "192.168.56.1")); err !=
 	return nil
 }
 
-func nodeFactory(n *types.Node) error {
-	signer, err := ssh.ParsePrivateKey(n.PrivateKey)
+func nodeFactory(n *models.Node) error {
+	err := n.Setup()
 	if err != nil {
 		return err
-	}
-
-	hostKey, err := ssh.ParsePublicKey(n.HostKey)
-	if err != nil {
-		return err
-	}
-	// log.Printf("loaded node key")
-
-	config := &ssh.ClientConfig{
-		User: n.Username,
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		},
-		HostKeyCallback: ssh.FixedHostKey(hostKey),
 	}
 
 	// Create an initial connection
-	client, err := ssh.Dial("tcp", n.IP+":"+n.Port, config)
+	client, err := ssh.Dial("tcp", n.IP+":"+n.Port, n.Config)
 	if err != nil {
 		return err
 	}
+
+	defer client.Close()
 
 	output, err := sshRun(client, "/usr/bin/whoami")
 	if err != nil {
@@ -155,15 +143,11 @@ func nodeFactory(n *types.Node) error {
 		return fmt.Errorf("%v is not %v", string(output), n.Username)
 	}
 
-	client.Close()
-
-	n.Config = config
-	// log.Printf("Created Node")
 	return nil
 }
 
-func newNode(nodeJSON []byte) (*types.Node, error) {
-	var node *types.Node
+func newNode(nodeJSON []byte) (*models.Node, error) {
+	var node *models.Node
 	if err := json.Unmarshal(nodeJSON, &node); err != nil {
 		return nil, err
 	}
@@ -217,20 +201,4 @@ func newNode(nodeJSON []byte) (*types.Node, error) {
 	client.Close()
 
 	return node, nil
-}
-
-func loadNode(nodeJSON []byte, privateKey []byte, publicKey []byte, hostKey []byte) (*types.Node, error) {
-	var n types.Node
-	if err := json.Unmarshal(nodeJSON, &n); err != nil {
-		return nil, fmt.Errorf("unmarshal error: %v", err)
-	}
-	n.PrivateKey = privateKey
-	n.PublicKey = publicKey
-	n.HostKey = hostKey
-
-	if err := nodeFactory(&n); err != nil {
-		return nil, err
-	}
-
-	return &n, nil
 }
