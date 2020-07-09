@@ -2,6 +2,7 @@ package task
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/models"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -32,7 +33,7 @@ func tasksGet(w http.ResponseWriter, r *http.Request) {
 	err := pure.DecodeQueryParams(r, 1, &q)
 	common.ErrorWriter(w, err)
 
-	var tasks []string
+	var tasks models.Array
 	result := db.Select("id").Find(&tasks)
 	common.ErrorWriter(w, result.Error)
 

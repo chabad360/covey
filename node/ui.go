@@ -39,7 +39,7 @@ func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter404(w, vars.URLParam("node"))
 	}
 	var tasks []models.Task
-	result := db.Table("tasks").Where("node = ?", node.ID).Find(&tasks)
+	result := db.Table("tasks").Where("node_id = ?", node.ID).Find(&tasks)
 	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{

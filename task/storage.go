@@ -22,12 +22,12 @@ func addTask(task *models.Task) error {
 	return nil
 }
 
-// GetTask returns the JSON representation of a task in the database.
+// GetTask returns a task in the database.
 func getTask(id string) (*models.Task, bool) {
 	refreshDB()
 
 	var t models.Task
-	result := db.Where("id = ?", id).Or("id_short = ?", id).Or("name = ?", id).First(&t)
+	result := db.Where("id = ?", id).Or("id_short = ?", id).First(&t)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, false
 	}

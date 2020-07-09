@@ -32,8 +32,8 @@ func UpdateUser(u models.User, uOld models.User) error {
 func GetUser(u models.User) (string, error) {
 	refreshDB()
 	var id int
-	result := db.Table("users").Where("username = ?", u.Username).Where(
-		"(password_hash = crypt(?, password_hash)) = 't'", u.Password).Select("id").First(&id)
+	result := db.Raw("SELECT id FROM users WHERE username = ? AND (password_hash = crypt(?, password_hash)) = 't'",
+		u.Username, u.Password).First(&id)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return "", result.Error
 	}

@@ -15,19 +15,19 @@
                         <th scope="row">ID</th>
                         <td>{{ .Details.Task.GetID }}</td>
                         <th scope="row">Node</th>
-                        <td><a href="/nodes/{{ .Details.Task.GetNode }}">{{ .Details.Task.GetNode }}</a></td>
+                        <td><a href="/nodes/{{ .Details.Task.NodeID }}">{{ .Details.Task.NodeID }}</a></td>
                     </tr>
                     <tr>
                         <th scope="row">Date</th>
-                        <td>{{ .Details.Task.GetTime.Format "01/02/2006" }}</td>
+                        <td>{{ .Details.Task.Time.Format "01/02/2006" }}</td>
                         <th scope="row">Time</th>
-                        <td>{{ .Details.Task.GetTime.Format "15:04:05" }}</td>
+                        <td>{{ .Details.Task.Time.Format "15:04:05" }}</td>
                     </tr>
                     <tr>
                         <th scope="row">State</th>
-                        <td>{{ template "taskState" .Details.Task.GetState }}</td>
+                        <td>{{ template "taskState" .Details.Task.State }}</td>
                         <th scope="row">Plugin</th>
-                        <td>{{ .Details.Task.GetPlugin }}</td>
+                        <td>{{ .Details.Task.Plugin }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -40,7 +40,7 @@
                     <tbody>
                     <tr>
                         <th scope="row">Exit Code</th>
-                        <td><code>{{ .Details.Task.GetExitCode }}</code></td>
+                        <td><code>{{ .Details.Task.ExitCode }}</code></td>
                     </tr>
                     {{ range $key, $val := .Details.Task.Details }}
                         <tr>
@@ -55,10 +55,10 @@
         <div class="card">
             <div class="card-header">Log</div>
             <div class="card-body">
-                {{ if eq .Details.Task.GetState 2 }}
+                {{ if eq .Details.Task.State 2 }}
                     <noscript>This log uses JS to automatically reload the log.</noscript>{{ end }}
                 <div id="log" class="overflow-auto" style="height: 100%"><pre>
-            {{- range .Details.Task.GetLog -}}
+            {{- range .Details.Task.Log -}}
                 <samp>{{ . }}</samp><br/>
             {{- else -}}
                 <samp>No Logs Yet</samp>
@@ -71,7 +71,7 @@
 {{ end }}
 
 {{ define "scripts" }}
-    {{ if or (eq .Details.Task.GetState 2) (eq .Details.Task.GetState 6) }}
+    {{ if or (eq .Details.Task.State 2) (eq .Details.Task.State 6) }}
         <script type="text/javascript">
             function refresh() {
                 $.get('', function (data) {

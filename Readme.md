@@ -86,11 +86,9 @@ git clone https://github.com/chabad360/covey
 cd covey
 
 go build -trimpath -buildmode=plugin -o plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
-go build -trimpath -buildmode=plugin -o plugins/node/ssh.so github.com/chabad360/covey/plugins/node/ssh
 go build -trimpath github.com/chabad360/covey
 
 createdb covey
-psql covey < structure.sql
 
 ./covey
 ```

@@ -106,7 +106,10 @@ func initAgent(agent string) error {
 	refreshDB()
 
 	var t []models.Task
-	db.Where("state = ?", models.StateQueued).Where("node = ?", agent).Find(&t)
+	result := db.Where("state = ?", models.StateQueued).Where("node = ?", agent).Find(&t)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return result.Error
+	}
 
 	if err := initQueues(t); err != nil {
 		return err

@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/hex"
-	"github.com/chabad360/covey/common"
 	"gorm.io/gorm"
 	"time"
 
@@ -30,7 +29,6 @@ type Node struct {
 func (n *Node) GetIDShort() string { x, _ := hex.DecodeString(n.ID); return hex.EncodeToString(x[:8]) }
 
 func (n *Node) BeforeCreate(tx *gorm.DB) (err error) {
-	n.ID = common.GenerateID(n)
 	n.IDShort = n.GetIDShort()
 	return nil
 }

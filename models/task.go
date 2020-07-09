@@ -12,26 +12,37 @@ import (
 type Map map[string]string
 
 func (m Map) Value() (driver.Value, error) {
-	b, err := json.Marshal(m)
-	return string(b), err
+	return json.Marshal(m)
 }
-
 func (m *Map) Scan(value interface{}) error {
 	return json.Unmarshal(value.([]byte), &m)
 }
 
+type Array []string
+
+func (a Array) Value() (driver.Value, error) {
+	return json.Marshal(a)
+}
+func (a *Array) Scan(value interface{}) error {
+	//b, ok := value.([]byte)
+	//if !ok {
+	//	return fmt.Errorf("expected []byte, got %v", value)
+	//}
+	return json.Unmarshal(value.([]byte), &a)
+}
+
 // Task defines the information of a task.
 type Task struct {
-	State     TaskState `json:"state" gorm:"<-:create;notnull"`
+	State     TaskState `json:"state" gorm:"notnull"`
 	Plugin    string    `json:"plugin" gorm:"<-:create;notnull"`
 	ID        string    `json:"id" gorm:"<-:create;primarykey"`
 	IDShort   string    `json:"-" gorm:"<-:create;notnull;unique"`
 	NodeID    string    `json:"node" gorm:"<-:create;notnull"`
-	Node      Node
+	Node      Node      `json:"-" gorm:"<-:create;"`
 	Details   Map       `json:"details" gorm:"<-:create;"`
-	Log       []string  `json:"log" gorm:"<-:update;type:jsonb"`
+	Log       Array     `json:"log" gorm:"<-:update"`
 	Time      time.Time `json:"time" gorm:"<-:create;notnull"`
-	ExitCode  int       `json:"exit_code" gorm:"<-:create;notnull"`
+	ExitCode  int       `json:"exit_code" gorm:"notnull"`
 	Command   string    `json:"-" gorm:"-"`
 	JobID     string    `json:"job_id" gorm:"<-:create"`
 	CreatedAt time.Time

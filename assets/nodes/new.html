@@ -54,7 +54,7 @@
                 e.preventDefault();
                 var form = $("#nodeform").serializeJSON();
                 $.ajax({
-                    url: "/api/v1/nodes/new",
+                    url: "/api/v1/nodes",
                     headers: {"Authorization": 'Bearer ' + getCookieValue("token")},
                     type: "post",
                     dataType: 'json',

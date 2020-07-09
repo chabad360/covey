@@ -17,7 +17,7 @@ var (
 // Init loads up the the jobs and starts the cronTab.
 func Init() {
 	db := storage.DB
-	q, err := db.Table("job").Where("cron != ''").Select("id", "cron").Rows()
+	q, err := db.Table("jobs").Where("cron != ''").Select("id", "cron").Rows()
 	if err != nil {
 		log.Panic(err)
 	}
