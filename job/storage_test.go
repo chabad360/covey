@@ -21,7 +21,6 @@ var j = &models.Job{
 			Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
 		},
 	},
-	TaskHistory: []string{},
 }
 
 func TestAddJob(t *testing.T) {
@@ -108,9 +107,7 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}
 
-	db.Exec(context.Background(), `INSERT INTO jobs(id, id_short, name, cron, nodes, tasks, task_history)
-	VALUES($1, $2, $3, $4, $5, $6, $7);`,
-		j.ID, j.GetIDShort(), j.Name, j.Cron, j.Nodes, j.Tasks, j.TaskHistory)
+	db.Create(j)
 
 	code := m.Run()
 

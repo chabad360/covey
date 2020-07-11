@@ -3,21 +3,17 @@ package task
 import (
 	"context"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
+	"github.com/chabad360/covey/test"
 	"log"
 	"os"
 	"testing"
-	"time"
-
-	"github.com/chabad360/covey/storage"
-	"github.com/chabad360/covey/test"
 )
 
 var task = &models.Task{
 	ID:       "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
 	State:    models.StateRunning,
 	Plugin:   "test",
-	Node:     "test",
-	Time:     time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC),
 	Details:  map[string]string{"test": "test"},
 	ExitCode: 0,
 }
@@ -105,11 +101,7 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}
 
-	db.Exec(context.Background(), `INSERT INTO tasks(id, id_short, plugin, state, node, time, log, details, exit_code) 
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
-		task.GetID(), task.GetIDShort(), task.GetPlugin(), task.GetState(), task.GetNode(),
-		func() string { t, _ := task.GetTime().MarshalText(); return string(t) }(),
-		task.GetLog(), task.GetDetails(), task.GetExitCode())
+	db.Create(task)
 
 	code := m.Run()
 

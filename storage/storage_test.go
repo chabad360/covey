@@ -1,19 +1,19 @@
 package storage
 
 import (
+	"gorm.io/gorm"
 	"log"
 	"os"
 	"reflect"
 	"testing"
 
 	"github.com/chabad360/covey/test"
-	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 func TestInit(t *testing.T) {
 	Init()
-	if reflect.TypeOf(DB) != reflect.TypeOf(&pgxpool.Pool{}) {
-		t.Errorf("Init() = %v, want %v", reflect.TypeOf(pgxpool.Pool{}), reflect.TypeOf(DB))
+	if reflect.TypeOf(DB) != reflect.TypeOf(&gorm.DB{}) {
+		t.Errorf("Init() = %v, want %v", reflect.TypeOf(gorm.DB{}), reflect.TypeOf(DB))
 	}
 }
 

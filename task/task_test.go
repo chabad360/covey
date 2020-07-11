@@ -32,7 +32,7 @@ func TestGetTask(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1 := getTask(tt.args.identifier)
-			if (got1 != nil) == tt.want1 && got.ID != tt.want.ID {
+			if got1 == tt.want1 && got.ID != tt.want.ID {
 				t.Errorf("getTask() got = %v, want %v, got1 = %v, want %v", got, tt.want, got1, tt.want1)
 			}
 		})

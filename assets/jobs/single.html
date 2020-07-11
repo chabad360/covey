@@ -16,13 +16,13 @@
                             <th scope="row">Name</th>
                             <td>{{ .Details.Job.Name }}</td>
                             <th scope="row">ID</th>
-                            <td>{{ .Details.Job.GetID }}</td>
+                            <td>{{ .Details.Job.ID }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Cron</th>
                             <td><code>{{ or .Details.Job.Cron "N/A" }}</code></td>
                             <th scope="row">Nodes</th>
-                            <td>{{ range .Details.Job.Nodes }}<a href="/nodes/.">{{ . }}</a> {{ end }}</td>
+                            <td>{{ range .Details.Job.Nodes }}<a href="/nodes/{{.}}">{{ . }}</a> {{ end }}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -62,10 +62,10 @@
                         <tbody>
                         {{- range .Details.Job.TaskHistory -}}
                             <tr>
-                                <td><a href="/tasks/{{ index . "id" }}">{{ index . "id" }}</a></td>
-                                <td><a href="/nodes/{{ index . "node" }}">{{ index . "node" }}</a></td>
-                                <td>{{ index . "time"}}</td>
-                                <td>{{- template "taskState" (index . "state") -}}</td>
+                                <td><a href="/tasks/{{ .ID }}">{{ .ID }}</a></td>
+                                <td><a href="/nodes/{{ .NodeID }}">{{ .NodeID }}</a></td>
+                                <td>{{ .CreatedAt }}</td>
+                                <td>{{- template "taskState" .State -}}</td>
                             </tr>
                         {{- else -}}
                             <tr>

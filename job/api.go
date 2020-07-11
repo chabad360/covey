@@ -70,11 +70,11 @@ func jobRun(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterHandlers adds the handlers for the node module.
-func RegisterHandlers(newRoute pure.IRouteGroup, singleRoute pure.IRouteGroup) {
+func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Job module API handlers...")
-	newRoute.Post("/new", jobNew)
+	r.Post("", jobNew)
 
-	j := singleRoute.Group("/:job")
+	j := r.Group("/:job")
 	j.Post("", jobRun)
 	j.Get("", jobGet)
 }

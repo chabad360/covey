@@ -74,7 +74,7 @@ func loadHandlers(r *pure.Mux) {
 
 	node.RegisterHandlers(apiRouter.Group("/nodes"))
 	task.RegisterHandlers(apiRouter.Group("/tasks"))
-	job.RegisterHandlers(apiRouter.Group("/jobs"), apiRouter.Group("/job"))
+	job.RegisterHandlers(apiRouter.Group("/jobs"))
 }
 
 func initialize() {

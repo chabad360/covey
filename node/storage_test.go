@@ -48,12 +48,12 @@ func TestAddNode(t *testing.T) {
 
 func TestGetNodeID(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
-		if id, ok := GetNodeIDorName(n.Name); !ok && id != n.ID {
+		if id, ok := GetNodeIDorName(n.Name, "id"); !ok && id != n.ID {
 			t.Errorf("GetNodeID() = %v, want %v", id, n.ID)
 		}
 	})
 	t.Run("not ok", func(t *testing.T) {
-		if id, ok := GetNodeIDorName("n"); ok && id == n.ID {
+		if id, ok := GetNodeIDorName("n", "id"); ok && id == n.ID {
 			t.Errorf("GetNodeID() = %v, want %v", id, n.ID)
 		}
 	})

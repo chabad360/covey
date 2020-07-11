@@ -13,15 +13,15 @@
                     <tbody>
                     <tr>
                         <th scope="row">ID</th>
-                        <td>{{ .Details.Task.GetID }}</td>
+                        <td>{{ .Details.Task.ID }}</td>
                         <th scope="row">Node</th>
                         <td><a href="/nodes/{{ .Details.Task.NodeID }}">{{ .Details.Task.NodeID }}</a></td>
                     </tr>
                     <tr>
                         <th scope="row">Date</th>
-                        <td>{{ .Details.Task.Time.Format "01/02/2006" }}</td>
+                        <td>{{ .Details.Task.CreatedAt.Format "01/02/2006" }}</td>
                         <th scope="row">Time</th>
-                        <td>{{ .Details.Task.Time.Format "15:04:05" }}</td>
+                        <td>{{ .Details.Task.CreatedAt.Format "15:04:05" }}</td>
                     </tr>
                     <tr>
                         <th scope="row">State</th>

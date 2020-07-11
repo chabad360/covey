@@ -35,7 +35,7 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 
-	job, ok := GetJob(vars.URLParam("job")) // This goes first so we dont need to confirm existence anymore.
+	job, ok := GetJobWithFullHistory(vars.URLParam("job")) // This goes first so we dont need to confirm existence anymore.
 	if !ok {
 		common.ErrorWriter404(w, vars.URLParam("job"))
 	}
@@ -47,13 +47,13 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 		err := UpdateJob(*j)
 		common.ErrorWriter(w, err)
 
-		job, _ = GetJob(vars.URLParam("job"))
+		job, _ = GetJobWithFullHistory(vars.URLParam("job"))
 	}
 
 	p := &ui.Page{
 		Title:   fmt.Sprintf("Job %s", vars.URLParam("job")),
 		URL:     strings.Split(r.URL.Path, "/"),
-		Details: struct{ Job *models.Job }{job},
+		Details: struct{ Job *models.JobWithTasks }{job},
 	}
 
 	t := ui.GetTemplate("jobsSingle")

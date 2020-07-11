@@ -1,24 +1,25 @@
 package test
 
 import (
-	"context"
 	"fmt"
+	"github.com/chabad360/covey/models"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"io"
 
 	"net/http"
 	"net/http/httptest"
 
 	"github.com/go-playground/pure/v5"
-	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/ory/dockertest"
 )
 
 //revive:disable:function-result-limit
 
 // Boilerplate creates a new dockertest connection.
-func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *pgxpool.Pool, error) {
+func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *gorm.DB, error) {
 	var err error
-	var db *pgxpool.Pool
+	var db *gorm.DB
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("could not connect to docker: %s", err)
@@ -31,9 +32,9 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *pgxpool.Pool, error
 
 	if err = pool.Retry(func() error {
 		var err error
-		db, err = pgxpool.Connect(context.Background(),
+		db, err = gorm.Open(postgres.Open(
 			fmt.Sprintf("postgres://postgres:secret@localhost:%s/%s?sslmode=disable",
-				resource.GetPort("5432/tcp"), "covey"))
+				resource.GetPort("5432/tcp"), "covey")), &gorm.Config{})
 		if err != nil {
 			return err
 		}
@@ -42,48 +43,9 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *pgxpool.Pool, error
 		return nil, nil, nil, fmt.Errorf("could not connect to docker: %s", err)
 	}
 
-	_, err = db.Exec(context.Background(), `
-	CREATE EXTENSION pgcrypto;
+	db.Exec("CREATE EXTENSION pgcrypto;")
 
-	CREATE TABLE nodes (
-		id TEXT PRIMARY KEY NOT NULL,
-		id_short TEXT UNIQUE NOT NULL,
-		name TEXT UNIQUE NOT NULL,
-		private_key BYTEA NOT NULL,
-		public_key BYTEA NOT NULL,
-		host_key BYTEA NOT NULL,
-		ip TEXT NOT NULL,
-		username TEXT NOT NULL,
-		port TEXT NOT NULL
-	);
-	
-	CREATE TABLE tasks (
-		id TEXT PRIMARY KEY NOT NULL,
-		id_short TEXT UNIQUE NOT NULL,
-		plugin TEXT NOT NULL,
-		state INT NOT NULL,
-		node TEXT NOT NULL,
-		time TEXT,
-		exit_code INT NOT NULL,
-		log JSON,
-		details JSONB NOT NULL
-	);
-	
-	CREATE TABLE jobs (
-		id TEXT PRIMARY KEY NOT NULL,
-		id_short TEXT UNIQUE NOT NULL,
-		name TEXT UNIQUE NOT NULL,
-		cron TEXT,
-		nodes JSONB NOT NULL,
-		tasks JSON NOT NULL,
-		task_history JSONB
-	);
-	
-	CREATE TABLE users (
-		id SERIAL PRIMARY KEY NOT NULL,
-		username TEXT UNIQUE NOT NULL,
-		password_hash TEXT NOT NULL
-	);`)
+	err = db.AutoMigrate(&models.Node{}, &models.Task{}, &models.Job{}, &models.User{})
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("error preping the database: %s", err)
 	}

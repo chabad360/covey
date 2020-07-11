@@ -95,7 +95,7 @@
                     return;
                 }
                 $.ajax({
-                    url: "/api/v1/jobs/new",
+                    url: "/api/v1/jobs",
                     headers: {"Authorization": 'Bearer ' + getCookieValue("token")},
                     type: "post",
                     dataType: 'json',

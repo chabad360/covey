@@ -24,10 +24,6 @@ func (a Array) Value() (driver.Value, error) {
 	return json.Marshal(a)
 }
 func (a *Array) Scan(value interface{}) error {
-	//b, ok := value.([]byte)
-	//if !ok {
-	//	return fmt.Errorf("expected []byte, got %v", value)
-	//}
 	return json.Unmarshal(value.([]byte), &a)
 }
 
@@ -40,13 +36,11 @@ type Task struct {
 	NodeID    string    `json:"node" gorm:"<-:create;notnull"`
 	Node      Node      `json:"-" gorm:"<-:create;"`
 	Details   Map       `json:"details" gorm:"<-:create;"`
-	Log       Array     `json:"log" gorm:"<-:update"`
-	Time      time.Time `json:"time" gorm:"<-:create;notnull"`
+	Log       Array     `json:"log" gorm:"<-:update;type:bytea"`
 	ExitCode  int       `json:"exit_code" gorm:"notnull"`
 	Command   string    `json:"-" gorm:"-"`
-	JobID     string    `json:"job_id" gorm:"<-:create"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // GetIDShort returns the first 8 bytes of the task ID.
@@ -56,7 +50,6 @@ func (t *Task) BeforeCreate(tx *gorm.DB) (err error) {
 	t.ExitCode = 258
 	t.Log = []string{}
 	t.State = StateQueued
-	t.Time = time.Now()
 	t.ID = common.GenerateID(t)
 	t.IDShort = t.GetIDShort()
 	return nil

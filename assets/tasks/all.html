@@ -19,9 +19,9 @@
                         {{- range .Details.Tasks -}}
                             <tr>
                                 <td><a href="/tasks/{{ .ID }}">{{ .GetIDShort }}</a></td>
-                                <td>{{ .Time }}</td>
+                                <td>{{ .CreatedAt }}</td>
                                 <td>{{ template "taskState" .State }}</td>
-                                <td><a href="/nodes/{{ .Node }}">{{ .Node }}</a></td>
+                                <td><a href="/nodes/{{ .NodeID }}">{{ .NodeID }}</a></td>
                                 <td>{{ .Plugin }}</td>
                             </tr>
                         {{- else -}}

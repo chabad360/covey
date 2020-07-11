@@ -85,7 +85,7 @@ func Run(j *models.Job) {
 				log.Panic(err)
 			}
 
-			j.TaskHistory = append(j.TaskHistory, *r)
+			j.TaskHistory = append(j.TaskHistory, r.ID)
 		}
 	}
 	UpdateJob(*j)

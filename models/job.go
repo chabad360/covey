@@ -6,6 +6,7 @@ import (
 	"github.com/chabad360/covey/common"
 	json "github.com/json-iterator/go"
 	"gorm.io/gorm"
+	"time"
 )
 
 type TaskMap map[string]JobTask
@@ -26,11 +27,16 @@ func (a *TaskArray) Scan(value interface{}) error {
 	return json.Unmarshal(value.([]byte), &a)
 }
 
+type JobWithTasks struct {
+	Job
+	TaskHistory TaskArray `json:"task_history"`
+}
+
 // JobTask represents a single task in a job.
 type JobTask struct {
-	Plugin  string            `json:"plugin"`
-	Details map[string]string `json:"details"`
-	Node    string            `json:"node,omitempty"`
+	Plugin  string `json:"plugin"`
+	Details Map    `json:"details" gorm:"type:bytes"`
+	Node    string `json:"node,omitempty"`
 }
 
 // Job contains the information for a given job
@@ -39,9 +45,11 @@ type Job struct {
 	ID          string    `json:"id" gorm:"<-:create;primarykey"`
 	IDShort     string    `json:"-" gorm:"<-:create;notnull;unique"`
 	Cron        string    `json:"cron,omitempty"`
-	Nodes       Array     `json:"nodes" gorm:"notnull"`
-	Tasks       TaskMap   `json:"tasks"`
-	TaskHistory TaskArray `json:"task_history" gorm:"<-:update"`
+	Nodes       Array     `json:"nodes" gorm:"notnull;type:bytes"`
+	Tasks       TaskMap   `json:"tasks" gorm:"notnull;type:bytes"`
+	TaskHistory Array     `json:"task_history" gorm:"<-:update;type:bytes"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // GetIDShort returns the first 8 bytes of the job ID.
