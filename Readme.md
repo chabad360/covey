@@ -14,12 +14,12 @@ There are tools like Rundeck (which Covey takes after), that are quite capable, 
 
 Covey has, and will gain (in the coming weeks/months) a variety of features, including:
 
-* RESTful API
-* Plug-able Modules
-* Web Interface (basic and doesn't work with nodes yet)
-* Node Monitoring (planned for v0.4)
-* Automated Setup
-* Crash-only design
+* RESTful API (with swagger docs!)
+* Plug-able Modules (ish, it's very broken at the moment)
+* Web Interface (basic)
+* Node Monitoring (using Netdata)
+* Automated Setup (Almost there)
+* Crash-only design (pretty much)
 
 ---
 
@@ -54,22 +54,25 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 #### V0.5 A Better API
 
-* [ ] ~~Evaluate designing a very basic framework (for keeping things cleaner)~~
+* [x] ~~Evaluate designing a very basic framework (for keeping things cleaner)~~
 * [x] ~~Evaluate GraphQL for the API~~
-* [ ] Redesign DB using Gorm
+* [x] Redesign DB using Gorm
 * [ ] Fully implement (and test) the API
-* [ ] Swagger (OpenAPI)
+* [x] Swagger (OpenAPI)
 * [ ] Fully document the API
+* [ ] Add input validation
 
 #### V0.6 Alpha
 
 * [ ] Fix the plugin system
 * [ ] Provide configuration system
+* [ ] Deal with packed files (`.gitignore` and then include it on build?)
 * [ ] CI
-* [ ] Refactor
-* [ ] Add an AUR package
+* [ ] Big Refactor
+* [ ] Add an AUR package (?)
 * [ ] Add and refactor tests (Aim for 80% Coverage)
 * [ ] Complete the web UI
+* [ ] Add a Makefile
 
 ---
 
@@ -77,7 +80,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 Covey is in active development, it's written in Go, and uses Postgres as the database.
 If you are interested in helping with development, open a PR with your changes.
-At the moment, I've begun working on completing the API.
+At the moment, I've begun work on completing the API.
 
 ### Installation Instructions
 
