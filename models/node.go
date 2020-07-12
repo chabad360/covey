@@ -28,15 +28,18 @@ type Node struct {
 // GetIDShort returns the first 8 bytes of the node ID.
 func (n *Node) GetIDShort() string { x, _ := hex.DecodeString(n.ID); return hex.EncodeToString(x[:8]) }
 
+// BeforeCreate gets the short ID before saving.
 func (n *Node) BeforeCreate(tx *gorm.DB) (err error) {
 	n.IDShort = n.GetIDShort()
 	return nil
 }
 
+// AfterFind runs the setup for a node
 func (n *Node) AfterFind(tx *gorm.DB) (err error) {
 	return n.Setup()
 }
 
+// Setup is responsible for creating an SSH client.
 func (n *Node) Setup() error {
 	signer, err := ssh.ParsePrivateKey(n.PrivateKey)
 	if err != nil {

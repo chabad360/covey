@@ -6,6 +6,7 @@ import (
 )
 
 var (
+	// DB provides the gorm DB interface.
 	DB *gorm.DB
 )
 

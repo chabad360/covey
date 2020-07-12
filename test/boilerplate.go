@@ -2,16 +2,16 @@ package test
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/models"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"io"
 
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/chabad360/covey/models"
 	"github.com/go-playground/pure/v5"
 	"github.com/ory/dockertest"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 //revive:disable:function-result-limit

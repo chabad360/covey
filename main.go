@@ -40,10 +40,10 @@ func loadHandlers(r *pure.Mux) {
 	r.Use(options)
 
 	r.Get("/src/*", func() http.HandlerFunc {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		return func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Cache-Control", "max-age=2592000")
 			http.FileServer(asset.FS).ServeHTTP(w, r)
-		})
+		}
 	}()) // Make static files cached
 
 	// TODO: Clean up

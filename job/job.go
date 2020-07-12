@@ -5,7 +5,6 @@ import (
 	"github.com/chabad360/covey/task"
 	"log"
 
-	"github.com/chabad360/covey/storage"
 	json "github.com/json-iterator/go"
 	"github.com/robfig/cron/v3"
 )
@@ -16,7 +15,7 @@ var (
 
 // Init loads up the the jobs and starts the cronTab.
 func Init() {
-	db := storage.DB
+	refreshDB()
 	q, err := db.Table("jobs").Where("cron != ''").Select("id", "cron").Rows()
 	if err != nil {
 		log.Panic(err)

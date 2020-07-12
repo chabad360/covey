@@ -17,16 +17,17 @@ import (
 
 const (
 	sleepDuration = time.Second
+	cacheSize     = 1024
 )
 
 var (
 	activeID        string
 	agent           *config
 	agentPath       string
-	logChannel      = make(chan string, 1024)
+	logChannel      = make(chan string, cacheSize)
 	exitCodeChannel = make(chan int)
 	taskIDChannel   = make(chan string)
-	queue           = make(chan task, 1024)
+	queue           = make(chan task, cacheSize) // TODO: convert back to a list and use mutexes
 )
 
 type runningTask struct {
@@ -116,7 +117,7 @@ func everySecond() {
 
 		log.Printf("Couldn't connect to the host: %v\n", err)
 		log.Println("Trying again in 5 seconds...")
-		time.Sleep(4 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 
 	taskJSON, err := ioutil.ReadAll(r.Body)

@@ -24,12 +24,12 @@ func login(w http.ResponseWriter, r *http.Request) {
 func loginP(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
-	login := ui.GetTemplate("login")
+	loginPage := ui.GetTemplate("login")
 
 	cookie, err := tokenGet(&models.User{Username: r.FormValue("username"), Password: r.FormValue("password")})
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		err = login.ExecuteTemplate(w, "login",
+		err = loginPage.ExecuteTemplate(w, "login",
 			&ui.Page{Title: "Login", URL: strings.Split(r.URL.Path, "/"), Details: false})
 		common.ErrorWriter(w, err)
 	}

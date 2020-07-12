@@ -33,7 +33,7 @@ func tasksGet(w http.ResponseWriter, r *http.Request) {
 	err := pure.DecodeQueryParams(r, 1, &q)
 	common.ErrorWriter(w, err)
 
-	var tasks models.Array
+	var tasks models.StringArray
 	result := db.Select("id").Find(&tasks)
 	common.ErrorWriter(w, result.Error)
 
