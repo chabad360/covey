@@ -6,6 +6,7 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/b6e797a0fb5a498199b2a2d3ae494c82)](https://www.codacy.com/manual/chabad360/covey?utm_source=github.com&utm_medium=referral&utm_content=chabad360/covey&utm_campaign=Badge_Coverage)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4095/badge)](https://bestpractices.coreinfrastructure.org/projects/4095)
 [![Chat on discord](https://img.shields.io/discord/727820939013783582?logo=discord&logoColor=white)](https://discord.gg/kWXPrWg)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fchabad360%2Fcovey.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fchabad360%2Fcovey?ref=badge_shield)
 
 Covey is a project designed to fill a certain void, the lack of a nice lightweight cluster management system.
 There are tools like Rundeck (which Covey takes after), that are quite capable, but are far too heavy to be useful.
@@ -104,3 +105,7 @@ Use the following for a fancy release build:
 ```bash
 go build -trimpath -ldflags="-s -w" github.com/chabad360/covey && upx covey
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fchabad360%2Fcovey.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fchabad360%2Fcovey?ref=badge_large)
