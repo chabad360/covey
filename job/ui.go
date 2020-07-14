@@ -44,7 +44,7 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 		j, _ := GetJob(vars.URLParam("job"))
 		Run(j)
 
-		err := UpdateJob(*j)
+		err := UpdateJob(j)
 		common.ErrorWriter(w, err)
 
 		job, _ = GetJobWithFullHistory(vars.URLParam("job"))

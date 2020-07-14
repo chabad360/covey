@@ -60,7 +60,6 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Fully implement (and test) the API
 * [x] Swagger (OpenAPI)
 * [ ] Fully document the API
-* [ ] Add input validation
 
 #### V0.6 Alpha
 

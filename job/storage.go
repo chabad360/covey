@@ -11,10 +11,10 @@ import (
 var db *gorm.DB
 
 // AddJob adds a Job to the database.
-func AddJob(j models.Job) error {
+func AddJob(j *models.Job) error {
 	refreshDB()
 
-	result := db.Create(&j)
+	result := db.Create(j)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return result.Error
 	}
@@ -36,9 +36,9 @@ func GetJob(id string) (*models.Job, bool) {
 }
 
 // UpdateJob updates a Job in the database.
-func UpdateJob(j models.Job) error {
+func UpdateJob(j *models.Job) error {
 	refreshDB()
-	result := db.Save(&j)
+	result := db.Save(j)
 	return result.Error
 }
 

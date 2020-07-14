@@ -45,7 +45,7 @@ type JobWithTasks struct {
 type JobTask struct {
 	Plugin  string    `json:"plugin"`
 	Details StringMap `json:"details" gorm:"type:bytes"`
-	Node    string    `json:"-"`
+	Node    string    `json:"node,omitempty"`
 }
 
 // Job contains the information for a given job.
@@ -56,7 +56,7 @@ type Job struct {
 	Cron        string      `json:"cron,omitempty"`
 	Nodes       StringArray `json:"nodes" gorm:"notnull;type:bytes"`
 	Tasks       TaskMap     `json:"tasks" gorm:"notnull;type:bytes"`
-	TaskHistory StringArray `json:"task_history" gorm:"<-:update;type:bytes"`
+	TaskHistory StringArray `json:"task_history,omitempty" gorm:"<-:update;type:bytes"`
 	CreatedAt   time.Time   `json:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at"`
 }

@@ -159,9 +159,8 @@ func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 func options(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		o := r.Header.Get("origin")
 		w.Header().Set("Access-Control-Allow-Methods", "*")
-		w.Header().Set("Access-Control-Allow-Origin", o)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "*")
 		next(w, r)
 	}

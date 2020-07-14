@@ -57,7 +57,7 @@ func addCron(id string, cron string) error {
 		return func() { // This little bundle of joy allows the job to occur despite not being an object.
 			j, _ := GetJob(id)
 			Run(j)
-			if err := UpdateJob(*j); err != nil {
+			if err := UpdateJob(j); err != nil {
 				log.Panic(err)
 			}
 		}
@@ -70,7 +70,8 @@ func addCron(id string, cron string) error {
 
 // Run runs each task in succession on the specified nodes (concurrently).
 // There seems to be a bug where the tasks can occasionally be sent in the wrong order
-func Run(j *models.Job) {
+func Run(j *models.Job) ([]string, error) {
+	var th []string
 	for _, t := range j.Tasks {
 		for _, node := range j.Nodes {
 			t.Node = node
@@ -84,8 +85,9 @@ func Run(j *models.Job) {
 				log.Panic(err)
 			}
 
-			j.TaskHistory = append(j.TaskHistory, r.ID)
+			th = append(th, r.ID)
 		}
 	}
-	UpdateJob(*j)
+	j.TaskHistory = append(j.TaskHistory, th...)
+	return th, UpdateJob(j)
 }

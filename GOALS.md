@@ -28,4 +28,4 @@ Here goes:
 * [ ] Proper logging
 * [ ] Postgres might not be the best place to store keys
 * [ ] Figure out how to test nodes
-* [ ] Input validation (On track for [v0.5](Readme.md#v05-a-better-api))
+* [ ] Input validation
