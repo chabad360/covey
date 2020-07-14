@@ -30,12 +30,12 @@ func (a TaskArray) Value() (driver.Value, error) {
 	return json.Marshal(a)
 }
 
-// Scan unmarshals a stored value into a TaskArray
+// Scan unmarshals a stored value into a TaskArray.
 func (a *TaskArray) Scan(value interface{}) error {
 	return json.Unmarshal(value.([]byte), &a)
 }
 
-// JobWithTasks is a regular Job, but with an expanded TaskHistory
+// JobWithTasks is a regular Job, but with an expanded TaskHistory.
 type JobWithTasks struct {
 	Job
 	TaskHistory TaskArray `json:"task_history"`

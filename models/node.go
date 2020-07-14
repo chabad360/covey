@@ -13,9 +13,9 @@ type Node struct {
 	Name       string            `json:"name" gorm:"<-:create;notnull;unique"`
 	ID         string            `json:"id" gorm:"<-:create;primarykey"`
 	IDShort    string            `json:"-" gorm:"<-:create;notnull;unique"`
-	PrivateKey []byte            `json:"private_key" gorm:"<-:create;notnull"`
-	PublicKey  []byte            `json:"public_key" gorm:"<-:create;notnull"`
-	HostKey    []byte            `json:"host_key" gorm:"<-:create;notnull;unique"`
+	PrivateKey []byte            `json:"-" gorm:"<-:create;notnull"`
+	PublicKey  []byte            `json:"-" gorm:"<-:create;notnull"`
+	HostKey    []byte            `json:"-" gorm:"<-:create;notnull;unique"`
 	IP         string            `json:"ip" gorm:"<-:create;notnull;unique"`
 	Username   string            `json:"username" gorm:"<-:create;notnull;default:root"`
 	Password   string            `json:"password,omitempty" gorm:"-"`

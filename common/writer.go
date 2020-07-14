@@ -19,18 +19,21 @@ func ErrorWriter404(w http.ResponseWriter, name string) {
 
 // ErrorWriterCustom writes an error in the JSON format to the http.ResponseWriter with a custom status code.
 func ErrorWriterCustom(w http.ResponseWriter, err error, code int) {
-	if err != nil {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(code)
-		jErr := json.NewEncoder(w).Encode(struct {
-			Error string `json:"error"`
-		}{err.Error()})
-		if jErr != nil {
-			panic(&writerError{jErr})
-		}
-
-		panic(&writerError{err})
+	if err == nil {
+		return
 	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(code)
+
+	jErr := json.NewEncoder(w).Encode(struct {
+		Error string `json:"error"`
+	}{err.Error()})
+	if jErr != nil {
+		panic(&writerError{jErr})
+	}
+
+	panic(&writerError{err})
 }
 
 // Write writes the interface as a JSON to the ResponseWriter.

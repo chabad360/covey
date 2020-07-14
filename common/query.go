@@ -1,36 +1,55 @@
 package common
 
 import (
-	"log"
-	"strconv"
+	"fmt"
+	httpext "github.com/go-playground/pkg/v5/net/http"
+	"github.com/go-playground/pure/v5"
+	"net/http"
+
+	"github.com/go-playground/validator/v10"
+	"gorm.io/gorm"
 )
 
 type QueryParams struct {
-	Limit  int    `json:"limit,omitempty"`
-	Offset int    `json:"offset,omitempty"`
-	Sort   string `json:"sort,omitempty"`
-	Expand bool   `json:"expand,omitempty"`
+	Limit  int    `form:"limit" validate:"min=0,max=50"`
+	Offset int    `form:"offset"`
+	Sort   string `form:"sort" validate:"oneof=asc desc"`
+	SortBy string `form:"sortby"`
+	Expand bool   `form:"expand"`
 }
 
-type TaskQueryParams struct {
-	QueryParams
-	Nodes []string
-	Jobs  []string
-}
-
-func (q *QueryParams) Query(table string) string {
-	log.Println(q)
-
-	switch q.Limit {
-	case 0:
-		if q.Offset != 0 {
-			return "SELECT jsonb_agg(id) FROM " + table + "LIMIT 20 OFFSET" + strconv.Itoa(q.Offset*20) + ";"
+func (q *QueryParams) Query(table string, model interface{}, db *gorm.DB) error {
+	v := validator.New()
+	err := v.Struct(q)
+	if err != nil {
+		if _, ok := err.(*validator.InvalidValidationError); ok {
+			return err
 		}
-	default:
-		if q.Offset != 0 {
-			return "SELECT jsonb_agg(id) FROM " + table + "LIMIT " + strconv.Itoa(q.Limit) + " OFFSET" + strconv.Itoa(q.Offset*q.Limit) + ";"
+		for _, err := range err.(validator.ValidationErrors) {
+			return fmt.Errorf("query: invalid value %v for field %v", err.Value(), err.Field())
 		}
-		return "SELECT jsonb_agg(id) FROM " + table + " LIMIT " + strconv.Itoa(q.Limit) + ";"
 	}
-	return "SELECT jsonb_agg(id) FROM " + table + " LIMIT 20;"
+
+	tx := db.Table(table).Offset(q.Offset).Limit(q.Limit).Order(fmt.Sprintf("%s %s", q.SortBy, q.Sort))
+
+	if !q.Expand {
+		tx.Select("id")
+	}
+
+	tx.Scan(model)
+	if tx.Error != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (q *QueryParams) Setup(r *http.Request) error {
+	q.Limit = 20
+	q.Offset = 0
+	q.Sort = "asc"
+	q.SortBy = "id"
+	q.Expand = false
+
+	return pure.DecodeQueryParams(r, httpext.QueryParams, &q)
 }

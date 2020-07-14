@@ -12,7 +12,9 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gbrlsnchs/jwt/v3 v3.0.0-rc.2
+	github.com/go-playground/pkg/v5 v5.1.0
 	github.com/go-playground/pure/v5 v5.1.0
+	github.com/go-playground/validator/v10 v10.3.0
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/json-iterator/go v1.1.10

@@ -44,7 +44,7 @@ type Task struct {
 	NodeID    string      `json:"node" gorm:"<-:create;notnull"`
 	Node      Node        `json:"-" gorm:"<-:create;"`
 	Details   StringMap   `json:"details" gorm:"<-:create;"`
-	Log       StringArray `json:"log" gorm:"<-:update;type:bytea"`
+	Log       StringArray `json:"log,omitempty" gorm:"<-:update;type:bytea"`
 	ExitCode  int         `json:"exit_code" gorm:"notnull"`
 	Command   string      `json:"-" gorm:"-"`
 	CreatedAt time.Time   `json:"created_at"`

@@ -43,9 +43,22 @@ func nodesGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 	refreshDB()
 
-	var nodes []string
-	result := db.Select("id").Find(&nodes)
-	common.ErrorWriter(w, result.Error)
+	var q common.QueryParams
+	err := q.Setup(r)
+	common.ErrorWriter(w, err)
+
+	var nodes interface{}
+
+	if q.Expand {
+		var n []models.Node
+		err = q.Query("nodes", &n, db)
+		nodes = n
+	} else {
+		var n []string
+		err = q.Query("nodes", &n, db)
+		nodes = n
+	}
+	common.ErrorWriter(w, err)
 
 	common.Write(w, nodes)
 }
@@ -63,6 +76,24 @@ func nodeGet(w http.ResponseWriter, r *http.Request) {
 	common.Write(w, n)
 }
 
+func nodeDelete(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+	refreshDB()
+
+	vars := pure.RequestVars(r)
+	n, ok := GetNode(vars.URLParam("node"))
+	if !ok {
+		common.ErrorWriter404(w, vars.URLParam("node"))
+	}
+
+	result := db.Delete(&n)
+	if result.Error != nil {
+		common.ErrorWriter(w, result.Error)
+	}
+
+	common.Write(w, vars.URLParam("node"))
+}
+
 // RegisterHandlers adds the handlers for the node module.
 func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Node module API handlers...")
@@ -70,4 +101,5 @@ func RegisterHandlers(r pure.IRouteGroup) {
 	r.Get("", nodesGet)
 	n := r.Group("/:node")
 	n.Get("", nodeGet)
+	n.Delete("", nodeDelete)
 }

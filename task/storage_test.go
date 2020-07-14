@@ -1,12 +1,12 @@
 package task
 
 import (
-	"context"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
 	"log"
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -22,11 +22,10 @@ func TestAddTask(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
-		want string
+		want models.Task
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "log": null, "node": "test", "time": "2000-01-01T01:01:01.000000001Z", "state": 2, "plugin": "test", "details": {"test": "test"}, "exit_code": 0}`},
-		{"3", ""},
+		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", *task},
+		{"3", models.Task{}},
 	}
 	//revive:enable:line-length-limit
 
@@ -35,59 +34,55 @@ func TestAddTask(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			var got []byte
-			if db.Where("id = ?", tt.id).First(&got); string(got) != tt.want {
-				t.Errorf("addTask() = %v, want %v, error: %v", string(got), tt.want, testError)
+			var got models.Task
+			if db.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
+				t.Errorf("addTask() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
 	}
 }
 
-func TestUpdateTask(t *testing.T) {
+func TestSaveTask(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
-		want string
+		want models.Task
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "log": ["hello", "world"], "node": "test", "time": "2000-01-01T01:01:01.000000001Z", "state": 2, "plugin": "test", "details": {"test": "test"}, "exit_code": 0}`},
-		{"3", ""},
+		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", *task},
+		{"3", models.Task{}},
 	}
 	//revive:enable:line-length-limit
 
-	tu := task
-	tu.Log = []string{"hello", "world"}
+	tu := &TaskInfo{[]string{"hello", "world"}, 0, "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e"}
 	saveTask(tu)
 
 	for _, tt := range tests {
-		testname := tt.id
-		t.Run(testname, func(t *testing.T) {
-			var got []byte
-			if db.QueryRow(context.Background(), "SELECT to_jsonb(tasks) - 'id_short' FROM tasks WHERE id = $1;",
-				tt.id).Scan(&got); string(got) != tt.want {
-				t.Errorf("updateTask() = %v, want %v, error: %v", string(got), tt.want, testError)
+		testName := tt.id
+		t.Run(testName, func(t *testing.T) {
+			var got models.Task
+			if result := db.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
+				t.Errorf("saveTask() = %v, want %v, error: %v", got, tt.want, result.Error)
 			}
 		})
 	}
 }
 
-func TestGetTaskJSON(t *testing.T) {
+func TestGetTask(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
-		want string
+		want models.Task
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "log": ["hello", "world"], "node": "test", "time": "2000-01-01T01:01:01.000000001Z", "state": 2, "plugin": "test", "details": {"test": "test"}, "exit_code": 0}`},
-		{"3", ""},
+		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", *task},
+		{"3", models.Task{}},
 	}
 	//revive:enable:line-length-limit
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if got, err := getTask(tt.id); string(got) != tt.want {
-				t.Errorf("getTaskJSON() = %v, want %v, error: %v", string(got), tt.want, err)
+			if got, err := getTask(tt.id); reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getTask() = %v, want %v, error: %v", got, tt.want, err)
 			}
 		})
 	}
@@ -99,6 +94,11 @@ func TestMain(m *testing.M) {
 	storage.DB = pdb
 	if err != nil {
 		log.Fatalf("Could not setup DB connection: %s", err)
+	}
+
+	err = db.AutoMigrate(&models.Task{})
+	if err != nil {
+		log.Fatalf("error preping the database: %s", err)
 	}
 
 	db.Create(task)

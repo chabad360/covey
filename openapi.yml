@@ -49,15 +49,26 @@ paths:
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/offset'
         - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/sortby'
         - $ref: '#/components/parameters/expand'
       responses:
         '200':
           description: Successfully retrieved nodes.
           content:
             application/json:
-              example:
-                - node1
-                - node2
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Array'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Node'
+              examples:
+                expandIsFalse:
+                  value:
+                    - node1
+                    - node2
+                expandIsTrue:
+                  $ref: '#/components/examples/getNodes'
         '401':
           $ref: '#/components/responses/unauth'
       tags:
@@ -114,7 +125,7 @@ paths:
   /tasks:
     summary: Running things on nodes.
     post:
-      summary: Add a new task.
+      summary: Add and run a new task.
       description: ''
       operationId: newTask
       requestBody:
@@ -141,34 +152,43 @@ paths:
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/offset'
         - $ref: '#/components/parameters/sort'
-        - $ref: '#/components/parameters/nodes'
-        - $ref: '#/components/parameters/jobs'
+        - $ref: '#/components/parameters/sortby'
         - $ref: '#/components/parameters/expand'
       responses:
         '200':
           description: Success
           content:
             application/json:
-              example:
-                - a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
-                - e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Array'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+              examples:
+                expandIsFalse:
+                  value:
+                    - a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+                    - e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
+                expandIsTrue:
+                  $ref: '#/components/examples/getTasks'
         '401':
           $ref: '#/components/responses/unauth'
       tags:
         - tasks
   '/tasks/{taskId}':
     summary: Get the information of an individual task.
+    parameters:
+      - in: path
+        name: taskId
+        schema:
+          type: string
+        required: true
+        description: 'ID or short ID of the task to get.'
     get:
       summary: Get a task.
       description: ''
       operationId: getTask
-      parameters:
-        - in: path
-          name: taskId
-          schema:
-            type: string
-          required: true
-          description: 'ID or short ID of the task to get.'
       responses:
         '200':
           description: Success
@@ -179,29 +199,6 @@ paths:
               examples:
                 getNode:
                   $ref: '#/components/examples/getTask'
-        '401':
-          $ref: '#/components/responses/unauth'
-        '404':
-          description: No such task exists.
-      tags:
-        - tasks
-  /tasks/{taskId}/log:
-    description: Get the log from a task.
-    get:
-      summary: Get the log.
-      operationId: getTaskLog
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-              example:
-                - 'hello'
-                - 'world'
         '401':
           $ref: '#/components/responses/unauth'
         '404':
@@ -237,15 +234,26 @@ paths:
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/offset'
         - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/sortby'
         - $ref: '#/components/parameters/expand'
       responses:
         '200':
           description: Success
           content:
             application/json:
-              example:
-                - update
-                - backup
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Array'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Job'
+              examples:
+                expandIsFalse:
+                  value:
+                    - update
+                    - backup
+                expandIsTrue:
+                  $ref: '#/components/examples/getJobs'
       tags:
         - jobs
   '/jobs/{jobId}':
@@ -280,6 +288,24 @@ paths:
           description: No such job exists.
       tags:
         - jobs
+    put:
+      summary: Update the job configuration.
+      operationId: updateJob
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+            examples:
+              newJob:
+                $ref: '#/components/examples/newJob'
+      responses:
+        '200':
+          $ref: '#/components/responses/job'
+        '401':
+          $ref: '#/components/responses/unauth'
+      tags:
+        - jobs
     post:
       summary: Run the job.
       operationId: runJob
@@ -288,6 +314,8 @@ paths:
           description: Success
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/Array'
               example:
                 - a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
                 - e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
@@ -324,6 +352,18 @@ components:
         ip: 192.168.1.100
         port: '22'
         username: root
+        created_at: '2020-06-29T23:39:10.071485063-07:00'
+        updated_at: '2020-06-29T23:39:10.071485063-07:00'
+    getNodes:
+      value:
+        - $ref: '#/components/examples/getNode'
+        - name: node2
+          id: e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb31
+          ip: 192.168.1.101
+          port: '22'
+          username: root
+          created_at: '2020-06-29T23:39:10.071485063-07:00'
+          updated_at: '2020-06-29T23:39:10.071485063-07:00'
     newNode:
       value:
         name: node1
@@ -335,13 +375,25 @@ components:
       value:
         plugin: shell
         node: node1
-        details: {
+        details:
           command: echo hello world
-        }
+    getTasks:
+      value:
+        - $ref: '#/components/examples/getTask'
+        - id: e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
+          state: 0
+          exit_code: 0
+          plugin: shell
+          node: node1
+          details:
+            command: echo hello && echo world
+          log:
+            - hello world
+          created_at: '2020-06-29T23:39:10.071485063-07:00'
+          updated_at: '2020-06-30T23:39:10.071485063-07:00'
     getTask:
       value:
         id: a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
-        time: '2020-06-29T23:39:10.071485063-07:00'
         state: 0
         exit_code: 0
         plugin: shell
@@ -349,7 +401,10 @@ components:
         details:
           command: echo hello && echo world
         log:
-          - hello world
+          - 'hello'
+          - 'world'
+        created_at: '2020-06-29T23:39:10.071485063-07:00'
+        updated_at: '2020-06-29T23:39:10.071485063-07:00'
     newJob:
       value:
         name: update
@@ -400,6 +455,24 @@ components:
             plugin: shell
             details:
               command: apt-get upgrade -y
+        created_at: '2020-06-29T23:39:10.071485063-07:00'
+        updated_at: '2020-06-29T23:39:10.071485063-07:00'
+    getJobs:
+      value:
+        - $ref: '#/components/examples/getJob'
+        - id: e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
+          name: reboot
+          nodes:
+            - node1
+            - node2
+          cron: '0 0 1 1 *'
+          tasks:
+            update:
+              plugin: shell
+              details:
+                command: reboot
+          created_at: '2020-06-29T23:39:10.071485063-07:00'
+          updated_at: '2020-06-29T23:39:10.071485063-07:00'
 
   links:
     GetNodeByID:
@@ -439,7 +512,7 @@ components:
       schema:
         type: integer
         minimum: 0
-      description: The number of pages to skip.
+      description: The number of items to skip.
     limit:
       in: query
       name: limit
@@ -449,7 +522,7 @@ components:
         minimum: 1
         maximum: 50
         default: 20
-      description: The numbers of items to return (per page).
+      description: The numbers of items to return.
     sort:
       in: query
       name: sort
@@ -460,6 +533,13 @@ components:
           - asc
           - desc
         default: asc
+    sortby:
+      in: query
+      name: sortby
+      required: false
+      schema:
+        type: string
+        default: id
     nodes:
       in: query
       name: nodes
@@ -515,6 +595,16 @@ components:
           format: password
           description: Password used for initial SSH connection.
           writeOnly: true
+        created_at:
+          type: string
+          format: 'date-time'
+          description: The creation time of the task.
+          readOnly: true
+        updated_at:
+          type: string
+          format: 'date-time'
+          description: The last time the task was updated.
+          readOnly: true
       required:
         - id
         - name
@@ -527,11 +617,6 @@ components:
         id:
           type: string
           description: The ID of the plugin
-          readOnly: true
-        time:
-          type: string
-          format: 'date-time'
-          description: The creation time of the task.
           readOnly: true
         exit_code:
           type: integer
@@ -567,6 +652,16 @@ components:
           description: The argurments to provide to the plugin.
           additionalProperties:
             type: string
+        created_at:
+          type: string
+          format: 'date-time'
+          description: The creation time of the task.
+          readOnly: true
+        updated_at:
+          type: string
+          format: 'date-time'
+          description: The last time the task was updated.
+          readOnly: true
       required:
         - plugin
         - node
@@ -604,10 +699,24 @@ components:
                 description: The arguments to provide to the plugin.
                 additionalProperties:
                   type: string
+        created_at:
+          type: string
+          format: 'date-time'
+          description: The creation time of the task.
+          readOnly: true
+        updated_at:
+          type: string
+          format: 'date-time'
+          description: The last time the task was updated.
+          readOnly: true
       required:
         - name
         - nodes
         - tasks
+    Array:
+      type: array
+      items:
+        type: string
 
   responses:
     unauth:

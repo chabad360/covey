@@ -107,3 +107,9 @@ Use the following for a fancy release build:
 ```bash
 go build -trimpath -ldflags="-s -w" github.com/chabad360/covey && upx covey
 ```
+
+--- 
+
+### Fossa
+
+[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B10111%2Fgithub.com%2Fchabad360%2Fcovey.svg?type=large)](https://app.fossa.com/projects/custom%2B10111%2Fgithub.com%2Fchabad360%2Fcovey?ref=badge_large)

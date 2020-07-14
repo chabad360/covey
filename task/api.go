@@ -2,14 +2,12 @@ package task
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/models"
+	"github.com/go-playground/pure/v5"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
-
-	"github.com/chabad360/covey/common"
-	"github.com/go-playground/pure/v5"
 )
 
 // TaskNew creates and starts a new task.
@@ -28,14 +26,22 @@ func tasksGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 	refreshDB()
 
-	log.Println(r.URL.Query())
 	var q common.QueryParams
-	err := pure.DecodeQueryParams(r, 1, &q)
+	err := q.Setup(r)
 	common.ErrorWriter(w, err)
 
-	var tasks models.StringArray
-	result := db.Select("id").Find(&tasks)
-	common.ErrorWriter(w, result.Error)
+	var tasks interface{}
+
+	if q.Expand {
+		var t []models.Task
+		err = q.Query("tasks", &t, db)
+		tasks = t
+	} else {
+		var t []string
+		err = q.Query("tasks", &t, db)
+		tasks = t
+	}
+	common.ErrorWriter(w, err)
 
 	common.Write(w, tasks)
 }
@@ -45,14 +51,12 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 
-	t, err := getTask(vars.URLParam("task"))
-	common.ErrorWriter404(w, fmt.Sprintf("%v", err))
-
-	if p := strings.Split(r.URL.Path, "/"); len(p) == 6 {
-		common.Write(w, t.Log)
-	} else {
-		common.Write(w, t)
+	t, ok := getTask(vars.URLParam("task"))
+	if !ok {
+		common.ErrorWriter404(w, fmt.Sprintf("%v", vars.URLParam("task")))
 	}
+
+	common.Write(w, t)
 }
 
 // RegisterHandlers registers the handlers for the task module.
@@ -63,5 +67,4 @@ func RegisterHandlers(r pure.IRouteGroup) {
 	r.Get("", tasksGet)
 	t := r.Group("/:task")
 	t.Get("", taskGet)
-	t.Get("/log", taskGet)
 }
