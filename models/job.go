@@ -65,7 +65,7 @@ type Job struct {
 func (j *Job) GetIDShort() string { x, _ := hex.DecodeString(j.ID); return hex.EncodeToString(x[:8]) }
 
 // BeforeCreate generates the job ID before saving.
-func (j *Job) BeforeCreate(tx *gorm.DB) (err error) {
+func (j *Job) BeforeCreate(_ *gorm.DB) (err error) {
 	j.ID = common.GenerateID(j)
 	j.IDShort = j.GetIDShort()
 	return nil

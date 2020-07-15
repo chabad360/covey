@@ -9,7 +9,7 @@ import (
 )
 
 //revive:disable:cognitive-complexity
-func Test_tokenGetAPI(t *testing.T) {
+func TestTokenGetAPI(t *testing.T) {
 	var tests = []struct {
 		userid     string
 		want       string

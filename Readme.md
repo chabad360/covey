@@ -57,9 +57,9 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [x] ~~Evaluate designing a very basic framework (for keeping things cleaner)~~
 * [x] ~~Evaluate GraphQL for the API~~
 * [x] Redesign DB using Gorm
-* [ ] Fully implement (and test) the API
+* [x] Fully implement (and test) the API
 * [x] Swagger (OpenAPI)
-* [ ] Fully document the API
+* [x] Fully document the API
 
 #### V0.6 Alpha
 

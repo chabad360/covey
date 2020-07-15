@@ -111,11 +111,7 @@ func initAgent(agent string) error {
 		return result.Error
 	}
 
-	if err := initQueues(t); err != nil {
-		return err
-	}
-
-	return nil
+	return initQueues(t)
 }
 
 // Init initializes the agent queues.
@@ -128,11 +124,7 @@ func Init() error {
 		return result.Error
 	}
 
-	if err := initQueues(t); err != nil {
-		return err
-	}
-
-	return nil
+	return initQueues(t)
 }
 
 // RegisterAgentHandlers registers the handler for receiving information from agents.

@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// QueryParams parses a URL query and gets the items from the database based on it.
 type QueryParams struct {
 	Limit  int    `form:"limit" validate:"min=0,max=50"`
 	Offset int    `form:"offset"`
@@ -18,6 +19,7 @@ type QueryParams struct {
 	Expand bool   `form:"expand"`
 }
 
+// Query runs a query against the database.
 func (q *QueryParams) Query(table string, model interface{}, db *gorm.DB) error {
 	v := validator.New()
 	err := v.Struct(q)
@@ -44,6 +46,7 @@ func (q *QueryParams) Query(table string, model interface{}, db *gorm.DB) error 
 	return nil
 }
 
+// Setup parses a url query.
 func (q *QueryParams) Setup(r *http.Request) error {
 	q.Limit = 20
 	q.Offset = 0

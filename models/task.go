@@ -54,7 +54,7 @@ type Task struct {
 func (t *Task) GetIDShort() string { x, _ := hex.DecodeString(t.ID); return hex.EncodeToString(x[:8]) }
 
 // BeforeCreate initializes the default values for a Task.
-func (t *Task) BeforeCreate(tx *gorm.DB) (err error) {
+func (t *Task) BeforeCreate(_ *gorm.DB) (err error) {
 	t.ExitCode = 258
 	t.State = StateQueued
 	t.ID = common.GenerateID(t)
