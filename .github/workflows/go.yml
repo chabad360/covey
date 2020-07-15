@@ -17,7 +17,6 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: ^1.13
-      id: go
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
@@ -30,16 +29,42 @@ jobs:
             dep ensure
         fi
         go get github.com/t-yuki/gocover-cobertura
-
-    - name: Build
-      run: go build -trimpath -v github.com/chabad360/covey
-      
-    - name: Build Shell PLugin
-      run: go build -trimpath -v -buildmode=plugin -o plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
-
+        go mod download
+        go get github.com/omeid/go-resources/cmd/resources
+    
     - name: Test
       continue-on-error: true
-      run: go test -v -coverprofile=coverage.txt -covermode count ./...
+      run: go test -trimpath -v -coverprofile=coverage.txt -covermode count ./...
+        
+    - name: Build agent
+      run: go build -ldflags="-s -w" -trimpath -v -o ./assets/agent github.com/chabad360/covey/agent
+    
+    - name: UPX agent
+      uses: crazy-max/ghaction-upx@v1
+      with:
+        version: latest
+        file: ./assets/agent
+
+    - name: Pack assets
+      run: resources -declare -package=asset -output=./asset/asset.go -tag="!live" -trim assets/ ./assets/*
+
+    - name: Build
+      run: go build -ldflags="-s -w" -trimpath -v github.com/chabad360/covey
+    
+    - name: UPX covey
+      uses: crazy-max/ghaction-upx@v1
+      with:
+        version: latest
+        file: ./covey
+      
+    - name: Build Shell Plugin
+      run: go build -ldflags="-s -w" -trimpath -v -buildmode=plugin -o ./plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
+    
+    - name: UPX plugin
+      uses: crazy-max/ghaction-upx@v1
+      with:
+        version: latest
+        file: ./plugins/task/shell.so
     
     - name: Upload Coverage to Codacy
       env:
