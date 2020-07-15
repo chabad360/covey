@@ -47,7 +47,7 @@ func UpdateJob(j *models.Job) error {
 func GetJobWithFullHistory(id string) (*models.JobWithTasks, bool) {
 	refreshDB()
 	var b models.JobWithTasks
-	result := db.Raw(`SELECT j.id, j.name, j.cron, j.nodes, j.tasks, COALESCE(j1.task_history, 'null') AS task_history
+	result := db.Raw(`SELECT j.id, j.name, j.cron, j.nodes, j.tasks, j1.task_history
 		FROM   jobs j
 			LEFT   JOIN LATERAL (
 			SELECT jsonb_agg(to_jsonb(t) - 'details') AS task_history

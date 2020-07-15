@@ -10,7 +10,7 @@ import (
 )
 
 //revive:disable:cognitive-complexity
-func Test_login(t *testing.T) {
+func TestLogin(t *testing.T) {
 	rr, req, err := test.HTTPBoilerplate("GET", "/login", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -23,7 +23,7 @@ func Test_login(t *testing.T) {
 	}
 }
 
-func Test_loginP(t *testing.T) {
+func TestLoginP(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		username   string

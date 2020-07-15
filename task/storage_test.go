@@ -22,10 +22,10 @@ func TestAddTask(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
-		want models.Task
+		want *models.Task
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", *task},
-		{"3", models.Task{}},
+		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", task},
+		{"3", &models.Task{}},
 	}
 	//revive:enable:line-length-limit
 
@@ -46,10 +46,10 @@ func TestSaveTask(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
-		want models.Task
+		want *models.Task
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", *task},
-		{"3", models.Task{}},
+		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", task},
+		{"3", &models.Task{}},
 	}
 	//revive:enable:line-length-limit
 

@@ -1,10 +1,10 @@
 package job
 
 import (
-	"context"
 	"github.com/chabad360/covey/models"
 	"log"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/chabad360/covey/storage"
@@ -35,13 +35,13 @@ func TestAddJob(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	testError := AddJob(*j)
+	testError := AddJob(j)
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got []byte
-			if db.QueryRow(context.Background(), "SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = $1;",
+			if db.Raw("SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = ?;",
 				tt.id).Scan(&got); string(got) != tt.want {
 				t.Errorf("AddJob() = %v, want %v, error: %v", string(got), tt.want, testError)
 			}
@@ -61,7 +61,7 @@ func TestUpdateJob(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	ju := *j
+	ju := j
 	ju.Cron = "5 * * * *"
 	testError := UpdateJob(ju)
 
@@ -69,7 +69,7 @@ func TestUpdateJob(t *testing.T) {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got []byte
-			if db.QueryRow(context.Background(), "SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = $1;",
+			if db.Raw("SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = ?;",
 				tt.id).Scan(&got); string(got) != tt.want {
 				t.Errorf("UpdateJob() = %v, want %v, error: %v", string(got), tt.want, testError)
 			}
@@ -92,8 +92,8 @@ func TestGetJobWithFullHistory(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if got, err := GetJobWithFullHistory(tt.id); string(got) != tt.want {
-				t.Errorf("GetJobWithFullHistory() = %v, want %v, error: %v", string(got), tt.want, err)
+			if got, err := GetJobWithFullHistory(tt.id); reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetJobWithFullHistory() = %v, want %v, error: %v", got, tt.want, err)
 			}
 		})
 	}
@@ -105,6 +105,11 @@ func TestMain(m *testing.M) {
 	storage.DB = pdb
 	if err != nil {
 		log.Fatalf("Could not setup DB connection: %s", err)
+	}
+
+	err = db.AutoMigrate(&models.Task{}, &models.Job{})
+	if err != nil {
+		log.Fatalf("error preping the database: %s", err)
 	}
 
 	db.Create(j)

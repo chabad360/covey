@@ -94,7 +94,7 @@ func initQueues(tasks []models.Task) error {
 			return err
 		}
 
-		if err = queueTask(t.Node.ID, t.ID, cmd); err != nil {
+		if err = queueTask(t.Node, t.ID, cmd); err != nil {
 			return err
 		}
 	}

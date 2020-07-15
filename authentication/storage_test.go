@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"context"
 	"github.com/chabad360/covey/models"
 	"log"
 	"os"
@@ -45,8 +44,8 @@ func TestAddUser(t *testing.T) {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got int
-			if db.QueryRow(context.Background(), `SELECT id FROM users 
-			WHERE username = $1 AND (password_hash = crypt($2, password_hash)) = 't';`,
+			if db.Raw(`SELECT id FROM users 
+			WHERE username = ? AND (password_hash = crypt(?, password_hash)) = 't';`,
 				tt.user.Username, tt.user.Password).Scan(&got); strconv.Itoa(got) != tt.want {
 				t.Errorf("AddUser() = %v, want %v, error: %v", strconv.Itoa(got), tt.want, testError)
 			}
@@ -70,8 +69,8 @@ func TestUpdateUser(t *testing.T) {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got int
-			if db.QueryRow(context.Background(), `SELECT id FROM users 
-			WHERE username = $1 AND (password_hash = crypt($2, password_hash)) = 't';`,
+			if db.Raw(`SELECT id FROM users 
+			WHERE username = ? AND (password_hash = crypt(?, password_hash)) = 't';`,
 				tt.user.Username, tt.user.Password).Scan(&got); strconv.Itoa(got) != tt.want {
 				t.Errorf("UpdateUser() = %v, want %v, error: %v", strconv.Itoa(got), tt.want, testError)
 			}
@@ -108,11 +107,16 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}
 
-	_, err = db.Exec(context.Background(), `INSERT INTO users(username, password_hash) 
-		VALUES($1, crypt($2, gen_salt('bf')));`,
-		u.Username, u.Password)
+	err = db.AutoMigrate(&models.User{})
 	if err != nil {
-		log.Fatalf("Could not prepare DB: %s", err)
+		log.Fatalf("error preping the database: %s", err)
+	}
+
+	result := db.Exec(`INSERT INTO users(username, password_hash) 
+		VALUES(?, crypt(?, gen_salt('bf')));`,
+		u.Username, u.Password)
+	if result.Error != nil {
+		log.Fatalf("Could not prepare DB: %s", result.Error)
 	}
 
 	code := m.Run()

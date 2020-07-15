@@ -8,7 +8,7 @@ import (
 	"github.com/chabad360/covey/test"
 )
 
-func Test_jobNew(t *testing.T) {
+func TestJobNew(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		body string
@@ -21,7 +21,7 @@ func Test_jobNew(t *testing.T) {
 			`{"error":"duplicate job: test"}
 `},
 		{`{"name":}`,
-			`{"error":"types.Job.Name: ReadString: expects \" or n, but found }, error found in #9 byte of ...|{\"name\":}|..., bigger context ...|{\"name\":}|..."}
+			`{"error":"models.Job.Name: ReadString: expects \" or n, but found }, error found in #9 byte of ...|{\"name\":}|..., bigger context ...|{\"name\":}|..."}
 `},
 	}
 	//revive:enable:line-length-limit
@@ -44,7 +44,7 @@ func Test_jobNew(t *testing.T) {
 	}
 }
 
-func Test_jobGet(t *testing.T) {
+func TestJobGet(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string

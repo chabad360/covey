@@ -42,7 +42,7 @@ func TestGetJobWithTasks(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if _, ok := GetJobWithTasks(tt.id); ok != tt.want {
+			if _, ok := GetJob(tt.id); ok != tt.want {
 				t.Errorf("GetJobWithTasks() = %v, want %v", ok, tt.want)
 			}
 		})

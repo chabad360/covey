@@ -1,7 +1,6 @@
 package node
 
 import (
-	"context"
 	"github.com/chabad360/covey/models"
 	"log"
 	"os"
@@ -18,6 +17,7 @@ var n = &models.Node{
 	PublicKey:  []byte("12345"),
 	HostKey:    []byte("12345"),
 	Username:   "user",
+	IP:         "127.0.0.1",
 }
 
 func TestAddNode(t *testing.T) {
@@ -27,7 +27,7 @@ func TestAddNode(t *testing.T) {
 		want string
 	}{
 		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "ip": "", "name": "node", "port": "", "host_key": "\\x3132333435", "username": "user", "public_key": "\\x3132333435", "private_key": "\\x3132333435"}`},
+			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "ip": "127.0.0.1", "name": "node", "port": "", "host_key": "\\x3132333435", "username": "user", "public_key": "\\x3132333435", "private_key": "\\x3132333435"}`},
 		{"3", ""},
 	}
 	//revive:enable:line-length-limit
@@ -38,7 +38,7 @@ func TestAddNode(t *testing.T) {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got []byte
-			if db.QueryRow(context.Background(), "SELECT to_jsonb(nodes) - 'id_short' FROM nodes WHERE id = $1;",
+			if db.Raw("SELECT to_jsonb(nodes) - 'id_short' FROM nodes WHERE id = ?;",
 				tt.id).Scan(&got); string(got) != tt.want {
 				t.Errorf("addNode() = %v, want %v, error: %v", string(got), tt.want, testError)
 			}
@@ -65,6 +65,11 @@ func TestMain(m *testing.M) {
 	storage.DB = pdb
 	if err != nil {
 		log.Fatalf("Could not setup DB connection: %s", err)
+	}
+
+	err = db.AutoMigrate(&models.Node{})
+	if err != nil {
+		log.Fatalf("error preping the database: %s", err)
 	}
 
 	code := m.Run()

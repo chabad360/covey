@@ -15,6 +15,11 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 		return nil, err
 	}
 
+	_, ok := node.GetNode(t.Node)
+	if !ok {
+		return nil, fmt.Errorf("%v is not a valid node", t.Node)
+	}
+
 	p, err := loadPlugin(t.Plugin)
 	if err != nil {
 		return nil, err
@@ -26,20 +31,13 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 	}
 
 	t.Command = cmd
-	n, ok := node.GetNode(t.NodeID)
-	if !ok {
-		return nil, fmt.Errorf("%v is not a valid node", t.NodeID)
-	}
-
-	t.NodeID = ""
-	t.Node = *n
 
 	err = addTask(t)
 	if err != nil {
 		return nil, err
 	}
 
-	err = queueTask(t.Node.ID, t.ID, t.Command)
+	err = queueTask(t.Node, t.ID, t.Command)
 	if err != nil {
 		return nil, err
 	}

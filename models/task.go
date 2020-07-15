@@ -41,8 +41,7 @@ type Task struct {
 	Plugin    string      `json:"plugin" gorm:"<-:create;notnull"`
 	ID        string      `json:"id" gorm:"<-:create;primarykey"`
 	IDShort   string      `json:"-" gorm:"<-:create;notnull;unique"`
-	NodeID    string      `json:"node" gorm:"<-:create;notnull"`
-	Node      Node        `json:"-" gorm:"<-:create;"`
+	Node      string      `json:"node" gorm:"<-:create;notnull"`
 	Details   StringMap   `json:"details" gorm:"<-:create;"`
 	Log       StringArray `json:"log,omitempty" gorm:"<-:update;type:bytea"`
 	ExitCode  int         `json:"exit_code" gorm:"notnull"`

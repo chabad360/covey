@@ -16,7 +16,7 @@ func uiNodes(w http.ResponseWriter, r *http.Request) {
 	refreshDB()
 
 	var nodes []models.Node
-	result := db.Select("name", "id", "host_key", "ip", "username", "port").Find(&nodes)
+	result := db.Find(&nodes)
 	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
@@ -39,7 +39,7 @@ func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriter404(w, vars.URLParam("node"))
 	}
 	var tasks []models.Task
-	result := db.Table("tasks").Where("node_id = ?", node.ID).Find(&tasks)
+	result := db.Table("tasks").Where("node = ?", node.ID).Or("node = ?", node.Name).Find(&tasks)
 	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{

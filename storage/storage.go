@@ -14,6 +14,8 @@ var (
 func Init() error {
 	var err error
 	// TODO: provide a method for configuration
-	DB, err = gorm.Open(postgres.Open("user=postgres host=127.0.0.1 port=5432 dbname=covey"), &gorm.Config{})
+	DB, err = gorm.Open(postgres.Open("user=postgres host=127.0.0.1 port=5432 dbname=covey"), &gorm.Config{
+		//Logger: logger.Default.LogMode(logger.Silent),
+	})
 	return err
 }

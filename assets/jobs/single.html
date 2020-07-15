@@ -63,7 +63,7 @@
                         {{- range .Details.Job.TaskHistory -}}
                             <tr>
                                 <td><a href="/tasks/{{ .ID }}">{{ .ID }}</a></td>
-                                <td><a href="/nodes/{{ .NodeID }}">{{ .NodeID }}</a></td>
+                                <td><a href="/nodes/{{ .Node }}">{{ .Node }}</a></td>
                                 <td>{{ .CreatedAt }}</td>
                                 <td>{{- template "taskState" .State -}}</td>
                             </tr>
