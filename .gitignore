@@ -2,6 +2,7 @@
 covey
 *.so
 agent
+asset/asset.go
 
 # Generated Config
 /.idea/.gitignore
