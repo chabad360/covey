@@ -27,11 +27,10 @@ func TestAddJob(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
-		want string
+		want *models.Job
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"command": "sudo apt update && sudo apt upgrade -y"}}}, "task_history": []}`},
-		{"3", ""},
+		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", j},
+		{"3", &models.Job{}},
 	}
 	//revive:enable:line-length-limit
 
@@ -40,10 +39,9 @@ func TestAddJob(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			var got []byte
-			if db.Raw("SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = ?;",
-				tt.id).Scan(&got); string(got) != tt.want {
-				t.Errorf("AddJob() = %v, want %v, error: %v", string(got), tt.want, testError)
+			var got models.Task
+			if db.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
+				t.Errorf("AddJob() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
 	}
@@ -61,17 +59,15 @@ func TestUpdateJob(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	ju := j
-	ju.Cron = "5 * * * *"
-	testError := UpdateJob(ju)
+	j.Cron = "5 * * * *"
+	testError := UpdateJob(j)
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			var got []byte
-			if db.Raw("SELECT to_jsonb(jobs) - 'id_short' FROM jobs WHERE id = ?;",
-				tt.id).Scan(&got); string(got) != tt.want {
-				t.Errorf("UpdateJob() = %v, want %v, error: %v", string(got), tt.want, testError)
+			var got models.Job
+			if db.Where("id = ?", tt.id).Scan(&got); reflect.DeepEqual(got, tt.want) {
+				t.Errorf("UpdateJob() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
 	}
@@ -81,11 +77,10 @@ func TestGetJobWithFullHistory(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
-		want string
+		want *models.Job
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "5 * * * *", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"command": "sudo apt update && sudo apt upgrade -y"}}}, "task_history": null}`},
-		{"3", ""},
+		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", j},
+		{"3", &models.Job{}},
 	}
 	//revive:enable:line-length-limit
 

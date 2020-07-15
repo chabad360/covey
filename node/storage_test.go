@@ -4,6 +4,7 @@ import (
 	"github.com/chabad360/covey/models"
 	"log"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/chabad360/covey/storage"
@@ -24,11 +25,10 @@ func TestAddNode(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
-		want string
+		want *models.Node
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "ip": "127.0.0.1", "name": "node", "port": "", "host_key": "\\x3132333435", "username": "user", "public_key": "\\x3132333435", "private_key": "\\x3132333435"}`},
-		{"3", ""},
+		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", n},
+		{"3", &models.Node{}},
 	}
 	//revive:enable:line-length-limit
 
@@ -37,10 +37,9 @@ func TestAddNode(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			var got []byte
-			if db.Raw("SELECT to_jsonb(nodes) - 'id_short' FROM nodes WHERE id = ?;",
-				tt.id).Scan(&got); string(got) != tt.want {
-				t.Errorf("addNode() = %v, want %v, error: %v", string(got), tt.want, testError)
+			var got models.Node
+			if db.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
+				t.Errorf("addNode() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
 	}
