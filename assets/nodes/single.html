@@ -20,6 +20,11 @@
                     </tbody>
                 </table>
             </div>
+            <div class="card-footer">
+                <button class="btn btn-danger float-right" data-toggle="modal" data-target="#delete"><i
+                            class="fa fa-trash"></i> Delete
+                </button>
+            </div>
         </div>
         <div class="card">
             <div class="card-header">Stats</div>
@@ -100,6 +105,29 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Node</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <span>Are you sure you want to delete this node?</span>
+                    <br>
+                    <span style="font-weight: bold;">This action is irreversible!</span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" id="deleteBtn">I understand, delete this node</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {{ end }}
 
 {{ define "scripts" }}
@@ -107,6 +135,23 @@
         $(document).ready(function () {
             var table = $('#tasks').DataTable({
                 "order": [[1, "desc"]],
+            });
+        });
+        $("#deleteBtn").on('click', function (e) {
+            e.preventDefault();
+            coreui.Modal.getInstance(document.getElementById("delete")).hide();
+            $.ajax({
+                url: "/api/v1/nodes/{{ .Details.Node.ID }}",
+                headers: {"Authorization": 'Bearer ' + getCookieValue("token")},
+                type: "delete",
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function () {
+                    window.location = "/nodes";
+                },
+                error: function (data) {
+                    alert(data);
+                },
             });
         });
     </script>

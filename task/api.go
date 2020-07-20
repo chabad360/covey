@@ -62,6 +62,7 @@ func RegisterHandlers(r pure.IRouteGroup) {
 
 	r.Post("", taskNew)
 	r.Get("", tasksGet)
+
 	t := r.Group("/:task")
 	t.Get("", taskGet)
 }

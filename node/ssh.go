@@ -14,7 +14,6 @@ import (
 	"github.com/bramvdbogaerde/go-scp"
 	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/common"
-	json "github.com/json-iterator/go"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -73,17 +72,18 @@ func installAgent(node string, id string, config *ssh.ClientConfig, sshClient *s
 	if err := client.Connect(); err != nil {
 		return err
 	}
+	defer client.Close()
+
 	f, err := asset.FS.Open("/agent/agent")
 	if err != nil {
 		return err
 	}
+	defer f.Close()
+
 	f2, err := asset.FS.Open("/agent/covey-agent.service")
 	if err != nil {
 		return err
 	}
-
-	defer client.Close()
-	defer f.Close()
 	defer f2.Close()
 
 	if err = client.CopyFile(f, "/tmp/agent", "0755"); err != nil {
@@ -147,12 +147,7 @@ func nodeFactory(n *models.Node) error {
 	return nil
 }
 
-func newNode(nodeJSON []byte) (*models.Node, error) {
-	var node *models.Node
-	if err := json.Unmarshal(nodeJSON, &node); err != nil {
-		return nil, err
-	}
-
+func newNode(node *models.Node) error {
 	config := &ssh.ClientConfig{
 		User: node.Username,
 		Auth: []ssh.AuthMethod{
@@ -164,42 +159,42 @@ func newNode(nodeJSON []byte) (*models.Node, error) {
 	// Create an initial connection
 	client, err := ssh.Dial("tcp", node.IP+":"+node.Port, config)
 	if err != nil {
-		return nil, err
+		return err
 	}
+
+	defer client.Close()
 
 	output, err := sshRun(client, "/usr/bin/whoami")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Verify that we can run commands and get what we expected.
 	output = output[:len(output)-1]
 	if string(output) != node.Username {
-		return nil, fmt.Errorf("%v is not %v", string(output), node.Username)
+		return fmt.Errorf("newNode: %v is not %v", string(output), node.Username)
 	}
 	log.Println("Successfully logged into node")
 
 	// Generate SSH Keys add add the public key to the authorized_keys file.
 	err = generateAndAddKeys(node)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	// log.Println("Generated SSH keys")
 	if _, err = sshRun(client, fmt.Sprint("echo '", string(node.PublicKey),
 		"' | tee -a .ssh/authorized_keys")); err != nil {
-		return nil, err
+		return err
 	}
 
 	if err = nodeFactory(node); err != nil {
-		return nil, err
+		return err
 	}
 	node.ID = common.GenerateID(node)
 
 	if err = installAgent(node.IP+":"+node.Port, node.ID, config, client); err != nil {
-		return nil, err
+		return err
 	}
 
-	client.Close()
-
-	return node, nil
+	return nil
 }

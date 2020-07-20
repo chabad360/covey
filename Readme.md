@@ -65,9 +65,9 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 * [ ] Fix the plugin system
 * [ ] Provide configuration system
-* [ ] Deal with packed files (`.gitignore` and then include it on build?)
+* [x] Deal with packed files (`.gitignore` and then include it on build?)
 * [ ] CI
-* [ ] Big Refactor
+* [x] Big Refactor
 * [ ] Add an AUR package (?)
 * [ ] Add and refactor tests (Aim for 80% Coverage)
 * [ ] Complete the web UI

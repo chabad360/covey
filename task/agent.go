@@ -47,7 +47,7 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	vars := pure.RequestVars(r)
 
 	n, ok := node.GetNodeIDorName(vars.URLParam("node"), "id")
-	common.ErrorWriter404(w, vars.URLParam("node"), ok)
+	common.ErrorWriter404(w, vars.URLParam("node"), ok) // TODO: disable the agent if there is no such node
 
 	b, err := ioutil.ReadAll(r.Body)
 	common.ErrorWriter(w, err)

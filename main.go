@@ -3,9 +3,9 @@ package main
 // Make sure to run resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/chabad360/covey/models"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
 
@@ -20,19 +20,8 @@ import (
 )
 
 const (
-	version = "v0.1"
+	version = "v0.6"
 )
-
-// GetVersion returns the current version of Covey.
-func getVersion(w http.ResponseWriter, _ *http.Request) {
-	fmt.Fprintf(w, "%s", version)
-}
-
-func registerHandlers(r pure.IRouteGroup) {
-	log.Println("Registering Core module API handlers...")
-
-	r.Get("/version", getVersion)
-}
 
 func loadHandlers(r *pure.Mux) {
 	r.Use(loggingMiddleware)
@@ -69,9 +58,7 @@ func loadHandlers(r *pure.Mux) {
 	apiRouter.Use(options)
 	apiRouter.Use(authentication.AuthAPIMiddleware)
 
-	registerHandlers(apiRouter)
 	authentication.RegisterAPIHandlers(apiRouter.Group("/auth"))
-
 	node.RegisterHandlers(apiRouter.Group("/nodes"))
 	task.RegisterHandlers(apiRouter.Group("/tasks"))
 	job.RegisterHandlers(apiRouter.Group("/jobs"))
@@ -95,7 +82,7 @@ func initialize() {
 	}
 }
 
-func initStorage() (*gorm.DB, error) {
+func initStorage() (*sql.DB, error) {
 	log.Println("Setup DB")
 
 	err := storage.Init()
@@ -126,7 +113,9 @@ func initStorage() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	return db, nil
+	dB, _ := db.DB()
+
+	return dB, nil
 }
 
 func main() {
@@ -136,11 +125,11 @@ func main() {
 	r := pure.New()
 	loadHandlers(r)
 
-	_, err := initStorage()
+	db, err := initStorage()
 	if err != nil {
 		log.Fatal(err)
 	}
-	//defer db.Close()
+	defer db.Close()
 
 	initialize()
 

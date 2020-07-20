@@ -16,24 +16,22 @@ import (
 func nodeNew(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
-	var node models.Node
+	var n models.Node
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	if err := json.Unmarshal(reqBody, &node); err != nil {
+	if err := json.Unmarshal(reqBody, &n); err != nil {
 		common.ErrorWriterCustom(w, err, http.StatusBadRequest)
 	}
 
-	if _, ok := GetNode(node.Name); ok {
-		common.ErrorWriterCustom(w,
-			fmt.Errorf("duplicate node: %v", node.Name), http.StatusConflict)
+	if _, ok := GetNode(n.Name); ok {
+		common.ErrorWriterCustom(w, fmt.Errorf("duplicate node: %v", n.Name), http.StatusConflict)
 	}
 
-	n, err := newNode(reqBody)
+	err := newNode(&n)
 	common.ErrorWriter(w, err)
 
-	if err = addNode(n); err != nil {
-		common.ErrorWriter(w, err)
-	}
+	err = addNode(&n)
+	common.ErrorWriter(w, err)
 
 	w.Header().Add("Location", "/api/v1/node/"+n.ID)
 	common.Write(w, n)
@@ -76,16 +74,13 @@ func nodeGet(w http.ResponseWriter, r *http.Request) {
 
 func nodeDelete(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
 
 	vars := pure.RequestVars(r)
 	n, ok := GetNode(vars.URLParam("node"))
 	common.ErrorWriter404(w, vars.URLParam("node"), ok)
 
-	result := db.Delete(&n)
-	if result.Error != nil {
-		common.ErrorWriter(w, result.Error)
-	}
+	err := deleteNode(n)
+	common.ErrorWriter(w, err)
 
 	common.Write(w, vars.URLParam("node"))
 }
@@ -95,6 +90,7 @@ func RegisterHandlers(r pure.IRouteGroup) {
 	log.Println("Registering Node module API handlers...")
 	r.Post("", nodeNew)
 	r.Get("", nodesGet)
+
 	n := r.Group("/:node")
 	n.Get("", nodeGet)
 	n.Delete("", nodeDelete)

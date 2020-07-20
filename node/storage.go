@@ -15,11 +15,7 @@ func addNode(node *models.Node) error {
 	refreshDB()
 
 	result := db.Create(node)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return result.Error
-	}
-
-	return nil
+	return result.Error
 }
 
 // GetNodeIDorName returns the full ID or name for the given node.
@@ -46,6 +42,13 @@ func GetNode(id string) (*models.Node, bool) {
 	}
 
 	return &n, true
+}
+
+func deleteNode(node *models.Node) error {
+	refreshDB()
+
+	result := db.Delete(node)
+	return result.Error
 }
 
 func refreshDB() {

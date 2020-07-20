@@ -15,11 +15,7 @@ func addTask(task *models.Task) error {
 	refreshDB()
 
 	result := db.Create(task)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return result.Error
-	}
-
-	return nil
+	return result.Error
 }
 
 // GetTask returns a task in the database.
