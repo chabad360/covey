@@ -36,41 +36,24 @@ func Init() {
 	cronTab.Start()
 }
 
-//// GetJobWithTasks checks if a job with the identifier exists and returns it along with its tasks.
-//func GetJobWithTasks(identifier string) (*models.Job, bool) {
-//	var t models.Job
-//	j, err := GetJobWithFullHistory(identifier)
-//	if err != nil {
-//		log.Println(err)
-//		return nil, false
-//	}
-//	if err = json.Unmarshal(j, &t); err != nil {
-//		log.Println(err)
-//		return nil, false
-//	}
-//
-//	return &t, true
-//}
-
 func addCron(id string, cron string) error {
-	_, err := cronTab.AddFunc(cron, func() func() {
-		return func() { // This little bundle of joy allows the job to occur despite not being an object.
-			j, _ := GetJob(id)
-			Run(j)
-			if err := UpdateJob(j); err != nil {
+	_, err := cronTab.AddFunc(cron, func() {
+		if j, ok := getJob(id); ok {
+			if _, err := run(j); err != nil {
 				log.Panic(err)
 			}
 		}
-	}())
+	})
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
 // Run runs each task in succession on the specified nodes (concurrently).
-// There seems to be a bug where the tasks can occasionally be sent in the wrong order
-func Run(j *models.Job) ([]string, error) {
+// There seems to be a bug where the tasks can occasionally be sent in the wrong order.
+func run(j *models.Job) ([]string, error) {
 	var th []string
 	for _, t := range j.Tasks {
 		for _, node := range j.Nodes {
@@ -89,5 +72,5 @@ func Run(j *models.Job) ([]string, error) {
 		}
 	}
 	j.TaskHistory = append(j.TaskHistory, th...)
-	return th, UpdateJob(j)
+	return th, updateJob(j)
 }

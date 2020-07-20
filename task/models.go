@@ -6,7 +6,7 @@ import (
 )
 
 // AgentTask contains the information about a task that is send to an agent.
-type AgentTask struct {
+type agentTask struct {
 	Command string `json:"command"`
 	ID      string `json:"id"`
 }
@@ -23,10 +23,10 @@ type TaskInfo struct {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (l *TaskList) MarshalJSON() ([]byte, error) {
-	m := make(map[int]AgentTask)
+	m := make(map[int]agentTask)
 	i := 0
 	for e := l.Front(); e != nil; e = e.Next() {
-		m[i] = e.Value.(AgentTask)
+		m[i] = e.Value.(agentTask)
 		i++
 	}
 	return json.Marshal(m)

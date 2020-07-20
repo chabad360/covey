@@ -13,8 +13,10 @@ func ErrorWriter(w http.ResponseWriter, err error) {
 }
 
 // ErrorWriter404 writes an error in the JSON format to the with a 404 code.
-func ErrorWriter404(w http.ResponseWriter, name string) {
-	ErrorWriterCustom(w, fmt.Errorf("404 %v not found", name), http.StatusNotFound)
+func ErrorWriter404(w http.ResponseWriter, name string, ok bool) {
+	if !ok {
+		ErrorWriterCustom(w, fmt.Errorf("404 %v not found", name), http.StatusNotFound)
+	}
 }
 
 // ErrorWriterCustom writes an error in the JSON format to the http.ResponseWriter with a custom status code.

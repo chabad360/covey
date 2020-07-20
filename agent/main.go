@@ -23,7 +23,6 @@ const (
 var (
 	activeID        string
 	agent           *config
-	agentPath       string
 	logChannel      = make(chan string, cacheSize)
 	exitCodeChannel = make(chan int)
 	taskIDChannel   = make(chan string)
@@ -42,9 +41,9 @@ type task struct {
 }
 
 type config struct {
-	AgentID  string
-	LogLevel string
-	Host     string
+	AgentID   string
+	LogLevel  string
+	AgentPath string
 }
 
 func main() {
@@ -55,7 +54,7 @@ func main() {
 	errC(err)
 	// ignoring log level for now
 	log.Println("Agent ID:", agent.AgentID)
-	log.Println("Host:", agent.Host)
+	log.Println("Path:", agent.AgentPath)
 
 	activeID = "hello"
 
@@ -98,19 +97,30 @@ func settings(file string) (*config, error) {
 		port = "8080"
 	}
 
-	conf.Host = host + ":" + port
-	agentPath = "http://" + conf.Host + "/agent/" + conf.AgentID
+	conf.AgentPath = fmt.Sprintf("http://%s:%s/agent/%s", host, port, conf.AgentID)
 
 	return &conf, nil
 }
 
 func everySecond() {
-	body, err := getBody()
-	errC(err)
+	var err error
+	body := []byte("{}")
+
+	if activeID != "" {
+		body, err = getBody()
+		errC(err)
+	} else {
+		select {
+		case t := <-taskIDChannel:
+			activeID = t
+		default:
+			break
+		}
+	}
 
 	var r *http.Response
 	for {
-		r, err = http.Post(agentPath, "application/json", strings.NewReader(string(body))) //nolint:gosec
+		r, err = http.Post(agent.AgentPath, "application/json", strings.NewReader(string(body))) //nolint:gosec
 		if err == nil {
 			break
 		}
@@ -156,54 +166,40 @@ func runner() {
 		bb := bufio.NewScanner(stdout)
 		for bb.Scan() {
 			logChannel <- bb.Text()
-			log.Println(bb.Text())
 		}
 
 		if err = cmd.Wait(); err != nil {
 			if e, ok := err.(*exec.ExitError); ok {
 				exitCodeChannel <- e.ExitCode()
 			}
-		} else if err == nil {
+		} else {
 			exitCodeChannel <- 0
 		}
-		log.Println("Done")
 	}
 }
 
 func getBody() ([]byte, error) {
-	body := []byte("{}")
+	at := &runningTask{
+		ID: activeID,
+	}
 
-	if activeID != "" {
-		at := &runningTask{
-			ID: activeID,
-		}
+	select {
+	case e := <-exitCodeChannel:
+		at.ExitCode = e
+		activeID = ""
+	default:
+		at.ExitCode = 257
+	}
 
+	for {
 		select {
-		case e := <-exitCodeChannel:
-			at.ExitCode = e
-			activeID = ""
+		case s := <-logChannel:
+			at.Log = append(at.Log, s)
 		default:
-			at.ExitCode = 257
-		}
-
-		for {
-			select {
-			case s := <-logChannel:
-				at.Log = append(at.Log, s)
-			default:
-				goto cont
-			}
-		}
-
-	cont:
-		return json.Marshal(at)
-	} else {
-		select {
-		case t := <-taskIDChannel:
-			activeID = t
-		default:
-			break
+			goto cont
 		}
 	}
-	return body, nil
+
+cont:
+	return json.Marshal(at)
 }

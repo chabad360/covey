@@ -34,7 +34,7 @@ func TestAddJob(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	testError := AddJob(j)
+	testError := addJob(j)
 
 	for _, tt := range tests {
 		testname := tt.id
@@ -60,7 +60,7 @@ func TestUpdateJob(t *testing.T) {
 	//revive:enable:line-length-limit
 
 	j.Cron = "5 * * * *"
-	testError := UpdateJob(j)
+	testError := updateJob(j)
 
 	for _, tt := range tests {
 		testname := tt.id
@@ -87,7 +87,7 @@ func TestGetJobWithFullHistory(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if got, err := GetJobWithFullHistory(tt.id); reflect.DeepEqual(got, tt.want) {
+			if got, err := getJobWithFullHistory(tt.id); reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetJobWithFullHistory() = %v, want %v, error: %v", got, tt.want, err)
 			}
 		})

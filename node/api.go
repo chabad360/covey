@@ -69,9 +69,7 @@ func nodeGet(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 	n, ok := GetNode(vars.URLParam("node"))
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("node"))
-	}
+	common.ErrorWriter404(w, vars.URLParam("node"), ok)
 
 	common.Write(w, n)
 }
@@ -82,9 +80,7 @@ func nodeDelete(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 	n, ok := GetNode(vars.URLParam("node"))
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("node"))
-	}
+	common.ErrorWriter404(w, vars.URLParam("node"), ok)
 
 	result := db.Delete(&n)
 	if result.Error != nil {

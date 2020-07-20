@@ -57,7 +57,7 @@
             <div class="card-body">
                 {{ if eq .Details.Task.State 2 }}
                     <noscript>This log uses JS to automatically reload the log.</noscript>{{ end }}
-                <div id="log" class="overflow-auto" style="height: 100%"><pre>
+                <div id="log" class="overflow-auto" style="height: 100%;"><pre>
             {{- range .Details.Task.Log -}}
                 <samp>{{ . }}</samp><br/>
             {{- else -}}

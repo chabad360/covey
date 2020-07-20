@@ -1,7 +1,6 @@
 package task
 
 import (
-	"fmt"
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/models"
 	"github.com/go-playground/pure/v5"
@@ -52,9 +51,7 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 	vars := pure.RequestVars(r)
 
 	t, ok := getTask(vars.URLParam("task"))
-	if !ok {
-		common.ErrorWriter404(w, fmt.Sprintf("%v", vars.URLParam("task")))
-	}
+	common.ErrorWriter404(w, vars.URLParam("task"), ok)
 
 	common.Write(w, t)
 }

@@ -15,8 +15,6 @@ import (
 func jobNew(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
-	w.Header().Set("Content-Type", "application/json")
-
 	var job models.Job
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
@@ -24,7 +22,7 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriterCustom(w, err, http.StatusBadRequest)
 	}
 
-	if _, ok := GetJob(job.Name); ok {
+	if _, ok := getJob(job.Name); ok {
 		common.ErrorWriterCustom(w, fmt.Errorf("duplicate job: %v", job.Name), http.StatusBadRequest)
 	}
 
@@ -34,7 +32,7 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := AddJob(&job); err != nil {
+	if err := addJob(&job); err != nil {
 		common.ErrorWriter(w, err)
 	}
 
@@ -69,10 +67,8 @@ func jobGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-	job, ok := GetJob(vars.URLParam("job"))
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("job"))
-	}
+	job, ok := getJob(vars.URLParam("job"))
+	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
 	common.Write(w, job)
 }
@@ -81,12 +77,10 @@ func jobRun(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-	j, ok := GetJob(vars.URLParam("job"))
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("job"))
-	}
+	j, ok := getJob(vars.URLParam("job"))
+	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
-	th, err := Run(j)
+	th, err := run(j)
 	common.ErrorWriter(w, err)
 
 	common.Write(w, th)
@@ -96,10 +90,8 @@ func jobUpdate(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-	job, ok := GetJob(vars.URLParam("job"))
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("job"))
-	}
+	job, ok := getJob(vars.URLParam("job"))
+	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	if err := json.Unmarshal(reqBody, &job); err != nil {
@@ -112,7 +104,7 @@ func jobUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err := UpdateJob(job)
+	err := updateJob(job)
 	common.ErrorWriter(w, err)
 
 	common.Write(w, job)
@@ -123,15 +115,11 @@ func jobDelete(w http.ResponseWriter, r *http.Request) {
 	refreshDB()
 
 	vars := pure.RequestVars(r)
-	j, ok := GetJob(vars.URLParam("job"))
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("job"))
-	}
+	j, ok := getJob(vars.URLParam("job"))
+	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
 	result := db.Delete(&j)
-	if result.Error != nil {
-		common.ErrorWriter(w, result.Error)
-	}
+	common.ErrorWriter(w, result.Error)
 
 	common.Write(w, vars.URLParam("job"))
 }

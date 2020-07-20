@@ -32,9 +32,7 @@ func uiTasks(w http.ResponseWriter, r *http.Request) {
 func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 	vars := pure.RequestVars(r)
 	task, ok := getTask(vars.URLParam("task"))
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("task"))
-	}
+	common.ErrorWriter404(w, vars.URLParam("task"), ok)
 
 	p := &ui.Page{
 		Title:   fmt.Sprintf("Task %s", vars.URLParam("task")),

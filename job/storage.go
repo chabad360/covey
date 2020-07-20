@@ -3,27 +3,22 @@ package job
 import (
 	"errors"
 	"github.com/chabad360/covey/models"
-	"gorm.io/gorm"
-
 	"github.com/chabad360/covey/storage"
+	"gorm.io/gorm"
 )
 
 var db *gorm.DB
 
 // AddJob adds a Job to the database.
-func AddJob(j *models.Job) error {
+func addJob(j *models.Job) error {
 	refreshDB()
 
 	result := db.Create(j)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return result.Error
-	}
-
-	return nil
+	return result.Error
 }
 
 // GetJob checks if a job with the identifier exists and returns it.
-func GetJob(id string) (*models.Job, bool) {
+func getJob(id string) (*models.Job, bool) {
 	refreshDB()
 
 	var j models.Job
@@ -36,7 +31,7 @@ func GetJob(id string) (*models.Job, bool) {
 }
 
 // UpdateJob updates a Job in the database.
-func UpdateJob(j *models.Job) error {
+func updateJob(j *models.Job) error {
 	refreshDB()
 	result := db.Save(j)
 	return result.Error
@@ -44,8 +39,9 @@ func UpdateJob(j *models.Job) error {
 
 // GetJobWithFullHistory returns a job with the tasks substituted for their IDs.
 // Query designed with the help of https://stackoverflow.com/questions/47275606
-func GetJobWithFullHistory(id string) (*models.JobWithTasks, bool) {
+func getJobWithFullHistory(id string) (*models.JobWithTasks, bool) {
 	refreshDB()
+
 	var b models.JobWithTasks
 	result := db.Raw(`SELECT j.id, j.name, j.cron, j.nodes, j.tasks, j1.task_history
 		FROM   jobs j
@@ -59,6 +55,7 @@ func GetJobWithFullHistory(id string) (*models.JobWithTasks, bool) {
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, false
 	}
+
 	return &b, true
 }
 

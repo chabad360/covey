@@ -2,14 +2,14 @@ package authentication
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/models"
+	"net/http"
 	"strings"
 	"time"
 
 	"github.com/chabad360/covey/common"
 	"github.com/gbrlsnchs/jwt/v3"
 )
-
-const key = "asdf" // TODO: Redesign API key system
 
 var (
 	crashKey string //nolint:gochecknoglobals
@@ -18,27 +18,32 @@ var (
 const (
 	user = "user"
 	api  = "api"
+	key  = "asdfg" // TODO: Redesign API key system
 )
 
-func createToken(userid string, tokenType string, audience []string) (string, *time.Time, error) {
+func createToken(userID string, tokenType string, audience []string) (string, *time.Time, error) {
 	refreshKey()
 
 	var err error
 	var expirationTime time.Time
 
-	if tokenType == user {
-		expirationTime = time.Now().Add(20 * time.Minute)
-	} else if tokenType == api {
-		expirationTime = time.Now().Add(4 * (7 * (24 * time.Hour)))
+	if userID == "" {
+		return "", nil, fmt.Errorf("createToken: missing userID")
 	}
 
-	if userid == "" {
-		return "", nil, fmt.Errorf("createToken: missing userid")
+	switch tokenType {
+	case user:
+		// TODO: implement refresh token
+		expirationTime = time.Now().Add(12 * time.Hour)
+	case api:
+		expirationTime = time.Now().Add(4 * (7 * (24 * time.Hour)))
+	default:
+		return "", nil, fmt.Errorf("createToken: invalid token type")
 	}
 
 	claim := jwt.Payload{
 		Issuer:         strings.Join([]string{"covey", tokenType}, "-"),
-		Subject:        userid,
+		Subject:        userID,
 		Audience:       audience,
 		ExpirationTime: jwt.NumericDate(expirationTime),
 		IssuedAt:       jwt.NumericDate(time.Now()),
@@ -46,9 +51,10 @@ func createToken(userid string, tokenType string, audience []string) (string, *t
 	}
 
 	var token []byte
-	if tokenType == user {
+	switch tokenType {
+	case user:
 		token, err = jwt.Sign(claim, jwt.NewHS256([]byte(crashKey)))
-	} else if tokenType == api {
+	case api:
 		token, err = jwt.Sign(claim, jwt.NewHS256([]byte(key)))
 	}
 	if err != nil {
@@ -60,6 +66,7 @@ func createToken(userid string, tokenType string, audience []string) (string, *t
 
 func parseToken(tokenString string, tokenType string, audience string) (*jwt.Payload, error) {
 	refreshKey()
+
 	var claim jwt.Payload
 	var err error
 
@@ -83,10 +90,29 @@ func parseToken(tokenString string, tokenType string, audience string) (*jwt.Pay
 	return &claim, nil
 }
 
+func tokenCookie(user *models.User) (*http.Cookie, error) {
+	id, err := GetUser(*user)
+	if err != nil {
+		return nil, err
+	}
+
+	token, eTime, err := createToken(id, "user", []string{"all"})
+	if err != nil {
+		return nil, fmt.Errorf("internal error")
+	}
+
+	return &http.Cookie{
+		Name: "token",
+		// Domain:   r.Host, // ?
+		Value:   token,
+		Expires: *eTime,
+		MaxAge:  int(time.Until(*eTime).Seconds()),
+		Path:    "/",
+	}, nil
+}
+
 func refreshKey() {
 	if crashKey == "" {
-		// TODO: Don't release with this
-		crashKey = "12345"
-		// crashKey = common.RandomString()
+		crashKey = common.RandomString()
 	}
 }

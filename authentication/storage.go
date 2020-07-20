@@ -15,8 +15,7 @@ var db *gorm.DB
 func AddUser(u models.User) error {
 	refreshDB()
 	result := db.Exec(`INSERT INTO users(username, password_hash) 
-	VALUES($1, crypt($2, gen_salt('bf')));`,
-		u.Username, u.Password)
+	VALUES($1, crypt($2, gen_salt('bf')));`, u.Username, u.Password)
 	return result.Error
 }
 

@@ -34,7 +34,7 @@ func TestTokenGetAPI(t *testing.T) {
 
 			h.ServeHTTP(rr, req)
 			if rr.Code != tt.wantStatus {
-				t.Errorf("tokenGet status = %v, want %v, error = %v", rr.Code, tt.wantStatus, rr.Body.String())
+				t.Errorf("tokenCookie status = %v, want %v, error = %v", rr.Code, tt.wantStatus, rr.Body.String())
 			}
 
 			if !strings.Contains(rr.Body.String(), tt.want) {

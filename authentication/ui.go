@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"fmt"
 	"github.com/chabad360/covey/models"
 	"net/http"
 	"strings"
@@ -21,12 +20,12 @@ func login(w http.ResponseWriter, r *http.Request) {
 	common.ErrorWriter(w, err)
 }
 
-func loginP(w http.ResponseWriter, r *http.Request) {
+func loginPost(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	loginPage := ui.GetTemplate("login")
 
-	cookie, err := tokenGet(&models.User{Username: r.FormValue("username"), Password: r.FormValue("password")})
+	cookie, err := tokenCookie(&models.User{Username: r.FormValue("username"), Password: r.FormValue("password")})
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		err = loginPage.ExecuteTemplate(w, "login",
@@ -44,27 +43,6 @@ func loginP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
-func tokenGet(user *models.User) (*http.Cookie, error) {
-	id, err := GetUser(*user)
-	if err != nil {
-		return nil, err
-	}
-
-	token, eTime, err := createToken(id, "user", []string{"all"})
-	if err != nil {
-		return nil, fmt.Errorf("internal error")
-	}
-
-	return &http.Cookie{
-		Name: "token",
-		// Domain:   r.Host,
-		Value:   token,
-		Expires: *eTime,
-		MaxAge:  int(time.Until(*eTime).Seconds()),
-		Path:    "/",
-	}, nil
-}
-
 func logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:    "token",
@@ -78,7 +56,7 @@ func logout(w http.ResponseWriter, r *http.Request) {
 
 // RegisterUIHandlers registers the UI handlers for user authentication.
 func RegisterUIHandlers(r pure.IRouteGroup) {
-	r.Post("/login", loginP)
+	r.Post("/login", loginPost)
 	r.Get("/login", login)
 	r.Get("/logout", logout)
 }

@@ -10,8 +10,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <!-- CoreUI CSS -->
-        <link rel="stylesheet" href="https://unpkg.com/@coreui/coreui@3.2.0/dist/css/coreui.min.css">
-        <link rel="stylesheet" href="https://unpkg.com/@coreui/icons@2.0.0-beta.3/css/all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@coreui/coreui@3.2.2/dist/css/coreui.min.css"
+              integrity="sha256-/P8LmtiR69iltAGOmSzYmMnwMClahS46O0bagquJfTo=" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
+              integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous"/>
     </head>
 
     <body class="c-app flex-row align-items-center">
@@ -25,17 +27,15 @@
                             <p class="text-muted">Sign In to your account</p>
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend"><span class="input-group-text">
-<i class="c-icon cil-user"></i></span></div>
+                                <i class="c-icon fa fa-user"></i></span></div>
                                 <input class="form-control {{ if eq .Details false }}is-invalid{{ end }}" type="text"
-                                       placeholder="Username" name="username"
-                                       style="background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 16px; background-position: calc(100% - 4px) 50%; background-image: url(&quot;moz-extension://80e27b99-80cd-41e7-82fe-ff5b05bbbf81/skin/icon-light.png&quot;); cursor: auto;">
+                                       placeholder="Username" name="username">
                             </div>
                             <div class="input-group mb-4">
                                 <div class="input-group-prepend"><span class="input-group-text">
-<i class="c-icon cil-lock-locked"></i></span></div>
+                                <i class="c-icon fa fa-key"></i></span></div>
                                 <input class="form-control {{ if eq .Details false }}is-invalid{{ end }}"
-                                       type="password" placeholder="Password" name="password"
-                                       style="background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 16px; background-position: calc(100% - 4px) 50%; background-image: url(&quot;moz-extension://80e27b99-80cd-41e7-82fe-ff5b05bbbf81/skin/icon-light.png&quot;); cursor: auto;">
+                                       type="password" placeholder="Password" name="password">
                                 {{ if eq .Details false }}
                                     <div class="invalid-feedback">Entered username or password is incorrect.
                                     </div>{{ end }}
@@ -49,16 +49,15 @@
                                     <button class="btn btn-link px-0" type="button">Forgot password?</button>
                                 </div> */}}
                             </div>
+                        </form>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-    </div>
     <!-- CoreUI JavaScript -->
-    <script src="https://unpkg.com/@coreui/coreui@3.2.0/dist/js/coreui.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@coreui/coreui@3.2.2/dist/js/coreui.bundle.min.js"
+            integrity="sha256-ST3VQD7BW7DPVKIGivUeCmsqN3WjoEA7n529Rf9rekk=" crossorigin="anonymous"></script>
     </body>
-
     </html>
 {{ end }}

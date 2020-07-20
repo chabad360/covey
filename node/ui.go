@@ -35,9 +35,8 @@ func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 	node, ok := GetNode(vars.URLParam("node"))
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("node"))
-	}
+	common.ErrorWriter404(w, vars.URLParam("node"), ok)
+
 	var tasks []models.Task
 	result := db.Table("tasks").Where("node = ?", node.ID).Or("node = ?", node.Name).Find(&tasks)
 	common.ErrorWriter(w, result.Error)

@@ -35,19 +35,15 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 
-	job, ok := GetJobWithFullHistory(vars.URLParam("job")) // This goes first so we dont need to confirm existence anymore.
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("job"))
-	}
+	job, ok := getJobWithFullHistory(vars.URLParam("job"))
+	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
 	if r.URL.Query().Get("run") == "true" {
-		j, _ := GetJob(vars.URLParam("job"))
-		Run(j)
-
-		err := UpdateJob(j)
+		j, _ := getJob(vars.URLParam("job"))
+		_, err := run(j)
 		common.ErrorWriter(w, err)
 
-		job, _ = GetJobWithFullHistory(vars.URLParam("job"))
+		job, _ = getJobWithFullHistory(vars.URLParam("job"))
 	}
 
 	p := &ui.Page{

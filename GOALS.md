@@ -29,3 +29,6 @@ Here goes:
 * [ ] Postgres might not be the best place to store keys
 * [ ] Figure out how to test nodes
 * [ ] Input validation
+* [ ] Proper error pages for the UI
+* [ ] Fix a few things with the asset manager (likely gonna fork)
+* [ ] Use server-side processing for dataTables

@@ -2,23 +2,21 @@ package authentication
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/common"
 	"net/http"
 	"strings"
-
-	"github.com/chabad360/covey/common"
 )
 
 // AuthUserMiddleware handles authentication for users.
 func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/logout" || r.URL.Path == "/login" {
+			next(w, r)
+			return
+		}
+
 		c, err := r.Cookie("token")
 		if err != nil {
-			// r.Cookie only throws http.ErrNoCookie to we need to let someone login, only if there is no cookie.
-			if r.URL.Path == "/login" {
-				next(w, r)
-				return
-			}
-
 			http.Redirect(w, r, "/login?url="+r.URL.Path, http.StatusFound)
 			return
 		}
@@ -26,17 +24,7 @@ func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		_, err = parseToken(c.Value, "user", "all")
 		if err != nil {
 			// if it's a bad cookie, we log them out, effectively deleting the cookie.
-			if r.URL.Path == "/logout" {
-				next(w, r)
-				return
-			}
-
 			http.Redirect(w, r, "/logout", http.StatusFound)
-			return
-		}
-
-		if r.URL.Path == "/login" {
-			http.Redirect(w, r, "/dashboard", http.StatusFound)
 			return
 		}
 
@@ -49,16 +37,12 @@ func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer common.Recover()
 
-		var tokenString string
-		header := r.Header.Get("Authorization")
-		if header != "" {
-			splitToken := strings.Split(header, "Bearer ")
-			tokenString = splitToken[1]
+		splitToken := strings.Split(r.Header.Get("Authorization"), "Bearer")
+		if len(splitToken) != 2 {
+			common.ErrorWriterCustom(w, fmt.Errorf("invalid bearer token"), http.StatusBadRequest)
 		}
 
-		if tokenString == "" {
-			common.ErrorWriterCustom(w, fmt.Errorf("forbidden"), http.StatusForbidden)
-		}
+		tokenString := strings.TrimSpace(splitToken[1])
 
 		claim, err := parseToken(tokenString, "api", "all")
 		if err != nil {

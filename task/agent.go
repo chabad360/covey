@@ -17,7 +17,7 @@ import (
 var queues = make(map[string]*TaskList)
 
 func queueTask(nodeID string, taskID string, taskCommand string) error {
-	t := AgentTask{
+	t := agentTask{
 		ID:      taskID,
 		Command: taskCommand,
 	}
@@ -47,9 +47,7 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	vars := pure.RequestVars(r)
 
 	n, ok := node.GetNodeIDorName(vars.URLParam("node"), "id")
-	if !ok {
-		common.ErrorWriter404(w, vars.URLParam("node"))
-	}
+	common.ErrorWriter404(w, vars.URLParam("node"), ok)
 
 	b, err := ioutil.ReadAll(r.Body)
 	common.ErrorWriter(w, err)
@@ -68,7 +66,8 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 			common.ErrorWriter(w, err)
 		}
 	} else {
-		saveTask(&x)
+		err = saveTask(&x)
+		common.ErrorWriter(w, err)
 	}
 
 	common.Write(w, queues[n])
@@ -76,9 +75,7 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func initQueues(tasks []models.Task) error {
-	for i := range tasks {
-		t := tasks[i]
-
+	for _, t := range tasks {
 		j, err := json.Marshal(t)
 		if err != nil {
 			return err

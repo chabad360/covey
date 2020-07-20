@@ -15,7 +15,7 @@ var FS = dir("./assets")
 
 // The following code is necessary until omeid/go-resources#20 is merged
 
-// Resources describes an instance of the go-resources which is an extension of http.FileSystem
+// Resources describes an instance of the go-resources which is an extension of http.FileSystem.
 type Resources interface {
 	http.FileSystem
 	String(string) (string, bool)

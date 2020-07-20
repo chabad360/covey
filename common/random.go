@@ -9,9 +9,12 @@ import (
 	"math/big"
 )
 
+const (
+	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+)
+
 // RandomString generates a random 32 byte random string.
 func RandomString() string {
-	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 	b := make([]byte, 32)
 
 	for i := range b {

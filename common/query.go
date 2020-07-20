@@ -12,7 +12,7 @@ import (
 
 // QueryParams parses a URL query and gets the items from the database based on it.
 type QueryParams struct {
-	Limit  int    `form:"limit" validate:"min=0,max=50"`
+	Limit  int    `form:"limit" validate:"min=1,max=50"`
 	Offset int    `form:"offset"`
 	Sort   string `form:"sort" validate:"oneof=asc desc"`
 	SortBy string `form:"sortby"`
@@ -22,12 +22,12 @@ type QueryParams struct {
 // Query runs a query against the database.
 func (q *QueryParams) Query(table string, model interface{}, db *gorm.DB) error {
 	v := validator.New()
-	err := v.Struct(q)
-	if err != nil {
-		if _, ok := err.(*validator.InvalidValidationError); ok {
-			return err
+	errs := v.Struct(q)
+	if errs != nil {
+		if _, ok := errs.(*validator.InvalidValidationError); ok {
+			return errs
 		}
-		for _, err := range err.(validator.ValidationErrors) {
+		for _, err := range errs.(validator.ValidationErrors) {
 			return fmt.Errorf("query: invalid value %v for field %v", err.Value(), err.Field())
 		}
 	}
@@ -40,7 +40,7 @@ func (q *QueryParams) Query(table string, model interface{}, db *gorm.DB) error 
 
 	tx.Scan(model)
 	if tx.Error != nil {
-		return err
+		return tx.Error
 	}
 
 	return nil

@@ -46,25 +46,27 @@ func saveTask(t *TaskInfo) error {
 		return nil
 	}
 
-	if task.ExitCode != t.ExitCode || t.Log != nil { // Only update if there is something new!
-		switch t.ExitCode {
-		case 0:
-			task.State = models.StateDone
-		case 257:
-			task.State = models.StateRunning
-		default:
-			task.State = models.StateError
-		}
+	if task.ExitCode == t.ExitCode || t.Log == nil { // Only update if there is something new!
+		return nil
+	}
 
-		task.ExitCode = t.ExitCode
-		if t.Log != nil {
-			task.Log = append(task.Log, t.Log...)
-		}
+	switch t.ExitCode {
+	case 0:
+		task.State = models.StateDone
+	case 257:
+		task.State = models.StateRunning
+	default:
+		task.State = models.StateError
+	}
 
-		result := db.Save(task)
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return result.Error
-		}
+	task.ExitCode = t.ExitCode
+	if t.Log != nil {
+		task.Log = append(task.Log, t.Log...)
+	}
+
+	result := db.Save(task)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return result.Error
 	}
 
 	return nil

@@ -2,7 +2,8 @@
     <div class="container-fluid">
         <div class="fade-in">
             <div class="card">
-                <div class="card-header"><strong>Job</strong></div>
+                <div class="card-header"><strong
+                            style="display: inline-block; vertical-align: middle; float: none;">Job</strong></div>
                 <div class="card-body">
                     <table class="table table-bordered">
                         <colgroup>
@@ -28,14 +29,18 @@
                     </table>
                 </div>
                 <div class="card-footer"><a class="btn btn-success" href="?run=true"><i class="fa fa-play"></i> Start
-                        Job</a></div>
+                        Job</a>
+                    <button class="btn btn-danger float-right" data-toggle="modal" data-target="#delete"><i
+                                class="fa fa-trash"></i> Delete
+                    </button>
+                </div>
             </div>
             <div class="card">
                 <div class="card-header">Tasks</div>
-                <div class="card-body row">
-                    {{- range $key, $value := .Details.Job.Tasks -}}
-                        <div class="col-sm-3">
-                            <div class="card">
+                <div class="card-body">
+                    <div class="card-group">
+                        {{- range $key, $value := .Details.Job.Tasks -}}
+                            <div class="card col-sm-3">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ title $key }}</h5>
                                     <h6 class="card-subtitle mb-2 text-muted">Plugin: {{ $value.Plugin }}</h6>
@@ -44,8 +49,8 @@
                                     <a href="#" class="card-link">Edit</a>
                                 </div>
                             </div>
-                        </div>
                     {{- end -}}
+                    </div>
                 </div>
             </div>
             <div class="card">
@@ -79,14 +84,55 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Job</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <span>Are you sure you want to delete this job?</span>
+                    <br>
+                    <span style="font-weight: bold;">This action is irreversible!</span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" id="deleteBtn">I understand, delete this job</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {{ end }}
 {{ define "scripts" }}
     <script type="text/javascript">
         $(document).ready(function () {
-            var table = $('#task-history').DataTable({
+            $('#task-history').DataTable({
                 "order": [[2, "desc"]]
             });
             window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
+        });
+
+        $("#deleteBtn").on('click', function (e) {
+            e.preventDefault();
+            coreui.Modal.getInstance(document.getElementById("delete")).hide();
+            $.ajax({
+                url: "/api/v1/jobs/{{ .Details.Job.ID }}",
+                headers: {"Authorization": 'Bearer ' + getCookieValue("token")},
+                type: "delete",
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function () {
+                    window.location = "/jobs";
+                },
+                error: function (data) {
+                    alert(data);
+                },
+            });
         });
     </script>
 {{ end }}
