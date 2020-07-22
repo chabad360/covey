@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/models"
 	"io"
 
 	"net/http"
@@ -44,10 +45,10 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *gorm.DB, error) {
 
 	db.Exec("CREATE EXTENSION pgcrypto;")
 
-	//err = db.AutoMigrate(&models.Node{}, &models.Task{}, &models.Job{}, &models.User{})
-	//if err != nil {
-	//	return nil, nil, nil, fmt.Errorf("error preping the database: %s", err)
-	//}
+	err = db.AutoMigrate(&models.Node{}, &models.Task{}, &models.Job{}, &models.User{})
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("error preping the database: %s", err)
+	}
 
 	return pool, resource, db, nil
 }

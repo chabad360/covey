@@ -38,7 +38,7 @@ func TestLoginP(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	h := test.PureBoilerplate("POST", "/login", loginP)
+	h := test.PureBoilerplate("POST", "/login", loginPost)
 
 	for _, tt := range tests {
 		testname := tt.username

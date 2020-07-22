@@ -2,12 +2,8 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
-	"log"
-	"os"
 	"reflect"
 	"testing"
-
-	"github.com/chabad360/covey/test"
 )
 
 var j = &models.Job{
@@ -33,13 +29,13 @@ func TestAddJob(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	testError := addJob(j)
+	testError := AddJob(j)
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got models.Task
-			if db.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
+			if DB.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
 				t.Errorf("AddJob() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
@@ -59,13 +55,13 @@ func TestUpdateJob(t *testing.T) {
 	//revive:enable:line-length-limit
 
 	j.Cron = "5 * * * *"
-	testError := updateJob(j)
+	testError := UpdateJob(j)
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got models.Job
-			if db.Where("id = ?", tt.id).Scan(&got); reflect.DeepEqual(got, tt.want) {
+			if DB.Where("id = ?", tt.id).Scan(&got); reflect.DeepEqual(got, tt.want) {
 				t.Errorf("UpdateJob() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
@@ -86,34 +82,34 @@ func TestGetJobWithFullHistory(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if got, err := getJobWithFullHistory(tt.id); reflect.DeepEqual(got, tt.want) {
+			if got, err := GetJobWithFullHistory(tt.id); reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetJobWithFullHistory() = %v, want %v, error: %v", got, tt.want, err)
 			}
 		})
 	}
 }
 
-func TestMain(m *testing.M) {
-	pool, resource, pdb, err := test.Boilerplate()
-	db = pdb
-	DB = pdb
-	if err != nil {
-		log.Fatalf("Could not setup DB connection: %s", err)
-	}
-
-	err = db.AutoMigrate(&models.Task{}, &models.Job{})
-	if err != nil {
-		log.Fatalf("error preping the database: %s", err)
-	}
-
-	db.Create(j)
-
-	code := m.Run()
-
-	// You can't defer this because os.Exit doesn't care for defer
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
-	}
-
-	os.Exit(code)
-}
+//func TestMain(m *testing.M) {
+//	pool, resource, pdb, err := test.Boilerplate()
+//	db = pdb
+//	DB = pdb
+//	if err != nil {
+//		log.Fatalf("Could not setup DB connection: %s", err)
+//	}
+//
+//	err = db.AutoMigrate(&models.Task{}, &models.Job{})
+//	if err != nil {
+//		log.Fatalf("error preping the database: %s", err)
+//	}
+//
+//	db.Create(j)
+//
+//	code := m.Run()
+//
+//	// You can't defer this because os.Exit doesn't care for defer
+//	if err := pool.Purge(resource); err != nil {
+//		log.Fatalf("Could not purge resource: %s", err)
+//	}
+//
+//	os.Exit(code)
+//}

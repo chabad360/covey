@@ -2,12 +2,8 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
-	"log"
-	"os"
 	"reflect"
 	"testing"
-
-	"github.com/chabad360/covey/test"
 )
 
 var n = &models.Node{
@@ -31,13 +27,13 @@ func TestAddNode(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	testError := addNode(n)
+	testError := AddNode(n)
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got models.Node
-			if db.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
+			if DB.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
 				t.Errorf("addNode() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
@@ -57,25 +53,25 @@ func TestGetNodeID(t *testing.T) {
 	})
 }
 
-func TestMain(m *testing.M) {
-	pool, resource, pdb, err := test.Boilerplate()
-	db = pdb
-	DB = pdb
-	if err != nil {
-		log.Fatalf("Could not setup DB connection: %s", err)
-	}
-
-	err = db.AutoMigrate(&models.Node{})
-	if err != nil {
-		log.Fatalf("error preping the database: %s", err)
-	}
-
-	code := m.Run()
-
-	// You can't defer this because os.Exit doesn't care for defer
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
-	}
-
-	os.Exit(code)
-}
+//func TestMain(m *testing.M) {
+//	pool, resource, pdb, err := test.Boilerplate()
+//	db = pdb
+//	DB = pdb
+//	if err != nil {
+//		log.Fatalf("Could not setup DB connection: %s", err)
+//	}
+//
+//	err = db.AutoMigrate(&models.Node{})
+//	if err != nil {
+//		log.Fatalf("error preping the database: %s", err)
+//	}
+//
+//	code := m.Run()
+//
+//	// You can't defer this because os.Exit doesn't care for defer
+//	if err := pool.Purge(resource); err != nil {
+//		log.Fatalf("Could not purge resource: %s", err)
+//	}
+//
+//	os.Exit(code)
+//}

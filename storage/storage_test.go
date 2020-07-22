@@ -1,10 +1,12 @@
 package storage
 
 import (
+	"github.com/chabad360/covey/config"
 	"gorm.io/gorm"
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/chabad360/covey/test"
@@ -23,6 +25,18 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}
+
+	config.Config.DB.Username = "postgres"
+	config.Config.DB.Password = "secret"
+	config.Config.DB.Host = "localhost"
+	config.Config.DB.Port, err = strconv.Atoi(resource.GetPort("5432/tcp"))
+	config.Config.DB.Database = "covey"
+	if err != nil {
+		log.Fatalf("Could not setup config")
+	}
+
+	DB.Create(task)
+	DB.Create(j)
 
 	code := m.Run()
 

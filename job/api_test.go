@@ -14,10 +14,10 @@ func TestJobNew(t *testing.T) {
 		body string
 		want string
 	}{
-		{`{"name": "test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "test"}}}}`,
+		{`{"name":"test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "test"}}}}`,
 			`{"name":"test","id":"240875a9cf2c26d484a78b3f7f5aad21dd8f6e74031a7a5669f787d33e1b4cda","nodes":["test"],"tasks":{"update":{"plugin":"test","details":{"command":"test"}}},"task_history":[]}
 `},
-		{`{"name": "test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "test"}}}}`,
+		{`{"name":"test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "test"}}}}`,
 			`{"error":"duplicate job: test"}
 `},
 		{`{"name":}`,

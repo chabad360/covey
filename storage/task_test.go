@@ -2,10 +2,6 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
-	task2 "github.com/chabad360/covey/task"
-	"github.com/chabad360/covey/test"
-	"log"
-	"os"
 	"reflect"
 	"testing"
 )
@@ -29,13 +25,13 @@ func TestAddTask(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	testError := addTask(task)
+	testError := AddTask(task)
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got models.Task
-			if db.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
+			if DB.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
 				t.Errorf("addTask() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
@@ -53,14 +49,14 @@ func TestSaveTask(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	tu := &task2.TaskInfo{[]string{"hello", "world"}, 0, "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e"}
-	saveTask(tu)
+	tu := &TaskInfo{[]string{"hello", "world"}, 0, "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e"}
+	SaveTask(tu)
 
 	for _, tt := range tests {
 		testName := tt.id
 		t.Run(testName, func(t *testing.T) {
 			var got models.Task
-			if result := db.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
+			if result := DB.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
 				t.Errorf("saveTask() = %v, want %v, error: %v", got, tt.want, result.Error)
 			}
 		})
@@ -81,34 +77,34 @@ func TestGetTask(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if got, err := getTask(tt.id); reflect.DeepEqual(got, tt.want) {
+			if got, err := GetTask(tt.id); reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getTask() = %v, want %v, error: %v", got, tt.want, err)
 			}
 		})
 	}
 }
 
-func TestMain(m *testing.M) {
-	pool, resource, pdb, err := test.Boilerplate()
-	db = pdb
-	DB = pdb
-	if err != nil {
-		log.Fatalf("Could not setup DB connection: %s", err)
-	}
-
-	err = db.AutoMigrate(&models.Task{})
-	if err != nil {
-		log.Fatalf("error preping the database: %s", err)
-	}
-
-	db.Create(task)
-
-	code := m.Run()
-
-	// You can't defer this because os.Exit doesn't care for defer
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
-	}
-
-	os.Exit(code)
-}
+//func TestMain(m *testing.M) {
+//	pool, resource, pdb, err := test.Boilerplate()
+//	db = pdb
+//	DB = pdb
+//	if err != nil {
+//		log.Fatalf("Could not setup DB connection: %s", err)
+//	}
+//
+//	err = db.AutoMigrate(&models.Task{})
+//	if err != nil {
+//		log.Fatalf("error preping the database: %s", err)
+//	}
+//
+//	db.Create(task)
+//
+//	code := m.Run()
+//
+//	// You can't defer this because os.Exit doesn't care for defer
+//	if err := pool.Purge(resource); err != nil {
+//		log.Fatalf("Could not purge resource: %s", err)
+//	}
+//
+//	os.Exit(code)
+//}

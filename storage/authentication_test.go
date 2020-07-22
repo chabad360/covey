@@ -2,12 +2,8 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
-	"log"
-	"os"
 	"strconv"
 	"testing"
-
-	"github.com/chabad360/covey/test"
 )
 
 var (
@@ -37,13 +33,14 @@ func TestAddUser(t *testing.T) {
 		{"2", *u2, "2"},
 	}
 
+	AddUser(*u)
 	testError := AddUser(*u2)
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got int
-			if db.Raw(`SELECT id FROM users 
+			if DB.Raw(`SELECT id FROM users 
 			WHERE username = ? AND (password_hash = crypt(?, password_hash)) = 't';`,
 				tt.user.Username, tt.user.Password).Scan(&got); strconv.Itoa(got) != tt.want {
 				t.Errorf("AddUser() = %v, want %v, error: %v", strconv.Itoa(got), tt.want, testError)
@@ -68,7 +65,7 @@ func TestUpdateUser(t *testing.T) {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got int
-			if db.Raw(`SELECT id FROM users 
+			if DB.Raw(`SELECT id FROM users 
 			WHERE username = ? AND (password_hash = crypt(?, password_hash)) = 't';`,
 				tt.user.Username, tt.user.Password).Scan(&got); strconv.Itoa(got) != tt.want {
 				t.Errorf("UpdateUser() = %v, want %v, error: %v", strconv.Itoa(got), tt.want, testError)
@@ -80,50 +77,49 @@ func TestUpdateUser(t *testing.T) {
 func TestGetUser(t *testing.T) {
 	var tests = []struct {
 		id   string
-		user models.User
+		user *models.User
 		want string
 	}{
-		{"1", *u, ""},
-		{"2", *uu, "1"},
-		{"3", *u2, "2"},
+		{"1", u, "0"},
+		{"2", uu, "1"},
+		{"3", u2, "2"},
 	}
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if got, err := GetUser(tt.user); got != tt.want {
+			if got, err := GetUser(*tt.user); got != tt.want {
 				t.Errorf("GetUser() = %v, want %v, error: %v", got, tt.want, err)
 			}
 		})
 	}
 }
 
-func TestMain(m *testing.M) {
-	pool, resource, pdb, err := test.Boilerplate()
-	db = pdb
-	DB = pdb
-	if err != nil {
-		log.Fatalf("Could not setup DB connection: %s", err)
-	}
-
-	err = db.AutoMigrate(&models.User{})
-	if err != nil {
-		log.Fatalf("error preping the database: %s", err)
-	}
-
-	result := db.Exec(`INSERT INTO users(username, password_hash) 
-		VALUES(?, crypt(?, gen_salt('bf')));`,
-		u.Username, u.Password)
-	if result.Error != nil {
-		log.Fatalf("Could not prepare DB: %s", result.Error)
-	}
-
-	code := m.Run()
-
-	// You can't defer this because os.Exit doesn't care for defer
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
-	}
-
-	os.Exit(code)
-}
+//func TestMain(m *testing.M) {
+//	pool, resource, pdb, err := test.Boilerplate()
+//	DB = pdb
+//	if err != nil {
+//		log.Fatalf("Could not setup DB connection: %s", err)
+//	}
+//
+//	err = DB.AutoMigrate(&models.User{})
+//	if err != nil {
+//		log.Fatalf("error preping the database: %s", err)
+//	}
+//
+//	result := DB.Exec(`INSERT INTO users(username, password_hash)
+//		VALUES(?, crypt(?, gen_salt('bf')));`,
+//		u.Username, u.Password)
+//	if result.Error != nil {
+//		log.Fatalf("Could not prepare DB: %s", result.Error)
+//	}
+//
+//	code := m.Run()
+//
+//	// You can't defer this because os.Exit doesn't care for defer
+//	if err := pool.Purge(resource); err != nil {
+//		log.Fatalf("Could not purge resource: %s", err)
+//	}
+//
+//	os.Exit(code)
+//}
