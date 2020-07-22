@@ -3,6 +3,7 @@ package task
 import (
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 	"github.com/go-playground/pure/v5"
 	"io/ioutil"
 	"log"
@@ -23,9 +24,8 @@ func taskNew(w http.ResponseWriter, r *http.Request) {
 
 func tasksGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
 
-	var q common.QueryParams
+	var q storage.QueryParams
 	err := q.Setup(r)
 	common.ErrorWriter(w, err)
 
@@ -33,11 +33,11 @@ func tasksGet(w http.ResponseWriter, r *http.Request) {
 
 	if q.Expand {
 		var t []models.Task
-		err = q.Query("tasks", &t, db)
+		err = q.Query("tasks", &t)
 		tasks = t
 	} else {
 		var t []string
-		err = q.Query("tasks", &t, db)
+		err = q.Query("tasks", &t)
 		tasks = t
 	}
 	common.ErrorWriter(w, err)
@@ -50,7 +50,7 @@ func taskGet(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 
-	t, ok := getTask(vars.URLParam("task"))
+	t, ok := storage.GetTask(vars.URLParam("task"))
 	common.ErrorWriter404(w, vars.URLParam("task"), ok)
 
 	common.Write(w, t)

@@ -2,6 +2,7 @@ package job
 
 import (
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task"
 	"log"
 
@@ -15,8 +16,7 @@ var (
 
 // Init loads up the the jobs and starts the cronTab.
 func Init() {
-	refreshDB()
-	q, err := db.Table("jobs").Where("cron != ''").Select("id", "cron").Rows()
+	q, err := storage.DB.Table("jobs").Where("cron != ''").Select("id", "cron").Rows()
 	if err != nil {
 		log.Panic(err)
 	}
@@ -38,7 +38,7 @@ func Init() {
 
 func addCron(id string, cron string) error {
 	_, err := cronTab.AddFunc(cron, func() {
-		if j, ok := getJob(id); ok {
+		if j, ok := storage.GetJob(id); ok {
 			if _, err := run(j); err != nil {
 				log.Panic(err)
 			}
@@ -72,5 +72,5 @@ func run(j *models.Job) ([]string, error) {
 		}
 	}
 	j.TaskHistory = append(j.TaskHistory, th...)
-	return th, updateJob(j)
+	return th, storage.UpdateJob(j)
 }

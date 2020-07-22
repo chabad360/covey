@@ -16,12 +16,12 @@ func TestGetJob(t *testing.T) {
 		{"3", false},
 	}
 	//revive:enable:line-length-limit
-	storage.DB = db
+	storage.DB = storage.db
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if _, ok := getJob(tt.id); ok != tt.want {
+			if _, ok := storage.getJob(tt.id); ok != tt.want {
 				t.Errorf("GetJob() = %v, want %v", ok, tt.want)
 			}
 		})
@@ -42,7 +42,7 @@ func TestGetJobWithTasks(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if _, ok := getJob(tt.id); ok != tt.want {
+			if _, ok := storage.getJob(tt.id); ok != tt.want {
 				t.Errorf("GetJobWithTasks() = %v, want %v", ok, tt.want)
 			}
 		})

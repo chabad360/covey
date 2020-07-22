@@ -14,13 +14,6 @@ type agentTask struct {
 // TaskList implements List type as well as the json.Marshaler interface.
 type TaskList struct{ list.List }
 
-// TaskInfo contains new information about a running task.
-type TaskInfo struct {
-	Log      []string `json:"log"`
-	ExitCode int      `json:"exit_code"`
-	ID       string   `json:"id"`
-}
-
 // MarshalJSON implements the json.Marshaler interface.
 func (l *TaskList) MarshalJSON() ([]byte, error) {
 	m := make(map[int]agentTask)

@@ -1,29 +1,28 @@
-package task
+package storage
 
 import (
 	"errors"
 	"github.com/chabad360/covey/models"
 	"gorm.io/gorm"
-
-	"github.com/chabad360/covey/storage"
 )
 
-var db *gorm.DB
+// TaskInfo contains new information about a running task.
+type TaskInfo struct {
+	Log      []string `json:"log"`
+	ExitCode int      `json:"exit_code"`
+	ID       string   `json:"id"`
+}
 
 // AddTask adds a task to the database.
-func addTask(task *models.Task) error {
-	refreshDB()
-
-	result := db.Create(task)
+func AddTask(task *models.Task) error {
+	result := DB.Create(task)
 	return result.Error
 }
 
 // GetTask returns a task in the database.
-func getTask(id string) (*models.Task, bool) {
-	refreshDB()
-
+func GetTask(id string) (*models.Task, bool) {
 	var t models.Task
-	result := db.Where("id = ?", id).Or("id_short = ?", id).First(&t)
+	result := DB.Where("id = ?", id).Or("id_short = ?", id).First(&t)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, false
 	}
@@ -31,14 +30,12 @@ func getTask(id string) (*models.Task, bool) {
 	return &t, true
 }
 
-// saveTask saves a live task to the database.
-func saveTask(t *TaskInfo) error {
-	refreshDB()
-
+// SaveTask saves a live task to the database.
+func SaveTask(t *TaskInfo) error {
 	var task *models.Task
 	var ok bool
 
-	if task, ok = getTask(t.ID); !ok {
+	if task, ok = GetTask(t.ID); !ok {
 		return nil
 	}
 
@@ -60,16 +57,10 @@ func saveTask(t *TaskInfo) error {
 		task.Log = append(task.Log, t.Log...)
 	}
 
-	result := db.Save(task)
+	result := DB.Save(task)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return result.Error
 	}
 
 	return nil
-}
-
-func refreshDB() {
-	if db == nil {
-		db = storage.DB
-	}
 }

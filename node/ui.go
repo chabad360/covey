@@ -3,6 +3,7 @@ package node
 import (
 	"fmt"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 	"net/http"
 	"strings"
 
@@ -13,10 +14,9 @@ import (
 
 func uiNodes(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
 
 	var nodes []models.Node
-	result := db.Find(&nodes)
+	result := storage.DB.Find(&nodes)
 	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
@@ -31,14 +31,13 @@ func uiNodes(w http.ResponseWriter, r *http.Request) {
 
 func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
 
 	vars := pure.RequestVars(r)
-	node, ok := GetNode(vars.URLParam("node"))
+	node, ok := storage.GetNode(vars.URLParam("node"))
 	common.ErrorWriter404(w, vars.URLParam("node"), ok)
 
 	var tasks []models.Task
-	result := db.Table("tasks").Where("node = ?", node.ID).Or("node = ?", node.Name).Find(&tasks)
+	result := storage.DB.Table("tasks").Where("node = ?", node.ID).Or("node = ?", node.Name).Find(&tasks)
 	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{

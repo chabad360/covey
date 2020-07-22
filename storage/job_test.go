@@ -1,4 +1,4 @@
-package job
+package storage
 
 import (
 	"github.com/chabad360/covey/models"
@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
 )
 
@@ -97,7 +96,7 @@ func TestGetJobWithFullHistory(t *testing.T) {
 func TestMain(m *testing.M) {
 	pool, resource, pdb, err := test.Boilerplate()
 	db = pdb
-	storage.DB = pdb
+	DB = pdb
 	if err != nil {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}

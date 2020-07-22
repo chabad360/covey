@@ -3,7 +3,7 @@ package task
 import (
 	"fmt"
 	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/node"
+	"github.com/chabad360/covey/storage"
 	json "github.com/json-iterator/go"
 	"plugin"
 )
@@ -15,7 +15,7 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 		return nil, err
 	}
 
-	_, ok := node.GetNode(t.Node)
+	_, ok := storage.GetNode(t.Node)
 	if !ok {
 		return nil, fmt.Errorf("%v is not a valid node", t.Node)
 	}
@@ -32,7 +32,7 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 
 	t.Command = cmd
 
-	err = addTask(t)
+	err = storage.AddTask(t)
 	if err != nil {
 		return nil, err
 	}

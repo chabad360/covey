@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -14,7 +15,7 @@ var (
 func Init() error {
 	var err error
 	// TODO: provide a method for configuration
-	DB, err = gorm.Open(postgres.Open("user=postgres host=127.0.0.1 port=5432 dbname=covey"), &gorm.Config{
+	DB, err = gorm.Open(postgres.Open(fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s", "postgres", "", "127.0.0.1", "5432", "covey")), &gorm.Config{
 		//Logger: logger.Default.LogMode(logger.Silent),
 	})
 	return err

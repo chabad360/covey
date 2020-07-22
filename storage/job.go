@@ -1,28 +1,21 @@
-package job
+package storage
 
 import (
 	"errors"
 	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/storage"
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
-
 // AddJob adds a Job to the database.
-func addJob(j *models.Job) error {
-	refreshDB()
-
-	result := db.Create(j)
+func AddJob(j *models.Job) error {
+	result := DB.Create(j)
 	return result.Error
 }
 
 // GetJob checks if a job with the identifier exists and returns it.
-func getJob(id string) (*models.Job, bool) {
-	refreshDB()
-
+func GetJob(id string) (*models.Job, bool) {
 	var j models.Job
-	result := db.Where("id = ?", id).Or("id_short = ?", id).Or("name = ?", id).First(&j)
+	result := DB.Where("id = ?", id).Or("id_short = ?", id).Or("name = ?", id).First(&j)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, false
 	}
@@ -31,19 +24,22 @@ func getJob(id string) (*models.Job, bool) {
 }
 
 // UpdateJob updates a Job in the database.
-func updateJob(j *models.Job) error {
-	refreshDB()
-	result := db.Save(j)
+func UpdateJob(j *models.Job) error {
+	result := DB.Save(j)
+	return result.Error
+}
+
+// DeleteJob deletes a Job in the database.
+func DeleteJob(j *models.Job) error {
+	result := DB.Delete(j)
 	return result.Error
 }
 
 // GetJobWithFullHistory returns a job with the tasks substituted for their IDs.
 // Query designed with the help of https://stackoverflow.com/questions/47275606
-func getJobWithFullHistory(id string) (*models.JobWithTasks, bool) {
-	refreshDB()
-
+func GetJobWithFullHistory(id string) (*models.JobWithTasks, bool) {
 	var b models.JobWithTasks
-	result := db.Raw(`SELECT j.id, j.name, j.cron, j.nodes, j.tasks, j1.task_history
+	result := DB.Raw(`SELECT j.id, j.name, j.cron, j.nodes, j.tasks, j1.task_history
 		FROM   jobs j
 			LEFT   JOIN LATERAL (
 			SELECT jsonb_agg(to_jsonb(t) - 'details') AS task_history
@@ -57,10 +53,4 @@ func getJobWithFullHistory(id string) (*models.JobWithTasks, bool) {
 	}
 
 	return &b, true
-}
-
-func refreshDB() {
-	if db == nil {
-		db = storage.DB
-	}
 }

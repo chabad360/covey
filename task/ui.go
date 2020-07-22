@@ -14,10 +14,9 @@ import (
 
 func uiTasks(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
 
 	var tasks []models.Task
-	result := db.Find(&tasks)
+	result := storage.DB.Find(&tasks)
 	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
@@ -34,7 +33,7 @@ func uiTasks(w http.ResponseWriter, r *http.Request) {
 func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 	vars := pure.RequestVars(r)
 
-	task, ok := getTask(vars.URLParam("task"))
+	task, ok := storage.GetTask(vars.URLParam("task"))
 	common.ErrorWriter404(w, vars.URLParam("task"), ok)
 
 	p := &ui.Page{
@@ -51,8 +50,6 @@ func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 // UITaskNew returns the form for creating a new task.
 func UITaskNew(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
-
 	var nodes []string
 	storage.DB.Table("nodes").Select("name").Scan(&nodes)
 

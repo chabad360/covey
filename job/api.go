@@ -3,6 +3,7 @@ package job
 import (
 	"fmt"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -22,7 +23,7 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriterCustom(w, err, http.StatusBadRequest)
 	}
 
-	if _, ok := getJob(job.Name); ok {
+	if _, ok := storage.GetJob(job.Name); ok {
 		common.ErrorWriterCustom(w, fmt.Errorf("duplicate job: %v", job.Name), http.StatusBadRequest)
 	}
 
@@ -32,7 +33,7 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := addJob(&job); err != nil {
+	if err := storage.AddJob(&job); err != nil {
 		common.ErrorWriter(w, err)
 	}
 
@@ -41,9 +42,8 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 
 func jobsGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
 
-	var q common.QueryParams
+	var q storage.QueryParams
 	err := q.Setup(r)
 	common.ErrorWriter(w, err)
 
@@ -51,11 +51,11 @@ func jobsGet(w http.ResponseWriter, r *http.Request) {
 
 	if q.Expand {
 		var j []models.Job
-		err = q.Query("jobs", &j, db)
+		err = q.Query("jobs", &j)
 		jobs = j
 	} else {
 		var j []string
-		err = q.Query("jobs", &j, db)
+		err = q.Query("jobs", &j)
 		jobs = j
 	}
 	common.ErrorWriter(w, err)
@@ -67,7 +67,7 @@ func jobGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-	job, ok := getJob(vars.URLParam("job"))
+	job, ok := storage.GetJob(vars.URLParam("job"))
 	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
 	common.Write(w, job)
@@ -77,7 +77,7 @@ func jobRun(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-	j, ok := getJob(vars.URLParam("job"))
+	j, ok := storage.GetJob(vars.URLParam("job"))
 	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
 	th, err := run(j)
@@ -90,7 +90,7 @@ func jobUpdate(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-	job, ok := getJob(vars.URLParam("job"))
+	job, ok := storage.GetJob(vars.URLParam("job"))
 	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
@@ -104,7 +104,7 @@ func jobUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err := updateJob(job)
+	err := storage.UpdateJob(job)
 	common.ErrorWriter(w, err)
 
 	common.Write(w, job)
@@ -112,14 +112,11 @@ func jobUpdate(w http.ResponseWriter, r *http.Request) {
 
 func jobDelete(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
-
 	vars := pure.RequestVars(r)
-	j, ok := getJob(vars.URLParam("job"))
+	j, ok := storage.GetJob(vars.URLParam("job"))
 	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
-	result := db.Delete(&j)
-	common.ErrorWriter(w, result.Error)
+	common.ErrorWriter(w, storage.DeleteJob(j))
 
 	common.Write(w, vars.URLParam("job"))
 }

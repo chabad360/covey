@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/node"
 	"github.com/go-playground/pure/v5"
 )
 
@@ -22,7 +22,7 @@ func queueTask(nodeID string, taskID string, taskCommand string) error {
 		Command: taskCommand,
 	}
 
-	id, ok := node.GetNodeIDorName(nodeID, "id")
+	id, ok := storage.GetNodeIDorName(nodeID, "id")
 	if !ok {
 		return fmt.Errorf("%v is not a valid node ID", nodeID)
 	}
@@ -46,19 +46,19 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 
-	n, ok := node.GetNodeIDorName(vars.URLParam("node"), "id")
+	n, ok := storage.GetNodeIDorName(vars.URLParam("node"), "id")
 	common.ErrorWriter404(w, vars.URLParam("node"), ok) // TODO: disable the agent if there is no such node
 
 	b, err := ioutil.ReadAll(r.Body)
 	common.ErrorWriter(w, err)
 
-	var x TaskInfo
+	var x storage.TaskInfo
 
 	err = json.Unmarshal(b, &x)
 	common.ErrorWriter(w, err)
 
 	if x.ID == "hello" {
-		if n, ok = node.GetNodeIDorName(n, "name"); !ok {
+		if n, ok = storage.GetNodeIDorName(n, "name"); !ok {
 			common.ErrorWriter(w, fmt.Errorf("node %s not found", n))
 		}
 
@@ -66,7 +66,7 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 			common.ErrorWriter(w, err)
 		}
 	} else {
-		err = saveTask(&x)
+		err = storage.SaveTask(&x)
 		common.ErrorWriter(w, err)
 	}
 
@@ -100,10 +100,8 @@ func initQueues(tasks []models.Task) error {
 }
 
 func initAgent(agent string) error {
-	refreshDB()
-
 	var t []models.Task
-	result := db.Where("state = ?", models.StateQueued).Where("node = ?", agent).Find(&t)
+	result := storage.DB.Where("state = ?", models.StateQueued).Where("node = ?", agent).Find(&t)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return result.Error
 	}
@@ -113,10 +111,8 @@ func initAgent(agent string) error {
 
 // Init initializes the agent queues.
 func Init() error {
-	refreshDB()
-
 	var t []models.Task
-	result := db.Where("state = ?", models.StateQueued).Find(&t)
+	result := storage.DB.Where("state = ?", models.StateQueued).Find(&t)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return result.Error
 	}

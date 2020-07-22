@@ -1,8 +1,8 @@
-package task
+package storage
 
 import (
 	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/storage"
+	task2 "github.com/chabad360/covey/task"
 	"github.com/chabad360/covey/test"
 	"log"
 	"os"
@@ -53,7 +53,7 @@ func TestSaveTask(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	tu := &TaskInfo{[]string{"hello", "world"}, 0, "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e"}
+	tu := &task2.TaskInfo{[]string{"hello", "world"}, 0, "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e"}
 	saveTask(tu)
 
 	for _, tt := range tests {
@@ -91,7 +91,7 @@ func TestGetTask(t *testing.T) {
 func TestMain(m *testing.M) {
 	pool, resource, pdb, err := test.Boilerplate()
 	db = pdb
-	storage.DB = pdb
+	DB = pdb
 	if err != nil {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}

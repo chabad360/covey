@@ -3,6 +3,7 @@ package job
 import (
 	"fmt"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 	"net/http"
 	"strings"
 
@@ -13,10 +14,9 @@ import (
 
 func uiJobs(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
 
 	var jobs []models.Job
-	result := db.Find(&jobs)
+	result := storage.DB.Find(&jobs)
 	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
@@ -35,15 +35,15 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 
-	job, ok := getJobWithFullHistory(vars.URLParam("job"))
+	job, ok := storage.GetJobWithFullHistory(vars.URLParam("job"))
 	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
 	if r.URL.Query().Get("run") == "true" {
-		j, _ := getJob(vars.URLParam("job"))
+		j, _ := storage.GetJob(vars.URLParam("job"))
 		_, err := run(j)
 		common.ErrorWriter(w, err)
 
-		job, _ = getJobWithFullHistory(vars.URLParam("job"))
+		job, _ = storage.GetJobWithFullHistory(vars.URLParam("job"))
 	}
 
 	p := &ui.Page{
@@ -60,10 +60,9 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 // UIJobNew returns the form for creating a new task.
 func UIJobNew(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
 
 	var nodes []string
-	result := db.Table("nodes").Select("name").Scan(&nodes)
+	result := storage.DB.Table("nodes").Select("name").Scan(&nodes)
 	common.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{

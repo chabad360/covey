@@ -1,4 +1,4 @@
-package common
+package storage
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	"gorm.io/gorm"
 )
 
 // QueryParams parses a URL query and gets the items from the database based on it.
@@ -20,7 +19,7 @@ type QueryParams struct {
 }
 
 // Query runs a query against the database.
-func (q *QueryParams) Query(table string, model interface{}, db *gorm.DB) error {
+func (q *QueryParams) Query(table string, model interface{}) error {
 	v := validator.New()
 	errs := v.Struct(q)
 	if errs != nil {
@@ -32,7 +31,7 @@ func (q *QueryParams) Query(table string, model interface{}, db *gorm.DB) error 
 		}
 	}
 
-	tx := db.Table(table).Offset(q.Offset).Limit(q.Limit).Order(fmt.Sprintf("%s %s", q.SortBy, q.Sort))
+	tx := DB.Table(table).Offset(q.Offset).Limit(q.Limit).Order(fmt.Sprintf("%s %s", q.SortBy, q.Sort))
 
 	if !q.Expand {
 		tx.Select("id")

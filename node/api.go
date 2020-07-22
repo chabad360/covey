@@ -3,6 +3,7 @@ package node
 import (
 	"fmt"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -23,14 +24,14 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 		common.ErrorWriterCustom(w, err, http.StatusBadRequest)
 	}
 
-	if _, ok := GetNode(n.Name); ok {
+	if _, ok := storage.GetNode(n.Name); ok {
 		common.ErrorWriterCustom(w, fmt.Errorf("duplicate node: %v", n.Name), http.StatusConflict)
 	}
 
 	err := newNode(&n)
 	common.ErrorWriter(w, err)
 
-	err = addNode(&n)
+	err = storage.AddNode(&n)
 	common.ErrorWriter(w, err)
 
 	w.Header().Add("Location", "/api/v1/node/"+n.ID)
@@ -39,9 +40,8 @@ func nodeNew(w http.ResponseWriter, r *http.Request) {
 
 func nodesGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
-	refreshDB()
 
-	var q common.QueryParams
+	var q storage.QueryParams
 	err := q.Setup(r)
 	common.ErrorWriter(w, err)
 
@@ -49,11 +49,11 @@ func nodesGet(w http.ResponseWriter, r *http.Request) {
 
 	if q.Expand {
 		var n []models.Node
-		err = q.Query("nodes", &n, db)
+		err = q.Query("nodes", &n)
 		nodes = n
 	} else {
 		var n []string
-		err = q.Query("nodes", &n, db)
+		err = q.Query("nodes", &n)
 		nodes = n
 	}
 	common.ErrorWriter(w, err)
@@ -66,7 +66,7 @@ func nodeGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-	n, ok := GetNode(vars.URLParam("node"))
+	n, ok := storage.GetNode(vars.URLParam("node"))
 	common.ErrorWriter404(w, vars.URLParam("node"), ok)
 
 	common.Write(w, n)
@@ -76,10 +76,10 @@ func nodeDelete(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-	n, ok := GetNode(vars.URLParam("node"))
+	n, ok := storage.GetNode(vars.URLParam("node"))
 	common.ErrorWriter404(w, vars.URLParam("node"), ok)
 
-	err := deleteNode(n)
+	err := storage.DeleteNode(n)
 	common.ErrorWriter(w, err)
 
 	common.Write(w, vars.URLParam("node"))

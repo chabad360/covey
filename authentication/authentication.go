@@ -3,6 +3,7 @@ package authentication
 import (
 	"fmt"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 	"net/http"
 	"strings"
 	"time"
@@ -91,7 +92,7 @@ func parseToken(tokenString string, tokenType string, audience string) (*jwt.Pay
 }
 
 func tokenCookie(user *models.User) (*http.Cookie, error) {
-	id, err := GetUser(*user)
+	id, err := storage.GetUser(*user)
 	if err != nil {
 		return nil, err
 	}
