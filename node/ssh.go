@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/models"
 	"log"
 
@@ -65,10 +66,10 @@ func sshRun(client *ssh.Client, command string) ([]byte, error) {
 	return output, nil
 }
 
-func installAgent(node string, id string, config *ssh.ClientConfig, sshClient *ssh.Client) error {
+func installAgent(node string, id string, cfg *ssh.ClientConfig, sshClient *ssh.Client) error {
 	log.Println("installing agent...")
 
-	client := scp.NewClient(node, config)
+	client := scp.NewClient(node, cfg)
 	if err := client.Connect(); err != nil {
 		return err
 	}
@@ -109,7 +110,8 @@ func installAgent(node string, id string, config *ssh.ClientConfig, sshClient *s
 		return fmt.Errorf("install service: %v", err)
 	}
 	if _, err := sshRun(sshClient, fmt.Sprintf(`sudo mkdir /etc/covey; echo 'AGENT_ID="%s" \
-			AGENT_HOST="%s"' | sudo tee /etc/covey/agent.conf`, id, "192.168.56.1")); err != nil {
+AGENT_HOST="%s" \
+AGENT_PORT="%v"' | sudo tee /etc/covey/agent.conf`, id, config.Config.Daemon.Host, config.Config.Daemon.Port)); err != nil {
 		return fmt.Errorf("install config: %v", err)
 	} // Add config file for agent
 	if _, err = sshRun(sshClient, "sudo systemctl enable --now covey-agent.service"); err != nil {

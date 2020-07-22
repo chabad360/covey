@@ -5,9 +5,12 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/models"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/authentication"
@@ -121,6 +124,9 @@ func initStorage() (*sql.DB, error) {
 func main() {
 	log.Printf("Starting up Covey %s", version)
 	fmt.Println()
+	if err := config.InitConfig(); err != nil {
+		log.Fatal(err)
+	}
 
 	r := pure.New()
 	loadHandlers(r)
@@ -136,7 +142,7 @@ func main() {
 	fmt.Println()
 	log.Println("Ready to serve!")
 	fmt.Println()
-	log.Fatal(http.ListenAndServe(":8080", r.Serve()))
+	log.Fatal(http.ListenAndServe(strings.Join([]string{config.Config.Daemon.Host, strconv.Itoa(config.Config.Daemon.Port)}, ":"), r.Serve()))
 }
 
 func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {

@@ -2,6 +2,7 @@ package node
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	"net/http"
@@ -47,7 +48,7 @@ func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
 			Node  *models.Node
 			Tasks []models.Task
 			Host  string
-		}{node, tasks, "localhost"},
+		}{node, tasks, config.Config.Daemon.Host},
 	}
 
 	t := ui.GetTemplate("nodesSingle")
