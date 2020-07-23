@@ -42,6 +42,32 @@ func TestAddJob(t *testing.T) {
 	}
 }
 
+func TestGetJob(t *testing.T) {
+	//revive:disable:line-length-limit
+	var tests = []struct {
+		id    string
+		want  *models.Job
+		want2 bool
+	}{
+		{"update", j, true},
+		{"3", &models.Job{}, false},
+	}
+	//revive:enable:line-length-limit
+
+	for _, tt := range tests {
+		testname := tt.id
+		t.Run(testname, func(t *testing.T) {
+			got, got2 := GetJob(tt.id)
+			if got2 != tt.want2 {
+				t.Errorf("GetJob() = %v, want %v", got2, tt.want2)
+			}
+			if reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetJob() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestUpdateJob(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
