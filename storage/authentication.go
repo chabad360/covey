@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"errors"
 	"github.com/chabad360/covey/models"
 	"gorm.io/gorm"
 	"strconv"
@@ -25,8 +24,8 @@ func UpdateUser(u models.User, uOld models.User) error {
 func GetUser(u models.User) (string, error) {
 	var id int
 	result := DB.Table("users").Where("username = ?", u.Username).Where(
-		"(password_hash = crypt(?, password_hash)) = 't'", u.Password).Select("id").Scan(&id)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		"(password_hash = crypt(?, password_hash)) = 't'", u.Password).Select("id").First(&id)
+	if result.Error != nil {
 		return "", result.Error
 	}
 

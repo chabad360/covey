@@ -31,6 +31,8 @@ func uiTasks(w http.ResponseWriter, r *http.Request) {
 }
 
 func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
+	defer common.Recover()
+
 	vars := pure.RequestVars(r)
 
 	task, ok := storage.GetTask(vars.URLParam("task"))
@@ -50,6 +52,7 @@ func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 // UITaskNew returns the form for creating a new task.
 func UITaskNew(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
+
 	var nodes []string
 	storage.DB.Table("nodes").Select("name").Scan(&nodes)
 

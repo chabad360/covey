@@ -16,7 +16,8 @@ func TestTokenGetAPI(t *testing.T) {
 		wantStatus int
 	}{
 		{"1", `{"token":"`, http.StatusOK},
-		{"", `{"error":"createToken: missing userid"}`, http.StatusInternalServerError},
+		{"", `{"error":"createToken: missing userID"}
+`, http.StatusInternalServerError},
 	}
 
 	h := test.PureBoilerplate("GET", "/api/v1/auth/token", tokenGetAPI)

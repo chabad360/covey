@@ -7,11 +7,11 @@ import (
 	"github.com/gbrlsnchs/jwt/v3"
 )
 
-var token string
+const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3ZleS1hcGkiLCJzdWIiOiIzIiwiYXVkIjoiYWxsIiwiZXhwIjo0NDY5NTQyMzYzLCJpYXQiOjE1OTU1MzI3NjMsImp0aSI6InNseUM0QVd2N0NhU3RKWG9yeXF5QzFPOWZLUFJzdFZQIn0.AAU9I8yub7VmTCnT833F54W6uQbhGVFKR8DSsi9pDJI"
 
 func TestCreateToken(t *testing.T) {
 	type args struct {
-		userid        string
+		userID        string
 		tokenType     string
 		allowedClaims []string
 	}
@@ -26,7 +26,7 @@ func TestCreateToken(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk, got, err := createToken(tt.args.userid, tt.args.tokenType, tt.args.allowedClaims)
+			_, got, err := createToken(tt.args.userID, tt.args.tokenType, tt.args.allowedClaims)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("createToken() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -34,7 +34,6 @@ func TestCreateToken(t *testing.T) {
 			if got.Unix() != tt.want.Unix() {
 				t.Errorf("createToken() got = %v, want %v", got.Unix(), tt.want.Unix())
 			}
-			token = tk
 		})
 	}
 }

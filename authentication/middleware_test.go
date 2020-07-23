@@ -12,25 +12,28 @@ var tokenUser, _, _ = createToken("1", "user", []string{"all"})
 
 //revive:disable:cognitive-complexity
 
-func Test_AuthUserMiddlware(t *testing.T) {
+func TestAuthUserMiddleware(t *testing.T) {
+	tokenUser, _, _ = createToken("1", "user", []string{"all"})
+
 	//revive:disable:line-length-limit
 	var tests = []struct {
+		name       string
 		url        string
 		token      string
 		location   string
 		wantStatus int
 	}{
-		{"/test", "", "/login?url=/test", http.StatusFound},
-		{"/test", tokenUser, "", http.StatusOK},
-		{"/login", tokenUser, "/dashboard", http.StatusFound},
-		{"/test", "1", "/logout", http.StatusFound},
-		{"/logout", "1", "", http.StatusOK},
-		{"/login", "", "", http.StatusOK},
+		{"redirect", "/test", "", "/login?url=/test", http.StatusFound},
+		{"ignored", "/test", tokenUser, "", http.StatusOK},
+		{"ignoredWithToken", "/login", tokenUser, "", http.StatusOK},
+		{"logout", "/test", "1", "/logout", http.StatusFound},
+		{"logout2", "/logout", "1", "", http.StatusOK},
+		{"login", "/login", "", "", http.StatusOK},
 	}
 	//revive:enable:line-length-limit
 
 	for _, tt := range tests {
-		testname := tt.token
+		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
 			p := pure.New()
 			p.Use(AuthUserMiddleware)
@@ -57,7 +60,7 @@ func Test_AuthUserMiddlware(t *testing.T) {
 	}
 }
 
-func Test_AuthAPIMiddlware(t *testing.T) {
+func TestAuthAPIMiddleware(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		name       string
@@ -65,8 +68,8 @@ func Test_AuthAPIMiddlware(t *testing.T) {
 		want       string
 		wantStatus int
 	}{
-		{"forbidden", "", `{"error":"forbidden"}
-`, http.StatusForbidden},
+		{"forbidden", "", `{"error":"invalid bearer token"}
+`, http.StatusBadRequest},
 		{"fail", "123", `{"error":"jwt: malformed token"}
 `, http.StatusUnauthorized},
 		{"success", tokenUser, "1", http.StatusOK},

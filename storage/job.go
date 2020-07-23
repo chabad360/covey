@@ -1,22 +1,23 @@
 package storage
 
 import (
-	"errors"
 	"github.com/chabad360/covey/models"
-	"gorm.io/gorm"
 )
 
 // AddJob adds a Job to the database.
 func AddJob(j *models.Job) error {
-	result := DB.Create(j)
-	return result.Error
+	return DB.Create(j).Error
 }
 
 // GetJob checks if a job with the identifier exists and returns it.
 func GetJob(id string) (*models.Job, bool) {
 	var j models.Job
-	result := DB.Where("id = ?", id).Or("id_short = ?", id).Or("name = ?", id).First(&j)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	if DB.
+		Where("id = ?", id).
+		Or("id_short = ?", id).
+		Or("name = ?", id).
+		First(&j).
+		Error != nil {
 		return nil, false
 	}
 
@@ -25,14 +26,12 @@ func GetJob(id string) (*models.Job, bool) {
 
 // UpdateJob updates a Job in the database.
 func UpdateJob(j *models.Job) error {
-	result := DB.Save(j)
-	return result.Error
+	return DB.Save(j).Error
 }
 
 // DeleteJob deletes a Job in the database.
 func DeleteJob(j *models.Job) error {
-	result := DB.Delete(j)
-	return result.Error
+	return DB.Delete(j).Error
 }
 
 // GetJobWithFullHistory returns a job with the tasks substituted for their IDs.
@@ -47,8 +46,8 @@ func GetJobWithFullHistory(id string) (*models.JobWithTasks, bool) {
 			LEFT   JOIN tasks t ON t.id = p.id
 			GROUP  BY j.id
 		) j1 ON j.task_history <> '[]'
-		WHERE id = ? OR id_short = ? OR name = ?;`, id, id, id).Scan(&b)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		WHERE id = ? OR id_short = ? OR name = ?;`, id, id, id).First(&b)
+	if result.Error != nil {
 		return nil, false
 	}
 

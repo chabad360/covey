@@ -1,9 +1,7 @@
 package storage
 
 import (
-	"errors"
 	"github.com/chabad360/covey/models"
-	"gorm.io/gorm"
 )
 
 // TaskInfo contains new information about a running task.
@@ -15,15 +13,13 @@ type TaskInfo struct {
 
 // AddTask adds a task to the database.
 func AddTask(task *models.Task) error {
-	result := DB.Create(task)
-	return result.Error
+	return DB.Create(task).Error
 }
 
 // GetTask returns a task in the database.
 func GetTask(id string) (*models.Task, bool) {
 	var t models.Task
-	result := DB.Where("id = ?", id).Or("id_short = ?", id).First(&t)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	if DB.Where("id = ?", id).Or("id_short = ?", id).First(&t).Error != nil {
 		return nil, false
 	}
 
@@ -57,10 +53,5 @@ func SaveTask(t *TaskInfo) error {
 		task.Log = append(task.Log, t.Log...)
 	}
 
-	result := DB.Save(task)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return result.Error
-	}
-
-	return nil
+	return DB.Save(task).Error
 }
