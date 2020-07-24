@@ -17,3 +17,5 @@ exclude_paths:
   - 'asset/asset.go'
   - 'asset/live.go'
   - 'assets/src/**'
+  - 'Readme.md'
+  - 'GOALS.md'
