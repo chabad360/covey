@@ -23,7 +23,6 @@ func fsMust(f string) string {
 	if !ok {
 		panic(fmt.Errorf("fsMust: invalid file %v", f))
 	}
-
 	return str
 }
 

@@ -1,7 +1,8 @@
-package common
+package common_test
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/common"
 	"net/http"
 	"testing"
 
@@ -15,8 +16,8 @@ func TestErrorWriter(t *testing.T) {
 	}
 
 	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer Recover()
-		ErrorWriter(w, fmt.Errorf("test"))
+		defer common.Recover()
+		common.ErrorWriter(w, fmt.Errorf("test"))
 	}).ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusInternalServerError {
@@ -36,8 +37,8 @@ func TestErrorWriter404(t *testing.T) {
 	}
 
 	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer Recover()
-		ErrorWriter404(w, "test")
+		defer common.Recover()
+		common.ErrorWriter404(w, "test", false)
 	}).ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
@@ -57,8 +58,8 @@ func TestErrorWriterCustom(t *testing.T) {
 	}
 
 	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer Recover()
-		ErrorWriterCustom(w, fmt.Errorf("test"), http.StatusUnauthorized)
+		defer common.Recover()
+		common.ErrorWriterCustom(w, fmt.Errorf("test"), http.StatusUnauthorized)
 	}).ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusUnauthorized {
@@ -77,7 +78,7 @@ func TestWrite(t *testing.T) {
 	}
 
 	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		Write(w, struct{ Test string }{"test"})
+		common.Write(w, struct{ Test string }{"test"})
 	}).ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {

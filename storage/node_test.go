@@ -40,17 +40,32 @@ func TestAddNode(t *testing.T) {
 	}
 }
 
-func TestGetNodeID(t *testing.T) {
-	t.Run("ok", func(t *testing.T) {
-		if id, ok := GetNodeIDorName(n.Name, "id"); !ok && id != n.ID {
-			t.Errorf("GetNodeID() = %v, want %v", id, n.ID)
-		}
-	})
-	t.Run("not ok", func(t *testing.T) {
-		if id, ok := GetNodeIDorName("n", "id"); ok && id == n.ID {
-			t.Errorf("GetNodeID() = %v, want %v", id, n.ID)
-		}
-	})
+func TestGetNodeIDOrName(t *testing.T) {
+	var tests = []struct {
+		name  string
+		id    string
+		field string
+		want  string
+		want2 bool
+	}{
+		{"ok_ID", n.Name, "id", n.ID, true},
+		{"notok_ID", "n", "id", "", false},
+		{"ok_Name", n.ID, "name", n.Name, true},
+		{"notok_Name", "n", "name", "", false},
+	}
+
+	for _, tt := range tests {
+		testname := tt.name
+		t.Run(testname, func(t *testing.T) {
+			got, got2 := GetNodeIDorName(tt.id, tt.field)
+			if got2 != tt.want2 {
+				t.Errorf("GetNodeIDorName() = %v, want %v", got2, tt.want2)
+			}
+			if got != tt.want {
+				t.Errorf("GetNodeIDorName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
 //func TestMain(m *testing.M) {
@@ -59,11 +74,6 @@ func TestGetNodeID(t *testing.T) {
 //	DB = pdb
 //	if err != nil {
 //		log.Fatalf("Could not setup DB connection: %s", err)
-//	}
-//
-//	err = db.AutoMigrate(&models.Node{})
-//	if err != nil {
-//		log.Fatalf("error preping the database: %s", err)
 //	}
 //
 //	code := m.Run()

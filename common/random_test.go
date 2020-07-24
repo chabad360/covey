@@ -1,13 +1,14 @@
-package common
+package common_test
 
 import (
+	"github.com/chabad360/covey/common"
 	"testing"
 )
 
 func TestRandomString(t *testing.T) {
-	got := RandomString()
-	got2 := RandomString()
+	got := common.RandomString()
+	got2 := common.RandomString()
 	if got == got2 {
-		t.Errorf("RandomString() returned non random string, %v == %v", got, got2)
+		t.Errorf("RandomString() not random, %v == %v", got, got2)
 	}
 }

@@ -11,12 +11,13 @@ func AddNode(node *models.Node) error {
 
 // GetNodeIDorName returns the full ID or name for the given node.
 func GetNodeIDorName(id string, field string) (string, bool) {
-	var ID string
-	if DB.Table("nodes").Where("id = ?", id).Or("id_short = ?", id).Or("name = ?", id).Select(field).First(&ID).Error != nil {
+	var ID []string
+	if err := DB.Table("nodes").Where("id = ?", id).Or("id_short = ?", id).
+		Or("name = ?", id).Pluck(field, &ID).Error; err != nil || len(ID) == 0 {
 		return "", false
 	}
 
-	return ID, true
+	return ID[0], true
 }
 
 // GetNode returns the JSON of a node and its keys separately.

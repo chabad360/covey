@@ -50,8 +50,6 @@ func TestAddUser(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	testError := UpdateUser(*uu, *u)
-
 	var tests = []struct {
 		id   string
 		user models.User
@@ -60,6 +58,8 @@ func TestUpdateUser(t *testing.T) {
 		{"1", *u, "0"},
 		{"2", *uu, "1"},
 	}
+
+	testError := UpdateUser(*uu, *u)
 
 	for _, tt := range tests {
 		testname := tt.id
@@ -80,7 +80,7 @@ func TestGetUser(t *testing.T) {
 		user *models.User
 		want string
 	}{
-		{"1", u, "0"},
+		{"1", u, ""},
 		{"2", uu, "1"},
 		{"3", u2, "2"},
 	}
