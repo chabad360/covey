@@ -114,28 +114,3 @@ func TestGetJobWithFullHistory(t *testing.T) {
 		})
 	}
 }
-
-//func TestMain(m *testing.M) {
-//	pool, resource, pdb, err := test.Boilerplate()
-//	db = pdb
-//	DB = pdb
-//	if err != nil {
-//		log.Fatalf("Could not setup DB connection: %s", err)
-//	}
-//
-//	err = db.AutoMigrate(&models.Task{}, &models.Job{})
-//	if err != nil {
-//		log.Fatalf("error preping the database: %s", err)
-//	}
-//
-//	db.Create(j)
-//
-//	code := m.Run()
-//
-//	// You can't defer this because os.Exit doesn't care for defer
-//	if err := pool.Purge(resource); err != nil {
-//		log.Fatalf("Could not purge resource: %s", err)
-//	}
-//
-//	os.Exit(code)
-//}

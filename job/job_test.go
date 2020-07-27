@@ -1,7 +1,6 @@
 package job
 
 import (
-	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/test"
 	"log"
 	"os"
@@ -10,25 +9,13 @@ import (
 	"github.com/chabad360/covey/storage"
 )
 
-var j = &models.Job{
-	Name:  "update",
-	ID:    "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-	Nodes: []string{"node1"},
-	Tasks: map[string]models.JobTask{
-		"update": {
-			Plugin:  "shell",
-			Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
-		},
-	},
-}
-
 func TestGetJob(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
 		want bool
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", true},
+		{"update", true},
 		{"3", false},
 	}
 	//revive:enable:line-length-limit
@@ -49,7 +36,7 @@ func TestGetJobWithTasks(t *testing.T) {
 		id   string
 		want bool
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", true},
+		{"update", true},
 		{"3", false},
 	}
 	//revive:enable:line-length-limit
@@ -57,7 +44,7 @@ func TestGetJobWithTasks(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if _, ok := storage.GetJob(tt.id); ok != tt.want {
+			if _, ok := storage.GetJobWithFullHistory(tt.id); ok != tt.want {
 				t.Errorf("GetJobWithTasks() = %v, want %v", ok, tt.want)
 			}
 		})

@@ -14,11 +14,11 @@ func TestJobNew(t *testing.T) {
 		body string
 		want string
 	}{
-		{`{"name":"test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "test"}}}}`,
-			`{"name":"test","id":"240875a9cf2c26d484a78b3f7f5aad21dd8f6e74031a7a5669f787d33e1b4cda","nodes":["test"],"tasks":{"update":{"plugin":"test","details":{"command":"test"}}},"task_history":[]}
+		{`{"name":"update","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "test"}}}}`,
+			`{"name":"update","id":"240875a9cf2c26d484a78b3f7f5aad21dd8f6e74031a7a5669f787d33e1b4cda","nodes":["test"],"tasks":{"update":{"plugin":"test","details":{"command":"test"}}},"task_history":[]}
 `},
-		{`{"name":"test","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "test"}}}}`,
-			`{"error":"duplicate job: test"}
+		{`{"name":"update","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "test"}}}}`,
+			`{"error":"duplicate job: update"}
 `},
 		{`{"name":}`,
 			`{"error":"models.Job.Name: ReadString: expects \" or n, but found }, error found in #9 byte of ...|{\"name\":}|..., bigger context ...|{\"name\":}|..."}
@@ -37,7 +37,7 @@ func TestJobNew(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if !reflect.DeepEqual(rr.Body.Bytes()[0:15], []byte(`{"name":"test",`)) && rr.Body.String() != tt.want {
+			if !reflect.DeepEqual(rr.Body.Bytes()[0:17], []byte(`{"name":"update",`)) && rr.Body.String() != tt.want {
 				t.Errorf("jobNew body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})
@@ -50,7 +50,7 @@ func TestJobGet(t *testing.T) {
 		id   string
 		want string
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+		{"update",
 			`{"name":"update","id":"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e","nodes":["node1"],"tasks":{"update":{"plugin":"shell","details":{"command":"sudo apt update \u0026\u0026 sudo apt upgrade -y"}}}}
 `},
 		{"3", `{"error":"404 3 not found"}
@@ -69,7 +69,7 @@ func TestJobGet(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if rr.Body.String() != tt.want {
+			if !reflect.DeepEqual(rr.Body.Bytes()[0:17], []byte(`{"name":"update",`)) && rr.Body.String() != tt.want {
 				t.Errorf("jobGet body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})
