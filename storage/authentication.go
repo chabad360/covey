@@ -3,7 +3,7 @@ package storage
 import (
 	"github.com/chabad360/covey/models"
 	"gorm.io/gorm"
-	"strconv"
+	"log"
 )
 
 // AddUser adds a User to the database.
@@ -22,12 +22,12 @@ func UpdateUser(u models.User, uOld models.User) error {
 
 // GetUser returns a UserID from the database.
 func GetUser(u models.User) (string, error) {
-	var id []int
+	var id []string
 	err := DB.Table("users").Where("username = ?", u.Username).Where(
 		"(password_hash = crypt(?, password_hash)) = 't'", u.Password).Limit(1).Pluck("id", &id).Error
 	if err != nil || len(id) == 0 {
 		return "", err
 	}
-
-	return strconv.Itoa(id[0]), nil
+	log.Println(id)
+	return id[0], nil
 }

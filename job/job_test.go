@@ -30,8 +30,7 @@ func TestGetJob(t *testing.T) {
 	}
 }
 
-func TestGetJobWithTasks(t *testing.T) {
-	//revive:disable:line-length-limit
+func TestGetJobWithFullHistory(t *testing.T) {
 	var tests = []struct {
 		id   string
 		want bool
