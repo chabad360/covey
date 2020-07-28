@@ -36,7 +36,7 @@ jobs:
       continue-on-error: true
       run: |
         resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ ./assets/*
-        go test -trimpath -v -tags=live -coverprofile=coverage.txt -covermode count ./...
+        go test -trimpath -v -coverprofile=coverage.txt -covermode count ./...
       
     - name: Upload Coverage to Codacy
       env:
