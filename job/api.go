@@ -19,23 +19,20 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 	var job models.Job
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	if err := json.Unmarshal(reqBody, &job); err != nil {
-		common.ErrorWriterCustom(w, err, http.StatusBadRequest)
-	}
+	err := json.Unmarshal(reqBody, &job)
+	common.ErrorWriterCustom(w, err, http.StatusBadRequest)
 
 	if _, ok := storage.GetJob(job.Name); ok {
 		common.ErrorWriterCustom(w, fmt.Errorf("duplicate job: %v", job.Name), http.StatusBadRequest)
 	}
 
 	if job.Cron != "" {
-		if err := addCron(job.ID, job.Cron); err != nil {
-			common.ErrorWriterCustom(w, err, http.StatusBadRequest)
-		}
+		err = addCron(job.ID, job.Cron)
+		common.ErrorWriterCustom(w, err, http.StatusBadRequest)
 	}
 
-	if err := storage.AddJob(&job); err != nil {
-		common.ErrorWriter(w, err)
-	}
+	err = storage.AddJob(&job)
+	common.ErrorWriter(w, err)
 
 	common.Write(w, job)
 }
@@ -94,17 +91,15 @@ func jobUpdate(w http.ResponseWriter, r *http.Request) {
 	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	if err := json.Unmarshal(reqBody, &job); err != nil {
+	err := json.Unmarshal(reqBody, &job)
+	common.ErrorWriterCustom(w, err, http.StatusBadRequest)
+
+	if job.Cron != "" {
+		err = addCron(job.ID, job.Cron)
 		common.ErrorWriterCustom(w, err, http.StatusBadRequest)
 	}
 
-	if job.Cron != "" {
-		if err := addCron(job.ID, job.Cron); err != nil {
-			common.ErrorWriterCustom(w, err, http.StatusBadRequest)
-		}
-	}
-
-	err := storage.UpdateJob(job)
+	err = storage.UpdateJob(job)
 	common.ErrorWriter(w, err)
 
 	common.Write(w, job)
