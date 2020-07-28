@@ -1,11 +1,32 @@
 package authentication
 
 import (
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
+	"log"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/chabad360/covey/test"
+)
+
+var (
+	u = &models.User{
+		Username: "user",
+		Password: "password",
+	}
+
+	uu = &models.User{
+		Username: "user",
+		Password: "pass",
+	}
+
+	u2 = &models.User{
+		Username: "user2",
+		Password: "password",
+	}
 )
 
 //revive:disable:cognitive-complexity
@@ -43,4 +64,24 @@ func TestTokenGetAPI(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMain(m *testing.M) {
+	pool, resource, pdb, err := test.Boilerplate()
+	storage.DB = pdb
+	if err != nil {
+		log.Fatalf("Could not setup DB connection: %s", err)
+	}
+
+	storage.AddUser(*uu)
+	storage.AddUser(*u2)
+
+	code := m.Run()
+
+	// You can't defer this because os.Exit doesn't care for defer
+	if err := pool.Purge(resource); err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
+
+	os.Exit(code)
 }

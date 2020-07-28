@@ -85,10 +85,10 @@ func TestUpdateJob(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
-		want *models.Job
+		want models.Job
 	}{
-		{"update", j},
-		{"3", &models.Job{}},
+		{"update", *j},
+		{"3", models.Job{}},
 	}
 	//revive:enable:line-length-limit
 

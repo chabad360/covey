@@ -2,7 +2,6 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
-	"strconv"
 	"testing"
 )
 
@@ -38,11 +37,11 @@ func TestAddUser(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			testError := AddUser(tt.user)
 
-			var got int
-			if DB.Raw(`SELECT id FROM users 
-			WHERE username = ? AND (password_hash = crypt(?, password_hash)) = 't';`,
-				tt.user.Username, tt.user.Password).Scan(&got); strconv.Itoa(got) != tt.want {
-				t.Errorf("AddUser() = %v, want %v, error: %v", strconv.Itoa(got), tt.want, testError)
+			var got struct{ ID string }
+			if err := DB.Table("users").Where("username = ?", u.Username).Where(
+				"(password_hash = crypt(?, password_hash)) = 't'", u.Password).
+				Select("id").First(&got).Error; got.ID != tt.want && err != nil {
+				t.Errorf("AddUser() = %v, want %v, error: %v", got.ID, tt.want, testError)
 			}
 		})
 	}
@@ -63,11 +62,11 @@ func TestUpdateUser(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			testError := UpdateUser(*uu, *u)
 
-			var got int
-			if DB.Raw(`SELECT id FROM users 
-			WHERE username = ? AND (password_hash = crypt(?, password_hash)) = 't';`,
-				tt.user.Username, tt.user.Password).Scan(&got); strconv.Itoa(got) != tt.want {
-				t.Errorf("UpdateUser() = %v, want %v, error: %v", strconv.Itoa(got), tt.want, testError)
+			var got struct{ ID string }
+			if err := DB.Table("users").Where("username = ?", u.Username).Where(
+				"(password_hash = crypt(?, password_hash)) = 't'", u.Password).
+				Select("id").First(&got).Error; got.ID != tt.want && err != nil {
+				t.Errorf("UpdateUser() = %v, want %v, error: %v", got.ID, tt.want, testError)
 			}
 		})
 	}

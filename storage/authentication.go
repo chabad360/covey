@@ -22,12 +22,12 @@ func UpdateUser(u models.User, uOld models.User) error {
 
 // GetUser returns a UserID from the database.
 func GetUser(u models.User) (string, error) {
-	var id []string
+	var id struct{ ID string }
 	err := DB.Table("users").Where("username = ?", u.Username).Where(
-		"(password_hash = crypt(?, password_hash)) = 't'", u.Password).Limit(1).Pluck("id", &id).Error
-	if err != nil || len(id) == 0 {
+		"(password_hash = crypt(?, password_hash)) = 't'", u.Password).Select("id").First(&id).Error
+	if err != nil {
 		return "", err
 	}
 	log.Println(id)
-	return id[0], nil
+	return id.ID, nil
 }
