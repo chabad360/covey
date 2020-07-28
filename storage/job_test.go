@@ -6,17 +6,30 @@ import (
 	"testing"
 )
 
-var j = &models.Job{
-	Name:  "update",
-	ID:    "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-	Nodes: []string{"node1"},
-	Tasks: map[string]models.JobTask{
-		"update": {
-			Plugin:  "shell",
-			Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
+var (
+	j = &models.Job{
+		Name:  "update",
+		ID:    "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+		Nodes: []string{"node1"},
+		Tasks: map[string]models.JobTask{
+			"update": {
+				Plugin:  "shell",
+				Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
+			},
 		},
-	},
-}
+	}
+	j2 = &models.Job{
+		Name:  "add",
+		ID:    "3748ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+		Nodes: []string{"node1"},
+		Tasks: map[string]models.JobTask{
+			"update": {
+				Plugin:  "shell",
+				Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
+			},
+		},
+	}
+)
 
 func TestAddJob(t *testing.T) {
 	//revive:disable:line-length-limit
@@ -24,7 +37,7 @@ func TestAddJob(t *testing.T) {
 		id   string
 		want *models.Job
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", j},
+		{"update", j},
 		{"3", &models.Job{}},
 	}
 	//revive:enable:line-length-limit
@@ -34,8 +47,8 @@ func TestAddJob(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			var got models.Task
-			if DB.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
+			var got models.Job
+			if err := DB.Where("name = ?", tt.id).First(&got).Error; !reflect.DeepEqual(got, tt.want) && err != nil {
 				t.Errorf("AddJob() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
@@ -72,11 +85,10 @@ func TestUpdateJob(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		id   string
-		want string
+		want *models.Job
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-			`{"id": "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", "cron": "5 * * * *", "name": "update", "nodes": ["node1"], "tasks": {"update": {"plugin": "shell", "details": {"command": "sudo apt update && sudo apt upgrade -y"}}}, "task_history": []}`},
-		{"3", ""},
+		{"update", j},
+		{"3", &models.Job{}},
 	}
 	//revive:enable:line-length-limit
 
@@ -87,7 +99,7 @@ func TestUpdateJob(t *testing.T) {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got models.Job
-			if DB.Where("id = ?", tt.id).Scan(&got); reflect.DeepEqual(got, tt.want) {
+			if DB.Where("name = ?", tt.id).Scan(&got); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("UpdateJob() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
@@ -100,7 +112,7 @@ func TestGetJobWithFullHistory(t *testing.T) {
 		id   string
 		want *models.Job
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", j},
+		{"update", j},
 		{"3", &models.Job{}},
 	}
 	//revive:enable:line-length-limit
@@ -108,8 +120,8 @@ func TestGetJobWithFullHistory(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			if got, err := GetJobWithFullHistory(tt.id); reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetJobWithFullHistory() = %v, want %v, error: %v", got, tt.want, err)
+			if got, ok := GetJobWithFullHistory(tt.id); !reflect.DeepEqual(got, tt.want) || !ok {
+				t.Errorf("GetJobWithFullHistory() = %v, want %v, ok: %v", got, tt.want, ok)
 			}
 		})
 	}

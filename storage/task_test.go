@@ -8,27 +8,28 @@ import (
 
 var task = &models.Task{
 	ID:       "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-	State:    models.StateRunning,
+	State:    models.StateQueued,
 	Plugin:   "test",
 	Details:  map[string]string{"test": "test"},
-	ExitCode: 0,
+	ExitCode: 258,
 }
 
 func TestAddTask(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
+		name string
 		id   string
 		want *models.Task
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", task},
-		{"3", &models.Task{}},
+		{"success", task.ID, task},
+		{"fail", "3", &models.Task{}},
 	}
 	//revive:enable:line-length-limit
 
 	testError := AddTask(task)
 
 	for _, tt := range tests {
-		testname := tt.id
+		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
 			var got models.Task
 			if DB.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
@@ -41,23 +42,40 @@ func TestAddTask(t *testing.T) {
 func TestSaveTask(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
-		id   string
-		want *models.Task
+		name   string
+		id     string
+		update TaskInfo
+		want   []string
+		want2  bool
+		want3  models.TaskState
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", task},
-		{"3", &models.Task{}},
+		{"start", task.ID, TaskInfo{nil, 257, task.ID}, nil, false, models.StateRunning},
+		{"log", task.ID, TaskInfo{[]string{"hello"}, 257, task.ID}, []string{"hello"}, false, models.StateRunning},
+		{"logError", task.ID, TaskInfo{[]string{"world"}, 1, task.ID}, []string{"hello", "world"}, false, models.StateError},
+		{"success", task.ID, TaskInfo{nil, 0, task.ID}, []string{"hello", "world"}, false, models.StateDone},
+		{"fail", "3", TaskInfo{}, nil, true, 0},
 	}
 	//revive:enable:line-length-limit
 
-	tu := &TaskInfo{[]string{"hello", "world"}, 0, "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e"}
-	SaveTask(tu)
-
 	for _, tt := range tests {
-		testName := tt.id
+		testName := tt.name
 		t.Run(testName, func(t *testing.T) {
+			err := SaveTask(&tt.update)
+			if (err != nil) != tt.want2 {
+				t.Errorf("SaveTask(): error %v", err)
+			}
+
 			var got models.Task
-			if result := DB.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
-				t.Errorf("saveTask() = %v, want %v, error: %v", got, tt.want, result.Error)
+			DB.Where("id = ?", tt.id).First(&got)
+
+			if got.ExitCode != tt.update.ExitCode {
+				t.Errorf("SaveTask(): ExitCode = %d, want %d", got.ExitCode, tt.update.ExitCode)
+			}
+			if reflect.DeepEqual(got.Log, tt.want) {
+				t.Errorf("SaveTask(): Log = %v, want %v", got.Log, tt.want)
+			}
+			if got.State != tt.want3 {
+				t.Errorf("SaveTask(): State = %v, want %v", got.State, tt.want3)
 			}
 		})
 	}
@@ -66,16 +84,17 @@ func TestSaveTask(t *testing.T) {
 func TestGetTask(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
+		name string
 		id   string
 		want models.Task
 	}{
-		{"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", *task},
-		{"3", models.Task{}},
+		{"success", task.ID, *task},
+		{"fail", "3", models.Task{}},
 	}
 	//revive:enable:line-length-limit
 
 	for _, tt := range tests {
-		testname := tt.id
+		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
 			if got, err := GetTask(tt.id); reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getTask() = %v, want %v, error: %v", got, tt.want, err)

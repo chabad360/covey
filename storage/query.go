@@ -9,8 +9,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// QueryParams parses a URL query and gets the items from the database based on it.
-type QueryParams struct {
+// Query parses a URL query and gets the items from the database based on it.
+type Query struct {
 	Limit  int    `form:"limit" validate:"min=1,max=50"`
 	Offset int    `form:"offset"`
 	Sort   string `form:"sort" validate:"oneof=asc desc"`
@@ -19,7 +19,7 @@ type QueryParams struct {
 }
 
 // Query runs a query against the database.
-func (q *QueryParams) Query(table string, model interface{}) error {
+func (q *Query) Query(table string, model interface{}) error {
 	v := validator.New()
 	errs := v.Struct(q)
 	if errs != nil {
@@ -46,7 +46,7 @@ func (q *QueryParams) Query(table string, model interface{}) error {
 }
 
 // Setup parses a url query.
-func (q *QueryParams) Setup(r *http.Request) error {
+func (q *Query) Setup(r *http.Request) error {
 	q.Limit = 20
 	q.Offset = 0
 	q.Sort = "asc"

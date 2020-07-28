@@ -33,12 +33,11 @@ func TestAddUser(t *testing.T) {
 		{"2", *u2, "2"},
 	}
 
-	AddUser(*u)
-	testError := AddUser(*u2)
-
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
+			testError := AddUser(tt.user)
+
 			var got int
 			if DB.Raw(`SELECT id FROM users 
 			WHERE username = ? AND (password_hash = crypt(?, password_hash)) = 't';`,
@@ -59,11 +58,11 @@ func TestUpdateUser(t *testing.T) {
 		{"2", *uu, "1"},
 	}
 
-	testError := UpdateUser(*uu, *u)
-
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
+			testError := UpdateUser(*uu, *u)
+
 			var got int
 			if DB.Raw(`SELECT id FROM users 
 			WHERE username = ? AND (password_hash = crypt(?, password_hash)) = 't';`,

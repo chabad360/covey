@@ -43,7 +43,7 @@ func jobNew(w http.ResponseWriter, r *http.Request) {
 func jobsGet(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
-	var q storage.QueryParams
+	var q storage.Query
 	err := q.Setup(r)
 	common.ErrorWriter(w, err)
 

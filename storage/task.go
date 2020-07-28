@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/chabad360/covey/models"
 )
 
@@ -32,11 +33,11 @@ func SaveTask(t *TaskInfo) error {
 	var ok bool
 
 	if task, ok = GetTask(t.ID); !ok {
-		return nil
+		return fmt.Errorf("SaveTask: task %s not found", t.ID)
 	}
 
-	if task.ExitCode == t.ExitCode || t.Log == nil { // Only update if there is something new!
-		return nil
+	if task.ExitCode == t.ExitCode && t.Log == nil { // Only update if there is something new!
+		return fmt.Errorf("SaveTask: nothing to save")
 	}
 
 	switch t.ExitCode {

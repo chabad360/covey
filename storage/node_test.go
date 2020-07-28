@@ -9,9 +9,8 @@ import (
 var n = &models.Node{
 	Name:       "node",
 	ID:         "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-	PrivateKey: []byte("12345"),
-	PublicKey:  []byte("12345"),
-	HostKey:    []byte("12345"),
+	PrivateKey: []byte("-----BEGIN RSA PRIVATE KEY-----\nMIIBOAIBAAJAc3MzlPc5PMH9Xc82hmxOBZXV7q6XnP+rr8GKzeaUkk4Q3jSJrTt8\nELVbZH2OPV3wo0sFnNCsSD3izlgp8eidVQIDAQABAkBCZCVtrR5FSmmh4N/CPdZA\ncAIu2EhoCL96uxpPfiJCX8qcUc6zu6ZY84wy6iN8I2iiBHCWsXyU/VHdbysOYIOh\nAiEAxoMoORbc0Dy+qi9khliIG/8UFtEcKUBXlyWctT3GdLsCIQCU4in24yM1R3rC\njXemM12Ks3Mt3T4+aJ0NQc22CcAdLwIgXL4F2rYdr4PRp/zAQCu4WywOnKJRP8x5\nn3nI/ru/reUCIAOa8m8zEuAwae2aJWKV7db0/34F1IMIX305sbSNyeQrAiAkhE+Z\nLe0VcQNyzkRTu+piHtcReomihMNOAs5KII5cMw==\n-----END RSA PRIVATE KEY-----"),
+	PublicKey:  []byte("ssh-rsa MFswDQYJKoZIhvcNAQEBBQADSgAwRwJAc3MzlPc5PMH9Xc82hmxOBZXV7q6XnP+r\nr8GKzeaUkk4Q3jSJrTt8ELVbZH2OPV3wo0sFnNCsSD3izlgp8eidVQIDAQAB"),
 	Username:   "user",
 	IP:         "127.0.0.1",
 }
@@ -68,20 +67,25 @@ func TestGetNodeIDOrName(t *testing.T) {
 	}
 }
 
-//func TestMain(m *testing.M) {
-//	pool, resource, pdb, err := test.Boilerplate()
-//	db = pdb
-//	DB = pdb
-//	if err != nil {
-//		log.Fatalf("Could not setup DB connection: %s", err)
-//	}
-//
-//	code := m.Run()
-//
-//	// You can't defer this because os.Exit doesn't care for defer
-//	if err := pool.Purge(resource); err != nil {
-//		log.Fatalf("Could not purge resource: %s", err)
-//	}
-//
-//	os.Exit(code)
-//}
+func TestGetNode(t *testing.T) {
+	type args struct {
+		id string
+	}
+	tests := []struct {
+		name  string
+		args  args
+		want  *models.Node
+		want1 bool
+	}{
+		{"success", args{n.ID}, n, true},
+		{"fail", args{"3"}, nil, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, got1 := GetNode(tt.args.id)
+			if got1 != tt.want1 {
+				t.Errorf("GetNode() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
