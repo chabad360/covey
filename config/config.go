@@ -1,16 +1,13 @@
 package config
 
-import (
-	"github.com/BoRuDar/configuration/v2"
-)
-
 var (
 	// Config is a struct that provides all covey configuration details.
 	Config = struct {
 		// revive:disable:line-length-limit
 		Daemon struct {
-			Host string `default:"" flag:"host||Resolvable address for this machine (If empty covey will listen on every address)." env:"COVEY_HOST"`
-			Port string `default:"8080" flag:"port||Port to expose the covey daemon on. (default '8080')" env:"COVEY_PORT"`
+			Host          string `default:"" flag:"host||Resolvable address for this machine (If empty covey will listen on every address)." env:"COVEY_HOST"`
+			Port          string `default:"8080" flag:"port||Port to expose the covey daemon on. (default '8080')" env:"COVEY_PORT"`
+			PluginsFolder string `default:"/usr/lib64/covey/plugins" flag:"plugins-folder||Folder where plugins are located. (default '/usr/lib64/covey/plugins')" env:"COVEY_PLUGINS_FOLDER"`
 		}
 		DB struct {
 			Username string `default:"postgres" flag:"postgres-username||The username used to login to the postgres database. (default 'postgres')" env:"COVEY_POSTGRES_USERNAME"`

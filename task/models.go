@@ -2,6 +2,7 @@ package task
 
 import (
 	"container/list"
+	"github.com/chabad360/covey/models"
 	json "github.com/json-iterator/go"
 )
 
@@ -28,5 +29,5 @@ func (l *List) MarshalJSON() ([]byte, error) {
 // Plugin defines the interface for Task module plugins.
 type Plugin interface {
 	// GetCommand returns the command to run the server.
-	GetCommand(taskJSON []byte) (string, error)
+	GetCommand(task models.Task) (string, error)
 }

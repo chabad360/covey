@@ -2,9 +2,11 @@ package task
 
 import (
 	"fmt"
+	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	json "github.com/json-iterator/go"
+	"path"
 	"plugin"
 )
 
@@ -25,7 +27,7 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 		return nil, err
 	}
 
-	cmd, err := p.GetCommand(taskJSON)
+	cmd, err := p.GetCommand(*t)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +48,7 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 }
 
 func loadPlugin(pluginName string) (Plugin, error) {
-	p, err := plugin.Open("./plugins/task/" + pluginName + ".so")
+	p, err := plugin.Open(path.Join(config.Config.Daemon.PluginsFolder, "task", pluginName+".so"))
 	if err != nil {
 		return nil, err
 	}

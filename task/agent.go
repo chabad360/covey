@@ -2,16 +2,14 @@ package task
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
-	"gorm.io/gorm"
+	"github.com/go-playground/pure/v5"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/chabad360/covey/common"
-	"github.com/go-playground/pure/v5"
 )
 
 var queues = make(map[string]*List)
@@ -35,7 +33,6 @@ func queueTask(nodeID string, taskID string, taskCommand string) error {
 	}
 
 	q.PushBack(t)
-
 	queues[id] = q
 
 	return nil
@@ -45,7 +42,6 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-
 	n, ok := storage.GetNodeIDorName(vars.URLParam("node"), "id")
 	common.ErrorWriter404(w, vars.URLParam("node"), ok) // TODO: disable the agent if there is no such node
 
@@ -58,16 +54,12 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	common.ErrorWriter(w, err)
 
 	if x.ID == "hello" {
-		if n, ok = storage.GetNodeIDorName(n, "name"); !ok {
-			common.ErrorWriter(w, fmt.Errorf("node %s not found", n))
-		}
+		n, ok = storage.GetNodeIDorName(n, "name")
+		common.ErrorWriter404(w, n, ok)
 
-		if err = initAgent(n); err != nil {
-			common.ErrorWriter(w, err)
-		}
+		common.ErrorWriter(w, Init(n))
 	} else {
-		err = storage.SaveTask(&x)
-		common.ErrorWriter(w, err)
+		common.ErrorWriter(w, storage.SaveTask(&x))
 	}
 
 	common.Write(w, queues[n])
@@ -76,17 +68,12 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 
 func initQueues(tasks []models.Task) error {
 	for _, t := range tasks {
-		j, err := json.Marshal(t)
-		if err != nil {
-			return err
-		}
-
 		p, err := loadPlugin(t.Plugin)
 		if err != nil {
 			return err
 		}
 
-		cmd, err := p.GetCommand(j)
+		cmd, err := p.GetCommand(t)
 		if err != nil {
 			return err
 		}
@@ -99,22 +86,17 @@ func initQueues(tasks []models.Task) error {
 	return nil
 }
 
-func initAgent(agent string) error {
+// Init initializes the agent queues.
+func Init(agent string) error {
 	var t []models.Task
-	result := storage.DB.Where("state = ?", models.StateQueued).Where("node = ?", agent).Find(&t)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return result.Error
+	tx := storage.DB.Where("state = ?", models.StateQueued)
+
+	if agent != "" {
+		tx.Where("node = ?", agent)
 	}
 
-	return initQueues(t)
-}
-
-// Init initializes the agent queues.
-func Init() error {
-	var t []models.Task
-	result := storage.DB.Where("state = ?", models.StateQueued).Find(&t)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return result.Error
+	if err := tx.Find(&t).Error; err != nil {
+		return err
 	}
 
 	return initQueues(t)

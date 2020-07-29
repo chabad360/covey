@@ -2,13 +2,13 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
-	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -71,7 +71,7 @@ func main() {
 	}
 }
 
-func settings(file string) (*config, error) {
+func settings(file string) (*config, error) { // TODO: Revamp config system (probably using configuration)
 	var exists bool
 
 	if err := godotenv.Load(file); err != nil {
@@ -120,7 +120,7 @@ func everySecond() {
 
 	var r *http.Response
 	for {
-		r, err = http.Post(agent.AgentPath, "application/json", strings.NewReader(string(body))) //nolint:gosec
+		r, err = http.Post(agent.AgentPath, "application/json", bytes.NewReader(body)) //nolint:gosec
 		if err == nil {
 			break
 		}
@@ -129,20 +129,17 @@ func everySecond() {
 		log.Println("Trying again in 5 seconds...")
 		time.Sleep(5 * time.Second)
 	}
+	defer r.Body.Close()
 
 	taskJSON, err := ioutil.ReadAll(r.Body)
 	errC(err)
 
 	var m map[int]task
-	err = json.Unmarshal(taskJSON, &m)
-	errC(err)
+	errC(json.Unmarshal(taskJSON, &m))
 
 	for i := 0; i < len(m); i++ {
 		queue <- m[i]
 	}
-
-	err = r.Body.Close()
-	errC(err)
 }
 
 func errC(err error) {
@@ -160,8 +157,7 @@ func runner() {
 		stdout, err := cmd.StdoutPipe()
 		errC(err)
 
-		err = cmd.Start()
-		errC(err)
+		errC(cmd.Start())
 
 		bb := bufio.NewScanner(stdout)
 		for bb.Scan() {
