@@ -1,11 +1,11 @@
 package task
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	"github.com/go-playground/pure/v5"
+	json "github.com/json-iterator/go"
 	"io/ioutil"
 	"net/http"
 
@@ -49,16 +49,14 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	common.ErrorWriter(w, err)
 
 	var x storage.TaskInfo
-
-	err = json.Unmarshal(b, &x)
-	common.ErrorWriter(w, err)
+	common.ErrorWriter(w, json.Unmarshal(b, &x))
 
 	if x.ID == "hello" {
 		n, ok = storage.GetNodeIDorName(n, "name")
 		common.ErrorWriter404(w, n, ok)
 
 		common.ErrorWriter(w, Init(n))
-	} else {
+	} else if x.ID != "" {
 		common.ErrorWriter(w, storage.SaveTask(&x))
 	}
 

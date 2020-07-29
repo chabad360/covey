@@ -89,6 +89,7 @@ func TestMain(m *testing.M) {
 	}
 
 	storage.AddTask(task1)
+	storage.AddNode(node1)
 
 	code := m.Run()
 

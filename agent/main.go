@@ -104,7 +104,7 @@ func settings(file string) (*config, error) { // TODO: Revamp config system (pro
 
 func everySecond() {
 	var err error
-	body := []byte("{}")
+	body := []byte("null")
 
 	if activeID != "" {
 		body, err = getBody()
