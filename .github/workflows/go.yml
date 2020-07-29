@@ -53,7 +53,7 @@ jobs:
       uses: crazy-max/ghaction-upx@v1
       with:
         version: latest
-        file: assets/agent
+        file: assets/agent/agent
 
     - name: Pack assets
       run: resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ ./assets/*
