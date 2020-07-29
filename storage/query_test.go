@@ -59,7 +59,9 @@ func TestQueryParams_Setup(t *testing.T) {
 		wantErr bool
 		want    Query
 	}{
+		// revive:disable:line-length-limit
 		{"work", args{httptest.NewRequest("GET", "/test?limit=2&offset=2&expand=true&sort=desc&sortby=name", nil)}, false, Query{2, 2, "desc", "name", true}},
+		// revive:enable:line-length-limit
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

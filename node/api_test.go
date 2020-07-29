@@ -15,6 +15,7 @@ import (
 )
 
 var (
+	// revive:disable:line-length-limit
 	n = &models.Node{
 		Name:       "node",
 		ID:         "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
@@ -23,16 +24,17 @@ var (
 		Username:   "user",
 		IP:         "127.0.0.1",
 	}
+	// revive:enable:line-length-limit
 	resource *dockertest.Resource
 )
 
 func TestNodeNew(t *testing.T) {
-	//revive:disable:line-length-limit
 	var tests = []struct {
 		name string
 		body string
 		want string
 	}{
+		// revive:disable:line-length-limit
 		{"success", `{"ip": "127.0.0.1","port": "` + resource.GetPort("22/tcp") + `","username": "root","password":"password","name": "node1"}`,
 			``},
 		{"sshError", `{"ip": "127.0.0.1","port": "1000","username": "root","password": "","name": "node1"}`,
@@ -44,8 +46,8 @@ func TestNodeNew(t *testing.T) {
 		{"error", `{"name":}`,
 			`{"error":"models.Node.Name: ReadString: expects \" or n, but found }, error found in #9 byte of ...|{\"name\":}|..., bigger context ...|{\"name\":}|..."}
 `},
+		// revive:enable:line-length-limit
 	}
-	//revive:enable:line-length-limit
 
 	h := test.PureBoilerplate("POST", "/api/v1/nodes", nodeNew)
 
@@ -67,19 +69,19 @@ func TestNodeNew(t *testing.T) {
 }
 
 func TestNodeGet(t *testing.T) {
-	//revive:disable:line-length-limit
 	var tests = []struct {
 		name string
 		id   string
 		want string
 	}{
+		// revive:disable:line-length-limit
 		{"success", "node",
 			`{"name":"node","id":"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e","ip":"127.0.0.1","username":"user","port":"22","CreatedAt":"2020-07-28T16:42:04.301694-07:00","UpdatedAt":"2020-07-28T16:42:04.301694-07:00"}
 `},
 		{"fail", "3", `{"error":"404 3 not found"}
 `},
+		// revive:enable:line-length-limit
 	}
-	//revive:enable:line-length-limit
 
 	h := test.PureBoilerplate("GET", "/api/v1/nodes/:node", nodeGet)
 
@@ -101,13 +103,13 @@ func TestNodeGet(t *testing.T) {
 
 //
 //func TestJobUpdate(t *testing.T) {
-//	//revive:disable:line-length-limit
 //	var tests = []struct {
 //		name string
 //		id   string
 //		body string
 //		want string
 //	}{
+//revive:disable:line-length-limit
 //		{"success", "update", `{"name":"update","cron":"5 * * * *","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "hello"}}}}`,
 //			`{"name":"update","id":"240875a9cf2c26d484a78b3f7f5aad21dd8f6e74031a7a5669f787d33e1b4cda","cron":"5 * * * *","nodes":["test"],"tasks":{"update":{"plugin":"test","details":{"command":"hello"}}},"task_history":[]}
 //`},
@@ -116,8 +118,8 @@ func TestNodeGet(t *testing.T) {
 //`},
 //		{"404", "c", "", `{"error":"404 c not found"}
 //`},
+//revive:enable:line-length-limit
 //	}
-//	//revive:enable:line-length-limit
 //
 //	h := test.PureBoilerplate("PUT", "/api/v1/nodes/:node", nodeUpdate)
 //
@@ -183,7 +185,9 @@ func TestMain(m *testing.M) {
 
 	time.Sleep(time.Second * 5)
 
+	// revive:disable:line-length-limit
 	n.HostKey, _ = hex.DecodeString("0000001365636473612d736861322d6e69737470323536000000086e6973747032353600000041044032b5eed25ed08ec4361d9f7e6a7e27f725d563bc033f777fe2b12bdd61c86c160476c6d080b1361ea4ab9e89ec104051762ecb0a4595f53a16a06c959a0704")
+	// revive:enable:line-length-limit
 	storage.AddNode(n)
 
 	code := m.Run()

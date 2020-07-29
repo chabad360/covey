@@ -5,21 +5,19 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/chabad360/covey/config"
-	"github.com/chabad360/covey/models"
-	"log"
-	"net/http"
-	"strconv"
-	"strings"
-
 	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/authentication"
+	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/job"
+	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/node"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task"
 	"github.com/chabad360/covey/ui"
 	"github.com/go-playground/pure/v5"
+	"log"
+	"net"
+	"net/http"
 )
 
 const (
@@ -142,7 +140,7 @@ func main() {
 	fmt.Println()
 	log.Println("Ready to serve!")
 	fmt.Println()
-	log.Fatal(http.ListenAndServe(strings.Join([]string{config.Config.Daemon.Host, strconv.Itoa(config.Config.Daemon.Port)}, ":"), r.Serve()))
+	log.Fatal(http.ListenAndServe(net.JoinHostPort(config.Config.Daemon.Host, config.Config.Daemon.Port), r.Serve()))
 }
 
 func loggingMiddleware(next http.HandlerFunc) http.HandlerFunc {

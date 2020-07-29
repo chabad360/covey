@@ -7,7 +7,10 @@ import (
 	"github.com/gbrlsnchs/jwt/v3"
 )
 
+// revive:disable:line-length-limit
 const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3ZleS1hcGkiLCJzdWIiOiIzIiwiYXVkIjoiYWxsIiwiZXhwIjo0NDY5NTQyMzYzLCJpYXQiOjE1OTU1MzI3NjMsImp0aSI6InNseUM0QVd2N0NhU3RKWG9yeXF5QzFPOWZLUFJzdFZQIn0.AAU9I8yub7VmTCnT833F54W6uQbhGVFKR8DSsi9pDJI"
+
+// revive:enable:line-length-limit
 
 func TestCreateToken(t *testing.T) {
 	type args struct {

@@ -45,7 +45,7 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 	return t, nil
 }
 
-func loadPlugin(pluginName string) (TaskPlugin, error) {
+func loadPlugin(pluginName string) (Plugin, error) {
 	p, err := plugin.Open("./plugins/task/" + pluginName + ".so")
 	if err != nil {
 		return nil, err
@@ -56,11 +56,11 @@ func loadPlugin(pluginName string) (TaskPlugin, error) {
 		return nil, err
 	}
 
-	var s TaskPlugin
+	var s Plugin
 
-	s, ok := n.(TaskPlugin)
+	s, ok := n.(Plugin)
 	if !ok {
-		return nil, fmt.Errorf(pluginName, " does not provide a TaskPlugin")
+		return nil, fmt.Errorf(pluginName, " does not provide a Plugin")
 	}
 
 	return s, nil

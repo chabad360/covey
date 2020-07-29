@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"reflect"
-	"strconv"
 	"testing"
 
 	"github.com/chabad360/covey/test"
@@ -30,13 +29,15 @@ func TestMain(m *testing.M) {
 	config.Config.DB.Username = "postgres"
 	config.Config.DB.Password = "secret"
 	config.Config.DB.Host = "localhost"
-	config.Config.DB.Port, err = strconv.Atoi(resource.GetPort("5432/tcp"))
+	config.Config.DB.Port = resource.GetPort("5432/tcp")
 	config.Config.DB.Database = "covey"
 	if err != nil {
 		log.Fatalf("Could not setup config")
 	}
 
+	// revive:disable:line-length-limit
 	n.HostKey, _ = hex.DecodeString("0000001365636473612d736861322d6e69737470323536000000086e6973747032353600000041044032b5eed25ed08ec4361d9f7e6a7e27f725d563bc033f777fe2b12bdd61c86c160476c6d080b1361ea4ab9e89ec104051762ecb0a4595f53a16a06c959a0704")
+	// revive:enable:line-length-limit
 
 	DB.Create(task)
 	//DB.Create(j)

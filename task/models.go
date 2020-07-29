@@ -11,11 +11,11 @@ type agentTask struct {
 	ID      string `json:"id"`
 }
 
-// TaskList implements List type as well as the json.Marshaler interface.
-type TaskList struct{ list.List }
+// List implements List type as well as the json.Marshaler interface.
+type List struct{ list.List }
 
 // MarshalJSON implements the json.Marshaler interface.
-func (l *TaskList) MarshalJSON() ([]byte, error) {
+func (l *List) MarshalJSON() ([]byte, error) {
 	m := make(map[int]agentTask)
 	i := 0
 	for e := l.Front(); e != nil; e = e.Next() {
@@ -25,8 +25,8 @@ func (l *TaskList) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
-// TaskPlugin defines the interface for Task module plugins.
-type TaskPlugin interface {
+// Plugin defines the interface for Task module plugins.
+type Plugin interface {
 	// GetCommand returns the command to run the server.
 	GetCommand(taskJSON []byte) (string, error)
 }

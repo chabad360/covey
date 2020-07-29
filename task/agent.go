@@ -14,7 +14,7 @@ import (
 	"github.com/go-playground/pure/v5"
 )
 
-var queues = make(map[string]*TaskList)
+var queues = make(map[string]*List)
 
 func queueTask(nodeID string, taskID string, taskCommand string) error {
 	t := agentTask{
@@ -27,9 +27,9 @@ func queueTask(nodeID string, taskID string, taskCommand string) error {
 		return fmt.Errorf("%v is not a valid node ID", nodeID)
 	}
 
-	var q *TaskList
+	var q *List
 	if queues[id] == nil {
-		q = &TaskList{}
+		q = &List{}
 	} else {
 		q = queues[id]
 	}

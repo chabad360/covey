@@ -109,9 +109,13 @@ func installAgent(node string, id string, cfg *ssh.ClientConfig, sshClient *ssh.
 	if _, err = sshRun(sshClient, "su root -c \"mv /covey-agent.service /usr/lib/systemd/system/\""); err != nil {
 		return fmt.Errorf("install service: %v", err)
 	}
+
 	if _, err := sshRun(sshClient, fmt.Sprintf(`su root -c "mkdir /etc/covey"; echo 'AGENT_ID="%s" \
 AGENT_HOST="%s" \
-AGENT_PORT="%v"' > $HOME/agent.conf; su root -c "mv $HOME/agent.conf /etc/covey/agent.conf"; su root -c "chown root:root /etc/covey/agent.conf"`, id, config.Config.Daemon.Host, config.Config.Daemon.Port)); err != nil {
+AGENT_PORT="%s"' > $HOME/agent.conf;
+su root -c "mv $HOME/agent.conf /etc/covey/agent.conf";
+su root -c "chown root:root /etc/covey/agent.conf"`,
+		id, config.Config.Daemon.Host, config.Config.Daemon.Port)); err != nil {
 		return fmt.Errorf("install config: %v", err)
 	} // Add config file for agent
 	if _, err = sshRun(sshClient, "su root -c \"systemctl enable --now covey-agent.service\""); err != nil {
@@ -150,7 +154,7 @@ func nodeFactory(n *models.Node) error {
 }
 
 func newNode(node *models.Node) error {
-	config := &ssh.ClientConfig{
+	cfg := &ssh.ClientConfig{
 		User: node.Username,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(node.Password),
@@ -159,7 +163,7 @@ func newNode(node *models.Node) error {
 	}
 
 	// Create an initial connection
-	client, err := ssh.Dial("tcp", node.IP+":"+node.Port, config)
+	client, err := ssh.Dial("tcp", node.IP+":"+node.Port, cfg)
 	if err != nil {
 		return err
 	}
@@ -194,9 +198,5 @@ func newNode(node *models.Node) error {
 	}
 	node.ID = common.GenerateID(node)
 
-	if err = installAgent(node.IP+":"+node.Port, node.ID, config, client); err != nil {
-		return err
-	}
-
-	return nil
+	return installAgent(node.IP+":"+node.Port, node.ID, cfg, client)
 }

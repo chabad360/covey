@@ -16,8 +16,15 @@ var (
 func Init() error {
 	var err error
 	// TODO: provide a method for configuration
-	DB, err = gorm.Open(postgres.Open(fmt.Sprintf("user=%s password=%s host=%s port=%v dbname=%s", config.Config.DB.Username, config.Config.DB.Password, config.Config.DB.Host, config.Config.DB.Port, config.Config.DB.Database)), &gorm.Config{
-		//Logger: logger.Default.LogMode(logger.Silent),
-	})
+	DB, err = gorm.Open(
+		postgres.Open(
+			fmt.Sprintf("user=%s password=%s host=%s port=%v dbname=%s",
+				config.Config.DB.Username,
+				config.Config.DB.Password,
+				config.Config.DB.Host,
+				config.Config.DB.Port,
+				config.Config.DB.Database)), &gorm.Config{
+			//Logger: logger.Default.LogMode(logger.Silent),
+		})
 	return err
 }

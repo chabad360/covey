@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// revive:disable:line-length-limit
 var n = &models.Node{
 	Name:       "node",
 	ID:         "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
@@ -14,6 +15,8 @@ var n = &models.Node{
 	Username:   "user",
 	IP:         "127.0.0.1",
 }
+
+// revive:enable:line-length-limit
 
 func TestAddNode(t *testing.T) {
 	//revive:disable:line-length-limit
