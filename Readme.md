@@ -100,6 +100,11 @@ go build -trimpath github.com/chabad360/covey
 
 createdb covey
 
+./covey # This will crash, it's meant to (will be fixed)
+psql -U postgres covey <<EOF
+INSERT INTO users(username, password_hash) VALUES(<username>, crypt(<password>, gen_salt('bf')));
+EOF
+
 ./covey -plugins-folder=./plugins
 ```
 
