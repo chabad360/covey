@@ -3,6 +3,7 @@ module github.com/chabad360/covey
 go 1.14
 
 require (
+	github.com/BoRuDar/configuration/v2 v2.2.4
 	github.com/bramvdbogaerde/go-scp v0.0.0-20200518191442-5c8efdd1d925
 	github.com/containerd/continuity v0.0.0-20200710164510-efbc4488d8fe // indirect
 	github.com/gbrlsnchs/jwt/v3 v3.0.0-rc.2

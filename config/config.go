@@ -1,5 +1,9 @@
 package config
 
+import (
+	"github.com/BoRuDar/configuration/v2"
+)
+
 var (
 	// Config is a struct that provides all covey configuration details.
 	Config = struct {

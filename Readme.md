@@ -87,12 +87,20 @@ At the moment, I've begun work on completing the API.
 git clone https://github.com/chabad360/covey
 cd covey
 
+go mod download
+go get github.com/omeid/go-resources/cmd/resources
+
+go build -ldflags="-s -w" -trimpath -v -o assets/agent github.com/chabad360/covey/agent
+upx assets/agent/agent
+
+resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ ./assets/*
+
 go build -trimpath -buildmode=plugin -o plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
 go build -trimpath github.com/chabad360/covey
 
 createdb covey
 
-./covey
+./covey -plugins-folder=./plugins
 ```
 
 Use the following command to build covey with live file system changes support:
