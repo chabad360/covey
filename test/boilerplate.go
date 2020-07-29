@@ -9,7 +9,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-playground/pure/v5"
-	"github.com/ory/dockertest"
+	"github.com/ory/dockertest/v3"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

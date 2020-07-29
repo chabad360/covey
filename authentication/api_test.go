@@ -48,7 +48,7 @@ func TestTokenGetAPI(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			rr, req, err := test.HTTPBoilerplate("GET", "/api/v1/auth/token", nil)
 			if err != nil {
-				t.Fatal(err)
+				t.Error(err)
 			}
 			if tt.userid != "" {
 				req.Header.Add("X-User-ID", tt.userid)
@@ -58,7 +58,6 @@ func TestTokenGetAPI(t *testing.T) {
 			if rr.Code != tt.wantStatus {
 				t.Errorf("tokenCookie status = %v, want %v, error = %v", rr.Code, tt.wantStatus, rr.Body.String())
 			}
-
 			if !strings.Contains(rr.Body.String(), tt.want) {
 				t.Errorf("tokenGetAPI body = %v, want %v", rr.Body.String(), tt.want)
 			}

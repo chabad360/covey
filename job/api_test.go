@@ -33,12 +33,12 @@ func TestJobNew(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	h := test.PureBoilerplate("GET", "/api/v1/jobs", jobNew)
+	h := test.PureBoilerplate("POST", "/api/v1/jobs", jobNew)
 
 	for _, tt := range tests {
 		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
-			rr, req, err := test.HTTPBoilerplate("GET", "/api/v1/jobs", strings.NewReader(tt.body))
+			rr, req, err := test.HTTPBoilerplate("POST", "/api/v1/jobs", strings.NewReader(tt.body))
 			if err != nil {
 				t.Fatal(err)
 			}

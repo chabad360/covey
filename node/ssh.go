@@ -87,34 +87,34 @@ func installAgent(node string, id string, cfg *ssh.ClientConfig, sshClient *ssh.
 	}
 	defer f2.Close()
 
-	if err = client.CopyFile(f, "/tmp/agent", "0755"); err != nil {
+	if err = client.CopyFile(f, "/agent", "0755"); err != nil {
 		return err
 	}
 
 	if err := client.Connect(); err != nil {
 		return err
 	}
-	if err = client.CopyFile(f2, "/tmp/covey-agent.service", "0644"); err != nil {
+	if err = client.CopyFile(f2, "/covey-agent.service", "0644"); err != nil {
 		return err
 	}
 	log.Println("Copied files")
 
-	if _, err = sshRun(sshClient, `sudo chown root:root /tmp/agent \
-		&& sudo chown root:root /tmp/covey-agent.service`); err != nil {
+	if _, err = sshRun(sshClient, `su root -c "chown root:root /agent" \
+		&& su root -c "chown root:root /covey-agent.service"`); err != nil {
 		return fmt.Errorf("chown: %v", err)
 	}
-	if _, err = sshRun(sshClient, "sudo mv /tmp/agent /usr/bin/"); err != nil {
+	if _, err = sshRun(sshClient, "su root -c \"mv /agent /usr/bin/\""); err != nil {
 		return fmt.Errorf("install agent: %v", err)
 	}
-	if _, err = sshRun(sshClient, "sudo mv /tmp/covey-agent.service /usr/lib/systemd/system/"); err != nil {
+	if _, err = sshRun(sshClient, "su root -c \"mv /covey-agent.service /usr/lib/systemd/system/\""); err != nil {
 		return fmt.Errorf("install service: %v", err)
 	}
-	if _, err := sshRun(sshClient, fmt.Sprintf(`sudo mkdir /etc/covey; echo 'AGENT_ID="%s" \
+	if _, err := sshRun(sshClient, fmt.Sprintf(`su root -c "mkdir /etc/covey"; echo 'AGENT_ID="%s" \
 AGENT_HOST="%s" \
-AGENT_PORT="%v"' | sudo tee /etc/covey/agent.conf`, id, config.Config.Daemon.Host, config.Config.Daemon.Port)); err != nil {
+AGENT_PORT="%v"' > $HOME/agent.conf; su root -c "mv $HOME/agent.conf /etc/covey/agent.conf"; su root -c "chown root:root /etc/covey/agent.conf"`, id, config.Config.Daemon.Host, config.Config.Daemon.Port)); err != nil {
 		return fmt.Errorf("install config: %v", err)
 	} // Add config file for agent
-	if _, err = sshRun(sshClient, "sudo systemctl enable --now covey-agent.service"); err != nil {
+	if _, err = sshRun(sshClient, "su root -c \"systemctl enable --now covey-agent.service\""); err != nil {
 		return fmt.Errorf("install service: %v", err)
 	}
 
