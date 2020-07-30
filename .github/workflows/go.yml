@@ -60,7 +60,7 @@ jobs:
       run: go test -trimpath -v -coverprofile=coverage.txt -covermode count ./...
       
     - name: Upload coverage
-      if: succeeded() || failed()
+      if: success() || failure()
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: |
