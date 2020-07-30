@@ -55,8 +55,6 @@ warningCode = 0
 [rule.range-val-address]
 [rule.waitgroup-by-value]
 [rule.empty-lines]
-[rule.line-length-limit]
-  arguments = [120]
 [rule.duplicated-imports]
 [rule.import-shadowing]
 [rule.string-of-int]
