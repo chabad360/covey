@@ -40,11 +40,12 @@ func Test_agentPost(t *testing.T) {
 		body string
 		want string
 	}{
+		// revive:disable:line-length-limit
 		{"success", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `null`, `{"0":{"command":"test1","id":"test1"}}
 `},
 		{"empty", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `null`, `null
 `},
-		{"send", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `{"id":"` + task1.ID + `", "log":["test"], "exit_code":0}`, `null
+		{"send", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `{"id":"` + t1.ID + `", "log":["test"], "exit_code":0}`, `null
 `},
 		{"sendFail", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `{"id":"test2", "log":["test"], "exit_code":0}`, `{"error":"saveTask: task test2 not found"}
 `},
@@ -52,6 +53,7 @@ func Test_agentPost(t *testing.T) {
 `},
 		{"fail404", "3", ``, `{"error":"404 3 not found"}
 `},
+		// revive:enable:line-length-limit
 	}
 
 	h := test.PureBoilerplate("POST", "/agent/:node", agentPost)

@@ -5,6 +5,7 @@ import (
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
+	json "github.com/json-iterator/go"
 	"github.com/ory/dockertest/v3"
 	"log"
 	"os"
@@ -23,6 +24,14 @@ var (
 		PublicKey:  []byte("ssh-rsa MFswDQYJKoZIhvcNAQEBBQADSgAwRwJAc3MzlPc5PMH9Xc82hmxOBZXV7q6XnP+r\nr8GKzeaUkk4Q3jSJrTt8ELVbZH2OPV3wo0sFnNCsSD3izlgp8eidVQIDAQAB"),
 		Username:   "user",
 		IP:         "127.0.0.1",
+	}
+	n2 = &models.Node{
+		Name:       "n",
+		ID:         "3773ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+		PrivateKey: []byte("-----BEGIN RSA PRIVATE KEY-----\nMIIBOAIBAAJAc3MzlPc5PMH9Xc82hmxOBZXV7q6XnP+rr8GKzeaUkk4Q3jSJrTt8\nELVbZH2OPV3wo0sFnNCsSD3izlgp8eidVQIDAQABAkBCZCVtrR5FSmmh4N/CPdZA\ncAIu2EhoCL96uxpPfiJCX8qcUc6zu6ZY84wy6iN8I2iiBHCWsXyU/VHdbysOYIOh\nAiEAxoMoORbc0Dy+qi9khliIG/8UFtEcKUBXlyWctT3GdLsCIQCU4in24yM1R3rC\njXemM12Ks3Mt3T4+aJ0NQc22CcAdLwIgXL4F2rYdr4PRp/zAQCu4WywOnKJRP8x5\nn3nI/ru/reUCIAOa8m8zEuAwae2aJWKV7db0/34F1IMIX305sbSNyeQrAiAkhE+Z\nLe0VcQNyzkRTu+piHtcReomihMNOAs5KII5cMw==\n-----END RSA PRIVATE KEY-----"),
+		PublicKey:  []byte("ssh-rsa MFswDQYJKoZIhvcNAQEBBQADSgAwRwJAc3MzlPc5PMH9Xc82hmxOBZXV7q6XnP+r\nr8GKzeaUkk4Q3jSJrTt8ELVbZH2OPV3wo0sFnNCsSD3izlgp8eidVQIDAQAB"),
+		Username:   "user",
+		IP:         "127.0.0.2",
 	}
 	// revive:enable:line-length-limit
 	resource *dockertest.Resource
@@ -63,6 +72,47 @@ func TestNodeNew(t *testing.T) {
 			//reflect.DeepEqual(rr.Body.Bytes()[0:5], []byte(tt.want)[0:5]) &&
 			if rr.Body.String() != tt.want {
 				t.Errorf("nodeNew body = %v, want %v", rr.Body.String(), tt.want)
+			}
+		})
+	}
+}
+
+func TestNodesGet(t *testing.T) {
+	storage.DB.Delete(&models.Node{}, "id != ''")
+	storage.AddNode(n)
+	storage.AddNode(n2)
+	js, _ := json.Marshal(n2)
+
+	var tests = []struct {
+		name   string
+		params string
+		want   string
+	}{
+		// revive:disable:line-length-limit
+		{"success", "sortby=name", `["` + n2.ID + `","` + n.ID + `"]
+`},
+		{"onlyOne", "sortby=name&limit=1", `["` + n2.ID + `"]
+`},
+		{"offsetOne", "sortby=name&limit=1&offset=1", `["` + n.ID + `"]
+`},
+		{"expandOne", "sortby=name&limit=1&expand=true", `[` + string(js) + `]
+`},
+		// revive:enable:line-length-limit
+	}
+
+	h := test.PureBoilerplate("GET", "/api/v1/nodes", nodesGet)
+
+	for _, tt := range tests {
+		testname := tt.name
+		t.Run(testname, func(t *testing.T) {
+			rr, req, err := test.HTTPBoilerplate("GET", "/api/v1/nodes?"+tt.params, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			h.ServeHTTP(rr, req)
+			if !reflect.DeepEqual(rr.Body.Bytes(), []byte(tt.want)) && rr.Body.String() != tt.want {
+				t.Errorf("nodesGet body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})
 	}

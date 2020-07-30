@@ -1,6 +1,8 @@
 package job
 
 import (
+	"encoding/json"
+	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	"log"
 	"os"
@@ -9,6 +11,31 @@ import (
 	"testing"
 
 	"github.com/chabad360/covey/test"
+)
+
+var (
+	j = &models.Job{
+		Name:  "update",
+		ID:    "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+		Nodes: []string{"node1"},
+		Tasks: map[string]models.JobTask{
+			"update": {
+				Plugin:  "shell",
+				Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
+			},
+		},
+	}
+	j2 = &models.Job{
+		Name:  "add",
+		ID:    "3748ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
+		Nodes: []string{"node1"},
+		Tasks: map[string]models.JobTask{
+			"update": {
+				Plugin:  "shell",
+				Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
+			},
+		},
+	}
 )
 
 func TestJobNew(t *testing.T) {
@@ -46,6 +73,47 @@ func TestJobNew(t *testing.T) {
 			h.ServeHTTP(rr, req)
 			if !reflect.DeepEqual(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
 				t.Errorf("jobNew body = %v, want %v", rr.Body.String()[0:10], tt.want[0:10])
+			}
+		})
+	}
+}
+
+func TestJobsGet(t *testing.T) {
+	storage.DB.Delete(&models.Job{}, "id != ''")
+	storage.AddJob(j)
+	storage.AddJob(j2)
+	js, _ := json.Marshal(j2)
+
+	var tests = []struct {
+		name   string
+		params string
+		want   string
+	}{
+		// revive:disable:line-length-limit
+		{"success", "sortby=name", `["` + j2.ID + `","` + j.ID + `"]
+`},
+		{"onlyOne", "sortby=name&limit=1", `["` + j2.ID + `"]
+`},
+		{"offsetOne", "sortby=name&limit=1&offset=1", `["` + j.ID + `"]
+`},
+		{"expandOne", "sortby=name&limit=1&expand=true", `[` + string(js) + `]
+`},
+		// revive:enable:line-length-limit
+	}
+
+	h := test.PureBoilerplate("GET", "/api/v1/jobs", jobsGet)
+
+	for _, tt := range tests {
+		testname := tt.name
+		t.Run(testname, func(t *testing.T) {
+			rr, req, err := test.HTTPBoilerplate("GET", "/api/v1/jobs?"+tt.params, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			h.ServeHTTP(rr, req)
+			if !reflect.DeepEqual(rr.Body.Bytes(), []byte(tt.want)) && rr.Body.String() != tt.want {
+				t.Errorf("jobGet body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})
 	}

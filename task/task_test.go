@@ -5,8 +5,16 @@ import (
 )
 
 var (
-	task1 = &models.Task{
+	t1 = &models.Task{
 		ID:       "2778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6c",
+		State:    models.StateRunning,
+		Plugin:   "test",
+		Node:     "test",
+		Details:  map[string]string{"test": "test"},
+		ExitCode: 0,
+	}
+	t2 = &models.Task{
+		ID:       "277dffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6c",
 		State:    models.StateRunning,
 		Plugin:   "test",
 		Node:     "test",
