@@ -62,13 +62,13 @@ func TestTasksGet(t *testing.T) {
 		want   string
 	}{
 		// revive:disable:line-length-limit
-		{"success", "sortby=name", `["` + t2.ID + `","` + t1.ID + `"]
+		{"success", "sortby=node", `["` + t2.ID + `","` + t1.ID + `"]
 `},
-		{"onlyOne", "sortby=name&limit=1", `["` + t2.ID + `"]
+		{"onlyOne", "sortby=node&limit=1", `["` + t2.ID + `"]
 `},
-		{"offsetOne", "sortby=name&limit=1&offset=1", `["` + t1.ID + `"]
+		{"offsetOne", "sortby=node&limit=1&offset=1", `["` + t1.ID + `"]
 `},
-		{"expandOne", "sortby=name&limit=1&expand=true", `[` + string(js) + `]
+		{"expandOne", "sortby=node&limit=1&expand=true", `[` + string(js) + `]
 `},
 		// revive:enable:line-length-limit
 	}

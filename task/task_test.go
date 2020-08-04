@@ -9,7 +9,7 @@ var (
 		ID:       "2778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6c",
 		State:    models.StateRunning,
 		Plugin:   "test",
-		Node:     "test",
+		Node:     "test1",
 		Details:  map[string]string{"test": "test"},
 		ExitCode: 0,
 	}
