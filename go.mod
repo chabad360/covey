@@ -16,5 +16,5 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	gorm.io/driver/postgres v0.2.5
-	gorm.io/gorm v0.2.24
+	gorm.io/gorm v0.2.27
 )

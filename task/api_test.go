@@ -92,15 +92,14 @@ func TestTasksGet(t *testing.T) {
 }
 
 func TestTaskGet(t *testing.T) {
+	js, _ := json.Marshal(t1)
 	var tests = []struct {
 		name string
 		id   string
 		want string
 	}{
 		// revive:disable:line-length-limit
-		{"success", t1.ID,
-			`{"state":6,"plugin":"test","id":"91daa4d64a2693c0e9d012650b19e16c9f64541f8c34e24e4c387a4a8a44cb38","node":"test","details":{"test":"test"},"exit_code":258,"created_at":"2020-07-29T14:15:21.399917-07:00","updated_at":"2020-07-29T14:15:21.399917-07:00"}
-`},
+		{"success", t1.ID, string(js) + "\n"},
 		{"fail", "3", `{"error":"404 3 not found"}
 `},
 		// revive:enable:line-length-limit
@@ -117,7 +116,7 @@ func TestTaskGet(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if !reflect.DeepEqual(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
+			if rr.Body.String() != tt.want {
 				t.Errorf("taskGet body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})

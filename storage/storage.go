@@ -5,6 +5,7 @@ import (
 	"github.com/chabad360/covey/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"time"
 )
 
 var (
@@ -25,6 +26,9 @@ func Init() error {
 				config.Config.DB.Port,
 				config.Config.DB.Database)), &gorm.Config{
 			//Logger: logger.Default.LogMode(logger.Silent),
+			NowFunc: func() time.Time {
+				return time.Now().UTC().Truncate(time.Microsecond).Local()
+			},
 		})
 	return err
 }

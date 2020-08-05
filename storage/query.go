@@ -37,7 +37,7 @@ func (q *Query) Query(table string, model interface{}) error {
 		tx.Select("id")
 	}
 
-	tx.Scan(model)
+	tx.Find(model)
 	if tx.Error != nil {
 		return tx.Error
 	}

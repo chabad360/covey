@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chabad360/covey/models"
 	"io"
+	"time"
 
 	"net/http"
 	"net/http/httptest"
@@ -32,9 +33,13 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *gorm.DB, error) {
 
 	if err = pool.Retry(func() error {
 		var err error
-		db, err = gorm.Open(postgres.Open(
+		db, err = gorm.Open(postgres.Open( // TODO: replace with storage.Init()
 			fmt.Sprintf("postgres://postgres:secret@localhost:%s/%s?sslmode=disable",
-				resource.GetPort("5432/tcp"), "covey")), &gorm.Config{})
+				resource.GetPort("5432/tcp"), "covey")), &gorm.Config{
+			NowFunc: func() time.Time {
+				return time.Now().UTC().Truncate(time.Microsecond).Local()
+			},
+		})
 		if err != nil {
 			return err
 		}
