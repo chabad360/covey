@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"github.com/google/go-cmp/cmp"
 	"testing"
 	"time"
 
@@ -24,17 +25,18 @@ func TestCreateToken(t *testing.T) {
 		want    time.Time
 		wantErr bool
 	}{
-		{"1", args{"1", "user", []string{"all"}}, time.Now().Add(20 * time.Minute), false},
-		{"2", args{"1", "api", []string{"all"}}, time.Now().Add(4 * (7 * (24 * time.Hour))), false},
+		{"user", args{"1", "user", []string{"all"}}, time.Now().Add(12 * time.Hour), false},
+		{"api", args{"1", "api", []string{"all"}}, time.Now().Add(4 * (7 * (24 * time.Hour))), false},
+		{"failBadID", args{"", "api", []string{"all"}}, time.Now().Add(4 * (7 * (24 * time.Hour))), true},
+		{"failBadType", args{"1", "", []string{"all"}}, time.Now().Add(4 * (7 * (24 * time.Hour))), true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			_, got, err := createToken(tt.args.userID, tt.args.tokenType, tt.args.allowedClaims)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("createToken() error = %v, wantErr %v", err, tt.wantErr)
-				return
 			}
-			if got.Unix() != tt.want.Unix() {
+			if !tt.wantErr && got.Unix() != tt.want.Unix() {
 				t.Errorf("createToken() got = %v, want %v", got.Unix(), tt.want.Unix())
 			}
 		})
@@ -42,6 +44,13 @@ func TestCreateToken(t *testing.T) {
 }
 
 func TestParseToken(t *testing.T) {
+	losAngeles, err := time.LoadLocation("America/Los_Angeles")
+	if err != nil {
+		t.Fatal(err)
+	}
+	timeD := jwt.NumericDate(time.Date(2020, 7, 23, 12, 32, 43, 0, losAngeles))
+	timeE := jwt.NumericDate(time.Date(2111, 8, 20, 11, 32, 43, 0, losAngeles))
+
 	type args struct {
 		tokenString string
 		tokenType   string
@@ -53,7 +62,7 @@ func TestParseToken(t *testing.T) {
 		wantErr bool
 	}{
 		//revive:disable:line-length-limit
-		{"Good", args{token, "api"}, &jwt.Payload{Issuer: "covey-api"}, false},
+		{"Good", args{token, "api"}, &jwt.Payload{"covey-api", "3", []string{"all"}, timeE, nil, timeD, "slyC4AWv7CaStJXoryqyC1O9fKPRstVP"}, false},
 		{"Expired", args{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3ZleS1hcGkiLCJzdWIiOiIxIiwiYXVkIjoiYWxsIiwiZXhwIjowLCJpYXQiOjE1OTE5MTI5NzAsImp0aSI6InBIWWp4ZVVCclZmZHdVeldIUmloRkRQUkhCTXVFV21hIn0.XiNKXNDmsxXul8ceyQUgBWJBfrUmBsHWyLC34_Qy5qo",
 			"api"}, &jwt.Payload{Issuer: "covey-api"}, true},
 		{"Invalid", args{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3ZleS1hcGkiLCJzdWIiOiIxIiwiYXVkIjoiYWxsIiwiZXhwIjowLCJpYXQiOjE1OTE5MTI5NzAsImp0aSI6InBIWWp4ZVVCclZmZHdVeldIUmloRkRQUkhCTXVFV21hIna.XiNKXNDmsxXul8ceyQUgBWJBfrUmBsHWyLC34_Qy5qo",
@@ -67,11 +76,10 @@ func TestParseToken(t *testing.T) {
 			got, err := parseToken(tt.args.tokenString, tt.args.tokenType, "all")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseToken() error = %v, wantErr %v, got = %v, sent = %v", err, tt.wantErr, got, tt.args)
-				return
 			}
-			// if got != tt.want {
-			// 	t.Errorf("parseToken() = %v, want %v", got, tt.want)
-			// }
+			if !tt.wantErr && !cmp.Equal(got, tt.want) {
+				t.Errorf("parseToken() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

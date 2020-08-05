@@ -48,23 +48,25 @@ func TestAddUser(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
+	DB.Delete(&models.User{}, "id > 0")
+	AddUser(*u)
+
 	var tests = []struct {
 		id   string
-		user models.User
+		user *models.User
 		want string
 	}{
-		{"1", *u, "0"},
-		{"2", *uu, "1"},
+		{"1", u, ""},
+		{"2", uu, "1"},
 	}
+	testError := UpdateUser(*uu, *u)
 
 	for _, tt := range tests {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
-			testError := UpdateUser(*uu, *u)
-
 			var got struct{ ID string }
-			if err := DB.Table("users").Where("username = ?", u.Username).Where(
-				"(password_hash = crypt(?, password_hash)) = 't'", u.Password).
+			if err := DB.Table("users").Where("username = ?", tt.user.Username).Where(
+				"(password_hash = crypt(?, password_hash)) = 't'", tt.user.Password).
 				Select("id").First(&got).Error; got.ID != tt.want && err != nil {
 				t.Errorf("UpdateUser() = %v, want %v, error: %v", got.ID, tt.want, testError)
 			}
@@ -73,6 +75,9 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
+	DB.Delete(&models.User{}, "id > 0")
+	AddUser(*uu)
+	AddUser(*u2)
 	var tests = []struct {
 		id   string
 		user *models.User

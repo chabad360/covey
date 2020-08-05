@@ -15,7 +15,7 @@ func AddUser(u models.User) error {
 
 // UpdateUser updates a User in the database.
 func UpdateUser(u models.User, uOld models.User) error {
-	result := DB.Table("users").Where("(password_hash = crypt(?, password_hash)) = 't'", uOld.Password).Update(
+	result := DB.Table("users").Where("username = ?", u.Username).Where("(password_hash = crypt(?, password_hash)) = 't'", uOld.Password).Update(
 		"password_hash", gorm.Expr("crypt(?, gen_salt('bf'))", u.Password))
 	return result.Error
 }

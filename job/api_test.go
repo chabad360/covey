@@ -120,14 +120,16 @@ func TestJobsGet(t *testing.T) {
 }
 
 func TestJobGet(t *testing.T) {
+	storage.DB.Delete(&models.Job{}, "id != ''")
+	storage.AddJob(j2)
 	var tests = []struct {
 		name string
 		id   string
 		want string
 	}{
 		// revive:disable:line-length-limit
-		{"success", "update",
-			`{"name":"update","id":"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e","nodes":["node1"],"tasks":{"update":{"plugin":"shell","details":{"command":"sudo apt update \u0026\u0026 sudo apt upgrade -y"}}}}
+		{"success", "add",
+			`{"name":"add","id":"3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e","nodes":["node1"],"tasks":{"update":{"plugin":"shell","details":{"command":"sudo apt update \u0026\u0026 sudo apt upgrade -y"}}}}
 `},
 		{"fail", "3", `{"error":"404 3 not found"}
 `},
@@ -153,6 +155,8 @@ func TestJobGet(t *testing.T) {
 }
 
 func TestJobUpdate(t *testing.T) {
+	storage.DB.Delete(&models.Job{}, "id != ''")
+	storage.AddJob(j2)
 	var tests = []struct {
 		name string
 		id   string
@@ -160,8 +164,8 @@ func TestJobUpdate(t *testing.T) {
 		want string
 	}{
 		// revive:disable:line-length-limit
-		{"success", "update", `{"name":"update","cron":"5 * * * *","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "hello"}}}}`,
-			`{"name":"update","id":"240875a9cf2c26d484a78b3f7f5aad21dd8f6e74031a7a5669f787d33e1b4cda","cron":"5 * * * *","nodes":["test"],"tasks":{"update":{"plugin":"test","details":{"command":"hello"}}},"task_history":[]}
+		{"success", "add", `{"name":"add","cron":"5 * * * *","nodes": ["test"],"tasks": {"update": {"plugin": "test","details": {"command": "hello"}}}}`,
+			`{"name":"add","id":"240875a9cf2c26d484a78b3f7f5aad21dd8f6e74031a7a5669f787d33e1b4cda","cron":"5 * * * *","nodes":["test"],"tasks":{"update":{"plugin":"test","details":{"command":"hello"}}},"task_history":[]}
 `},
 		{"error", "cron", `{"name":}`,
 			`{"error":"models.Job.Name: ReadString: expects \" or n, but found }, error found in #9 byte of ...|{\"name\":}|..., bigger context ...|{\"name\":}|..."}
@@ -190,12 +194,14 @@ func TestJobUpdate(t *testing.T) {
 }
 
 func TestJobDelete(t *testing.T) {
+	storage.DB.Delete(&models.Job{}, "id != ''")
+	storage.AddJob(j2)
 	var tests = []struct {
 		name string
 		id   string
 		want string
 	}{
-		{"success", "update", `"update"
+		{"success", "add", `"add"
 `},
 		{"fail", "3", `{"error":"404 3 not found"}
 `},
@@ -225,6 +231,8 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}
+
+	storage.AddJob(j2)
 
 	code := m.Run()
 

@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"github.com/chabad360/covey/models"
 	"github.com/google/go-cmp/cmp"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,9 @@ import (
 )
 
 func TestQueryParams_Query(t *testing.T) {
+	DB.Delete(&models.Job{}, "id != ''")
+	AddJob(j)
+	AddJob(j2)
 	type fields struct {
 		Limit  int
 		Offset int

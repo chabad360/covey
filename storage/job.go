@@ -38,7 +38,7 @@ func DeleteJob(j *models.Job) error {
 // Query designed with the help of https://stackoverflow.com/questions/47275606
 func GetJobWithFullHistory(id string) (*models.JobWithTasks, bool) {
 	var b models.JobWithTasks
-	result := DB.Raw(`SELECT j.id, j.name, j.cron, j.nodes, j.tasks, j1.task_history
+	result := DB.Raw(`SELECT j.id, j.name, j.id_short, j.cron, j.nodes, j.tasks, j1.task_history, j.updated_at, j.created_at
 		FROM   jobs j
 			LEFT   JOIN LATERAL (
 			SELECT jsonb_agg(to_jsonb(t) - 'details' - 'log') AS task_history

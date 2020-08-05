@@ -48,14 +48,17 @@ func TestAddJob(t *testing.T) {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got models.Job
-			if err := DB.Where("name = ?", tt.id).First(&got).Error; !cmp.Equal(got, tt.want) && err != nil {
-				t.Errorf("AddJob() = %v, want %v, error: %v", got, tt.want, testError)
+			if err := DB.Where("name = ?", tt.id).First(&got).Error; !cmp.Equal(&got, tt.want) && err != nil {
+				t.Errorf("AddJob() = %v, want %v, error: %v", &got, tt.want, testError)
 			}
 		})
 	}
 }
 
 func TestGetJob(t *testing.T) {
+	DB.Delete(&models.Job{}, "id != ''")
+	AddJob(j)
+
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		name  string
@@ -83,6 +86,8 @@ func TestGetJob(t *testing.T) {
 }
 
 func TestUpdateJob(t *testing.T) {
+	DB.Delete(&models.Job{}, "id != ''")
+	AddJob(j)
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		name string
@@ -109,8 +114,28 @@ func TestUpdateJob(t *testing.T) {
 }
 
 func TestGetJobWithFullHistory(t *testing.T) {
+	DB.Delete(&models.Job{}, "id != ''")
+	DB.Delete(&models.Task{}, "id != ''")
+	z := *task
+	ta := &z
+	AddTask(ta)
+	AddJob(j)
+	ta.IDShort = ""
+	ta.Details = nil
+	ta.Log = nil
+	j.TaskHistory = append(j.TaskHistory, ta.ID)
+	UpdateJob(j)
+
 	jw := &models.JobWithTasks{}
-	jw.Job = *j
+	jw.ID = j.ID
+	jw.IDShort = j.GetIDShort()
+	jw.Name = j.Name
+	jw.Nodes = j.Nodes
+	jw.Tasks = j.Tasks
+	jw.Cron = j.Cron
+	jw.CreatedAt = j.CreatedAt
+	jw.UpdatedAt = j.UpdatedAt
+	jw.TaskHistory = append(jw.TaskHistory, *ta)
 
 	//revive:disable:line-length-limit
 	var tests = []struct {

@@ -32,19 +32,20 @@ var (
 //revive:disable:cognitive-complexity
 func TestTokenGetAPI(t *testing.T) {
 	var tests = []struct {
+		name       string
 		userid     string
 		want       string
 		wantStatus int
 	}{
-		{"1", `{"token":"`, http.StatusOK},
-		{"", `{"error":"createToken: missing userID"}
+		{"success", "1", `{"token":"`, http.StatusOK},
+		{"fail", "", `{"error":"createToken: missing userID"}
 `, http.StatusInternalServerError},
 	}
 
 	h := test.PureBoilerplate("GET", "/api/v1/auth/token", tokenGetAPI)
 
 	for _, tt := range tests {
-		testname := tt.userid
+		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
 			rr, req, err := test.HTTPBoilerplate("GET", "/api/v1/auth/token", nil)
 			if err != nil {

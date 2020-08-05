@@ -43,6 +43,8 @@ func TestAddNode(t *testing.T) {
 }
 
 func TestGetNodeIDOrName(t *testing.T) {
+	DB.Delete(&models.Node{}, "id != ''")
+	AddNode(n)
 	var tests = []struct {
 		name  string
 		id    string
@@ -71,6 +73,8 @@ func TestGetNodeIDOrName(t *testing.T) {
 }
 
 func TestGetNode(t *testing.T) {
+	DB.Delete(&models.Node{}, "id != ''")
+	AddNode(n)
 	type args struct {
 		id string
 	}

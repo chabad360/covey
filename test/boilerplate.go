@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"github.com/chabad360/covey/models"
+	"gorm.io/gorm/logger"
 	"io"
 	"time"
 
@@ -39,6 +40,7 @@ func Boilerplate() (*dockertest.Pool, *dockertest.Resource, *gorm.DB, error) {
 			NowFunc: func() time.Time {
 				return time.Now().UTC().Truncate(time.Microsecond).Local()
 			},
+			Logger: logger.Default.LogMode(logger.Info),
 		})
 		if err != nil {
 			return err
