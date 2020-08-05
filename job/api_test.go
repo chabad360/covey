@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
+	"github.com/google/go-cmp/cmp"
 	"log"
 	"os"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -71,7 +71,7 @@ func TestJobNew(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if !reflect.DeepEqual(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
+			if !cmp.Equal(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
 				t.Errorf("jobNew body = %v, want %v", rr.Body.String()[0:10], tt.want[0:10])
 			}
 		})
@@ -112,7 +112,7 @@ func TestJobsGet(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if !reflect.DeepEqual(rr.Body.Bytes(), []byte(tt.want)) && rr.Body.String() != tt.want {
+			if !cmp.Equal(rr.Body.Bytes(), []byte(tt.want)) && rr.Body.String() != tt.want {
 				t.Errorf("jobGet body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})
@@ -145,7 +145,7 @@ func TestJobGet(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if !reflect.DeepEqual(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
+			if !cmp.Equal(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
 				t.Errorf("jobGet body = %v, want %v", rr.Body.String()[0:10], tt.want[0:10])
 			}
 		})
@@ -182,7 +182,7 @@ func TestJobUpdate(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if !reflect.DeepEqual(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
+			if !cmp.Equal(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
 				t.Errorf("jobNew body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})

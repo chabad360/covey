@@ -5,11 +5,11 @@ import (
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
+	"github.com/google/go-cmp/cmp"
 	json "github.com/json-iterator/go"
 	"github.com/ory/dockertest/v3"
 	"log"
 	"os"
-	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -69,7 +69,7 @@ func TestNodeNew(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			//reflect.DeepEqual(rr.Body.Bytes()[0:5], []byte(tt.want)[0:5]) &&
+			//cmp.Equal(rr.Body.Bytes()[0:5], []byte(tt.want)[0:5]) &&
 			if rr.Body.String() != tt.want {
 				t.Errorf("nodeNew body = %v, want %v", rr.Body.String(), tt.want)
 			}
@@ -111,7 +111,7 @@ func TestNodesGet(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if !reflect.DeepEqual(rr.Body.Bytes(), []byte(tt.want)) && rr.Body.String() != tt.want {
+			if !cmp.Equal(rr.Body.Bytes(), []byte(tt.want)) && rr.Body.String() != tt.want {
 				t.Errorf("nodesGet body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})
@@ -144,7 +144,7 @@ func TestNodeGet(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if !reflect.DeepEqual(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
+			if !cmp.Equal(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
 				t.Errorf("nodeGet body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})
@@ -182,7 +182,7 @@ func TestNodeGet(t *testing.T) {
 //			}
 //
 //			h.ServeHTTP(rr, req)
-//			if !reflect.DeepEqual(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
+//			if !cmp.Equal(rr.Body.Bytes()[0:10], []byte(tt.want)[0:10]) && rr.Body.String() != tt.want {
 //				t.Errorf("nodeNew body = %v, want %v", rr.Body.String(), tt.want)
 //			}
 //		})
@@ -236,8 +236,8 @@ func TestMain(m *testing.M) {
 	time.Sleep(time.Second * 5)
 
 	// revive:disable:line-length-limit
-	n.HostKey, _ = hex.DecodeString("0000001365636473612d736861322d6e69737470323536000000086e6973747032353600000041044032b5eed25ed08ec4361d9f7e6a7e27f725d563bc033f777fe2b12bdd61c86c160476c6d080b1361ea4ab9e89ec104051762ecb0a4595f53a16a06c959a0704")
-	// revive:enable:line-length-limit
+	n.HostKey, err = hex.DecodeString("0000001365636473612d736861322d6e69737470323536000000086e6973747032353600000041044032b5eed25ed08ec4361d9f7e6a7e27f725d563bc033f777fe2b12bdd61c86c160476c6d080b1361ea4ab9e89ec104051762ecb0a4595f53a16a06c959a0704")
+	n2.HostKey, err = hex.DecodeString("0000001365636473612d736861322d6e69737470323536000000086e697374703235360000004104d7a16df1c77e969f989b46a515f7cd2f4d1848d5e121ed9081edd9d8a76555bf61e203b56f84ecb61a3ebf63a5c26e4c9755ebcaae942949088536b98064f286") // revive:enable:line-length-limit
 	storage.AddNode(n)
 
 	code := m.Run()

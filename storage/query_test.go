@@ -1,9 +1,9 @@
 package storage
 
 import (
+	"github.com/google/go-cmp/cmp"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 )
 
@@ -42,7 +42,7 @@ func TestQueryParams_Query(t *testing.T) {
 			if err := q.Query(tt.args.table, tt.args.model); (err != nil) != tt.wantErr {
 				t.Errorf("Query() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if !reflect.DeepEqual(tt.want, tt.args.model) && !tt.wantErr {
+			if !cmp.Equal(tt.want, tt.args.model) && !tt.wantErr {
 				t.Errorf("Query() = %v, want %v", tt.args.model, tt.want)
 			}
 		})
@@ -69,7 +69,7 @@ func TestQueryParams_Setup(t *testing.T) {
 			if err := q.Setup(tt.args.r); (err != nil) != tt.wantErr {
 				t.Errorf("Setup() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if !reflect.DeepEqual(q, tt.want) {
+			if !cmp.Equal(q, tt.want) {
 				t.Errorf("Setup() = %v, want %v", q, tt.want)
 			}
 		})

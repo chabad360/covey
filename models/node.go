@@ -16,7 +16,7 @@ type Node struct {
 	PrivateKey []byte            `json:"-" gorm:"<-:create;notnull"`
 	PublicKey  []byte            `json:"-" gorm:"<-:create;notnull"`
 	HostKey    []byte            `json:"-" gorm:"<-:create;notnull;unique"`
-	IP         string            `json:"ip" gorm:"<-:create;notnull;unique"`
+	IP         string            `json:"ip" gorm:"<-:create;notnull"`
 	Username   string            `json:"username" gorm:"<-:create;notnull;default:root"`
 	Password   string            `json:"password,omitempty" gorm:"-"`
 	Port       string            `json:"port" gorm:"<-:create;default:22"`

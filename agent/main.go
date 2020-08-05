@@ -60,7 +60,6 @@ func main() {
 
 	go func() {
 		exitCodeChannel <- 1
-		logChannel <- "hello"
 	}()
 	go runner()
 	log.Println("Covey Agent started!")

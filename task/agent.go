@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/pure/v5"
 	json "github.com/json-iterator/go"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/chabad360/covey/common"
@@ -42,26 +43,29 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 	defer common.Recover()
 
 	vars := pure.RequestVars(r)
-	n, ok := storage.GetNodeIDorName(vars.URLParam("node"), "id")
-	common.ErrorWriter404(w, vars.URLParam("node"), ok) // TODO: disable the agent if there is no such node
-
-	b, err := ioutil.ReadAll(r.Body)
-	common.ErrorWriter(w, err)
-
-	var x storage.TaskInfo
-	common.ErrorWriter(w, json.Unmarshal(b, &x))
-
-	if x.ID == "hello" {
-		n, ok = storage.GetNodeIDorName(n, "name")
-		common.ErrorWriter404(w, n, ok)
-
-		common.ErrorWriter(w, Init(n))
-	} else if x.ID != "" {
-		common.ErrorWriter(w, storage.SaveTask(&x))
+	n, ok := storage.GetNode(vars.URLParam("node"))
+	//common.ErrorWriter404(w, vars.URLParam("node"), ok) // TODO: disable the agent if there is no such node
+	if !ok {
+		log.Printf("node %v not found", vars.URLParam("node"))
+		common.Write(w, nil)
+		return
 	}
 
-	common.Write(w, queues[n])
-	delete(queues, n)
+	b, err := ioutil.ReadAll(r.Body)
+	//common.ErrorWriter(w, err)
+	log.Print(err)
+
+	var x storage.TaskInfo
+	log.Print(json.Unmarshal(b, &x))
+
+	if x.ID == "hello" {
+		log.Print(Init(n))
+	} else if x.ID != "" {
+		log.Print(storage.SaveTask(&x))
+	}
+
+	common.Write(w, queues[n.ID])
+	delete(queues, n.ID)
 }
 
 func initQueues(tasks []models.Task) error {
@@ -85,12 +89,12 @@ func initQueues(tasks []models.Task) error {
 }
 
 // Init initializes the agent queues.
-func Init(agent string) error {
+func Init(agent *models.Node) error {
 	var t []models.Task
 	tx := storage.DB.Where("state = ?", models.StateQueued)
 
-	if agent != "" {
-		tx.Where("node = ?", agent)
+	if agent != nil {
+		tx.Where("node = ?", agent.Name)
 	}
 
 	if err := tx.Find(&t).Error; err != nil {

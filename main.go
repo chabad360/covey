@@ -68,7 +68,7 @@ func loadHandlers(r *pure.Mux) {
 func initialize() {
 	job.Init()
 
-	if err := task.Init(""); err != nil {
+	if err := task.Init(nil); err != nil {
 		log.Fatal(err)
 	}
 

@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
-	"reflect"
+	"github.com/google/go-cmp/cmp"
 	"testing"
 )
 
@@ -15,6 +15,8 @@ var task = &models.Task{
 }
 
 func TestAddTask(t *testing.T) {
+	testError := AddTask(task)
+
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		name string
@@ -26,14 +28,12 @@ func TestAddTask(t *testing.T) {
 	}
 	//revive:enable:line-length-limit
 
-	testError := AddTask(task)
-
 	for _, tt := range tests {
 		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
 			var got models.Task
-			if DB.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
-				t.Errorf("addTask() = %v, want %v, error: %v", got, tt.want, testError)
+			if DB.Where("id = ?", tt.id).First(&got); !cmp.Equal(&got, tt.want) {
+				t.Errorf("addTask() = %v, want %v, error: %v", &got, tt.want, testError)
 			}
 		})
 	}
@@ -71,7 +71,7 @@ func TestSaveTask(t *testing.T) {
 			if got.ExitCode != tt.update.ExitCode {
 				t.Errorf("SaveTask(): ExitCode = %d, want %d", got.ExitCode, tt.update.ExitCode)
 			}
-			if reflect.DeepEqual(got.Log, tt.want) {
+			if cmp.Equal(got.Log, tt.want) {
 				t.Errorf("SaveTask(): Log = %v, want %v", got.Log, tt.want)
 			}
 			if got.State != tt.want3 {
@@ -96,7 +96,7 @@ func TestGetTask(t *testing.T) {
 	for _, tt := range tests {
 		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
-			if got, err := GetTask(tt.id); reflect.DeepEqual(got, tt.want) {
+			if got, err := GetTask(tt.id); cmp.Equal(got, tt.want) {
 				t.Errorf("getTask() = %v, want %v, error: %v", got, tt.want, err)
 			}
 		})

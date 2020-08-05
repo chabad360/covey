@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
-	"reflect"
+	"github.com/google/go-cmp/cmp"
 	"testing"
 )
 
@@ -35,7 +35,7 @@ func TestAddNode(t *testing.T) {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got models.Node
-			if DB.Where("id = ?", tt.id).First(&got); reflect.DeepEqual(got, tt.want) {
+			if DB.Where("id = ?", tt.id).First(&got); cmp.Equal(got, tt.want) {
 				t.Errorf("addNode() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})

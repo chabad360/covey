@@ -10,6 +10,7 @@ require (
 	github.com/go-playground/pkg/v5 v5.1.0
 	github.com/go-playground/pure/v5 v5.1.0
 	github.com/go-playground/validator/v10 v10.3.0
+	github.com/google/go-cmp v0.4.0
 	github.com/joho/godotenv v1.3.0
 	github.com/json-iterator/go v1.1.10
 	github.com/ory/dockertest/v3 v3.6.0

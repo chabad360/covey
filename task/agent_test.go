@@ -2,7 +2,7 @@ package task
 
 import (
 	"github.com/chabad360/covey/test"
-	"reflect"
+	"github.com/google/go-cmp/cmp"
 	"strings"
 	"testing"
 )
@@ -24,7 +24,7 @@ func Test_queueTask(t *testing.T) {
 				t.Errorf("queueTask() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if !tt.wantErr {
-				if task := queues[tt.nodeID].Back().Value.(agentTask); !reflect.DeepEqual(task, tt.want) {
+				if task := queues[tt.nodeID].Back().Value.(agentTask); !cmp.Equal(task, tt.want) {
 					t.Errorf("queueTask() failed to add task, got %v, want %v", task, tt.want)
 				}
 			}
@@ -47,11 +47,11 @@ func Test_agentPost(t *testing.T) {
 `},
 		{"send", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `{"id":"` + t1.ID + `", "log":["test"], "exit_code":0}`, `null
 `},
-		{"sendFail", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `{"id":"test2", "log":["test"], "exit_code":0}`, `{"error":"saveTask: task test2 not found"}
+		{"sendFail", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `{"id":"test2", "log":["test"], "exit_code":0}`, `null
 `},
-		{"fail", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", ``, `{"error":"readObjectStart: expect { or n, but found \u0000, error found in #0 byte of ...||..., bigger context ...||..."}
+		{"fail", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", ``, `null
 `},
-		{"fail404", "3", ``, `{"error":"404 3 not found"}
+		{"fail404", "3", ``, `null
 `},
 		// revive:enable:line-length-limit
 	}
@@ -67,7 +67,7 @@ func Test_agentPost(t *testing.T) {
 			}
 
 			h.ServeHTTP(rr, req)
-			if !reflect.DeepEqual(rr.Body.Bytes(), []byte(tt.want)) && rr.Body.String() != tt.want {
+			if !cmp.Equal(rr.Body.Bytes(), []byte(tt.want)) && rr.Body.String() != tt.want {
 				t.Errorf("agentPost body = %v, want %v", rr.Body.String(), tt.want)
 			}
 		})

@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
-	"reflect"
+	"github.com/google/go-cmp/cmp"
 	"testing"
 )
 
@@ -48,7 +48,7 @@ func TestAddJob(t *testing.T) {
 		testname := tt.id
 		t.Run(testname, func(t *testing.T) {
 			var got models.Job
-			if err := DB.Where("name = ?", tt.id).First(&got).Error; !reflect.DeepEqual(got, tt.want) && err != nil {
+			if err := DB.Where("name = ?", tt.id).First(&got).Error; !cmp.Equal(got, tt.want) && err != nil {
 				t.Errorf("AddJob() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
@@ -58,23 +58,24 @@ func TestAddJob(t *testing.T) {
 func TestGetJob(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
+		name  string
 		id    string
 		want  *models.Job
 		want2 bool
 	}{
-		{"update", j, true},
-		{"3", &models.Job{}, false},
+		{"success", "update", j, true},
+		{"fail", "3", nil, false},
 	}
 	//revive:enable:line-length-limit
 
 	for _, tt := range tests {
-		testname := tt.id
+		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
 			got, got2 := GetJob(tt.id)
 			if got2 != tt.want2 {
 				t.Errorf("GetJob() = %v, want %v", got2, tt.want2)
 			}
-			if reflect.DeepEqual(got, tt.want) {
+			if !cmp.Equal(got, tt.want) {
 				t.Errorf("GetJob() = %v, want %v", got, tt.want)
 			}
 		})
@@ -84,11 +85,12 @@ func TestGetJob(t *testing.T) {
 func TestUpdateJob(t *testing.T) {
 	//revive:disable:line-length-limit
 	var tests = []struct {
+		name string
 		id   string
-		want models.Job
+		want *models.Job
 	}{
-		{"update", *j},
-		{"3", models.Job{}},
+		{"success", "update", j},
+		{"fail", "3", &models.Job{}},
 	}
 	//revive:enable:line-length-limit
 
@@ -96,10 +98,10 @@ func TestUpdateJob(t *testing.T) {
 	testError := UpdateJob(j)
 
 	for _, tt := range tests {
-		testname := tt.id
+		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
 			var got models.Job
-			if DB.Where("name = ?", tt.id).Scan(&got); !reflect.DeepEqual(got, tt.want) {
+			if DB.Where("name = ?", tt.id).Scan(&got); !cmp.Equal(&got, tt.want) {
 				t.Errorf("UpdateJob() = %v, want %v, error: %v", got, tt.want, testError)
 			}
 		})
@@ -107,21 +109,31 @@ func TestUpdateJob(t *testing.T) {
 }
 
 func TestGetJobWithFullHistory(t *testing.T) {
+	jw := &models.JobWithTasks{}
+	jw.Job = *j
+
 	//revive:disable:line-length-limit
 	var tests = []struct {
-		id   string
-		want *models.Job
+		name  string
+		id    string
+		want  *models.JobWithTasks
+		want2 bool
 	}{
-		{"update", j},
-		{"3", &models.Job{}},
+		{"success", "update", jw, true},
+		{"fail", "3", nil, false},
 	}
 	//revive:enable:line-length-limit
 
 	for _, tt := range tests {
-		testname := tt.id
+		testname := tt.name
 		t.Run(testname, func(t *testing.T) {
-			if got, ok := GetJobWithFullHistory(tt.id); !reflect.DeepEqual(got, tt.want) || !ok {
-				t.Errorf("GetJobWithFullHistory() = %v, want %v, ok: %v", got, tt.want, ok)
+			got, ok := GetJobWithFullHistory(tt.id)
+
+			if ok != tt.want2 {
+				t.Errorf("GetJobWithFullHistory() = %v, want %v", ok, tt.want2)
+			}
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("GetJobWithFullHistory() = %v, want %v", got, tt.want)
 			}
 		})
 	}

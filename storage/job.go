@@ -41,7 +41,7 @@ func GetJobWithFullHistory(id string) (*models.JobWithTasks, bool) {
 	result := DB.Raw(`SELECT j.id, j.name, j.cron, j.nodes, j.tasks, j1.task_history
 		FROM   jobs j
 			LEFT   JOIN LATERAL (
-			SELECT jsonb_agg(to_jsonb(t) - 'details') AS task_history
+			SELECT jsonb_agg(to_jsonb(t) - 'details' - 'log') AS task_history
 			FROM   jsonb_array_elements_text(convert_from(j.task_history, 'UTF-8')::jsonb) AS p(id)
 			LEFT   JOIN tasks t ON t.id = p.id
 			GROUP  BY j.id
