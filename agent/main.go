@@ -3,120 +3,106 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"time"
 
-	"github.com/joho/godotenv"
 	json "github.com/json-iterator/go"
 )
 
-const (
-	sleepDuration = time.Second
-	cacheSize     = 1024
-)
-
 var (
-	activeID        string
-	agent           *config
-	logChannel      = make(chan string, cacheSize)
-	exitCodeChannel = make(chan int)
-	taskIDChannel   = make(chan string)
-	queue           = make(chan task, cacheSize) // TODO: convert back to a list and use mutexes
+	agent      *config
+	q          = queue{}
+	activeTask *runningTask
 )
-
-type runningTask struct {
-	Log      []string `json:"log"`
-	ExitCode int      `json:"exit_code"`
-	ID       string   `json:"id"`
-}
-
-type task struct {
-	Command string `json:"command"`
-	ID      string `json:"id"`
-}
-
-type config struct {
-	AgentID   string
-	LogLevel  string
-	AgentPath string
-}
 
 func main() {
 	var err error
-	t := time.NewTicker(sleepDuration)
+	t := time.NewTicker(time.Second)
+	rt := make(chan *runningTask, 1)
+	q.Init()
 
 	agent, err = settings("/etc/covey/agent.conf")
-	errC(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// ignoring log level for now
 	log.Println("Agent ID:", agent.AgentID)
 	log.Println("Path:", agent.AgentPath)
 
-	activeID = "hello"
-
-	go func() {
-		exitCodeChannel <- 1
-	}()
-	go runner()
 	log.Println("Covey Agent started!")
+
+	ft := newRunningTask(task{
+		ID:      "hello",
+		Command: "hello",
+	})
+	ft.Finish(0, 0)
+	rt <- ft
+
+	go taskManager(&q, rt)
 
 	for {
 		<-t.C
-		everySecond()
+		activeTask = everySecond(&q, rt, activeTask)
 	}
 }
 
-func settings(file string) (*config, error) { // TODO: Revamp config system (probably using configuration)
-	var exists bool
-
-	if err := godotenv.Load(file); err != nil {
-		return nil, err
+func everySecond(q *queue, rt <-chan *runningTask, at *runningTask) *runningTask {
+	if at == nil && len(rt) != 0 {
+		at = <-rt
 	}
 
-	conf := config{}
-	if conf.AgentID, exists = os.LookupEnv("AGENT_ID"); !exists || conf.AgentID == "" {
-		return nil, fmt.Errorf("missing AGENT_ID")
-	}
+	at, body, err := genBody(at)
+	log.Println(err)
 
-	if conf.LogLevel, exists = os.LookupEnv("LOG_LEVEL"); !exists || conf.LogLevel == "" {
-		conf.LogLevel = "INFO"
-	}
+	got, err := connect(body)
+	log.Println(err)
 
-	var host string
-	if host, exists = os.LookupEnv("AGENT_HOST"); !exists || host == "" {
-		return nil, fmt.Errorf("missing AGENT_HOST")
-	}
+	err = json.Unmarshal(got, &q)
+	log.Println(err)
 
-	var port string
-	if port, exists = os.LookupEnv("AGENT_HOST_POST"); !exists || port == "" {
-		port = "8080"
-	}
-
-	conf.AgentPath = fmt.Sprintf("http://%s:%s/agent/%s", host, port, conf.AgentID)
-
-	return &conf, nil
+	return at
 }
 
-func everySecond() {
-	var err error
-	body := []byte("null")
+func genBody(rt *runningTask) (*runningTask, []byte, error) {
+	var t *returnTask
 
-	if activeID != "" {
-		body, err = getBody()
-		errC(err)
-	} else {
+	if rt == nil {
+		goto done
+	}
+	t = &returnTask{}
+
+log:
+	for {
 		select {
-		case t := <-taskIDChannel:
-			activeID = t
+		case l := <-rt.Log:
+			t.Log = append(t.Log, l)
 		default:
-			break
+			break log
 		}
 	}
 
+	t.ID = rt.ID
+
+	select {
+	case <-rt.Done():
+		t.ExitCode = rt.ExitCode
+		t.State = rt.State
+		rt = nil
+	default:
+		t.ExitCode = 257
+		t.State = 2
+	}
+
+done:
+	b, err := json.Marshal(t)
+	return rt, b, err
+}
+
+func connect(body []byte) ([]byte, error) {
+	var err error
 	var r *http.Response
 	for {
 		r, err = http.Post(agent.AgentPath, "application/json", bytes.NewReader(body)) //nolint:gosec
@@ -130,71 +116,50 @@ func everySecond() {
 	}
 	defer r.Body.Close()
 
-	taskJSON, err := ioutil.ReadAll(r.Body)
-	errC(err)
+	return ioutil.ReadAll(r.Body)
+}
 
-	var m map[int]task
-	errC(json.Unmarshal(taskJSON, &m))
-
-	for i := 0; i < len(m); i++ {
-		queue <- m[i]
+func taskManager(q *queue, rt chan<- *runningTask) {
+	for {
+		qt := q.Get()
+		log.Printf("new task %v", qt.ID)
+		t := newRunningTask(qt)
+		go run(t)
+		rt <- t
+		<-t.Done()
 	}
 }
 
-func errC(err error) {
+func run(t *runningTask) {
+	var bb *bufio.Scanner
+	var ec int
+	var s int
+
+	cmd := exec.Command("/bin/bash", "-c", t.Cmd) //nolint:gosec
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Panic(err)
-	}
-}
-
-func runner() {
-	for {
-		t := <-queue
-
-		taskIDChannel <- t.ID
-		cmd := exec.Command("/bin/bash", "-c", t.Command) //nolint:gosec
-		stdout, err := cmd.StdoutPipe()
-		errC(err)
-
-		errC(cmd.Start())
-
-		bb := bufio.NewScanner(stdout)
-		for bb.Scan() {
-			logChannel <- bb.Text()
-		}
-
-		if err = cmd.Wait(); err != nil {
-			if e, ok := err.(*exec.ExitError); ok {
-				exitCodeChannel <- e.ExitCode()
-			}
-		} else {
-			exitCodeChannel <- 0
-		}
-	}
-}
-
-func getBody() ([]byte, error) {
-	at := &runningTask{
-		ID: activeID,
+		s = 11
+		goto done
 	}
 
-	select {
-	case e := <-exitCodeChannel:
-		at.ExitCode = e
-		activeID = ""
-	default:
-		at.ExitCode = 257
+	err = cmd.Start()
+	if err != nil {
+		s = 11
+		goto done
 	}
 
-	for {
-		select {
-		case s := <-logChannel:
-			at.Log = append(at.Log, s)
-		default:
-			goto cont
+	bb = bufio.NewScanner(stdout)
+	for bb.Scan() {
+		t.Log <- bb.Text()
+	}
+
+	if err = cmd.Wait(); err != nil {
+		if e, ok := err.(*exec.ExitError); ok {
+			ec = e.ExitCode()
+			s = 1
 		}
 	}
 
-cont:
-	return json.Marshal(at)
+done:
+	t.Finish(ec, s)
 }

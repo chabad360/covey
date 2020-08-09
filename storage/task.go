@@ -7,9 +7,10 @@ import (
 
 // TaskInfo contains new information about a running task.
 type TaskInfo struct {
-	Log      []string `json:"log"`
-	ExitCode int      `json:"exit_code"`
-	ID       string   `json:"id"`
+	Log      []string         `json:"log,omitempty"`
+	ExitCode int              `json:"exit_code"`
+	State    models.TaskState `json:"state"`
+	ID       string           `json:"id"`
 }
 
 // AddTask adds a task to the database.
@@ -36,19 +37,11 @@ func SaveTask(t *TaskInfo) error {
 		return fmt.Errorf("saveTask: task %s not found", t.ID)
 	}
 
-	if task.ExitCode == t.ExitCode && t.Log == nil { // Only update if there is something new!
+	if task.ExitCode == t.ExitCode && t.Log == nil && task.State == t.State { // Only update if there is something new!
 		return fmt.Errorf("saveTask: nothing to save")
 	}
 
-	switch t.ExitCode {
-	case 0:
-		task.State = models.StateDone
-	case 257:
-		task.State = models.StateRunning
-	default:
-		task.State = models.StateError
-	}
-
+	task.State = t.State
 	task.ExitCode = t.ExitCode
 	if t.Log != nil {
 		task.Log = append(task.Log, t.Log...)

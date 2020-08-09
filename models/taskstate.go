@@ -4,10 +4,10 @@ package models
 type TaskState int
 
 const (
-	// StateError should be given if the task fails.
-	StateError TaskState = iota
 	// StateDone should be given if the task is complete.
-	StateDone
+	StateDone TaskState = iota
+	// StateError should be given if the task fails.
+	StateError
 	// StateRunning should be given if the task is running.
 	StateRunning
 	// StateAborted should be given if the task is aborted (stopped while running).

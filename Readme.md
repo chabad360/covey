@@ -66,9 +66,8 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Fix the plugin system
 * [x] Provide configuration system
 * [x] Deal with packed files (`.gitignore` and then include it on build?)
-* [ ] CI
+* [ ] CI/CD
 * [x] Big Refactor
-* [ ] Add an AUR package (?)
 * [ ] Add and refactor tests (Aim for 80% Coverage)
 * [ ] Complete the web UI
 * [ ] Add a Makefile (?)
@@ -79,7 +78,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 Covey is in active development, it's written in Go, and uses Postgres as the database.
 If you are interested in helping with development, open a PR with your changes.
-At the moment, I've begun work on completing the API.
+At the moment, I've been finishing off most of my tests, and fixing bugs.
 
 ### Installation Instructions
 
