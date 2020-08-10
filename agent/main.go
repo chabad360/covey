@@ -15,6 +15,7 @@ import (
 
 func main() {
 	var (
+		err        error
 		activeTask *runningTask
 		agent      config
 		q          = &queue{}
@@ -44,26 +45,33 @@ func main() {
 
 	for {
 		<-t.C
-		activeTask = everySecond(q, rt, activeTask, agent)
+		activeTask, err = everySecond(q, rt, activeTask, agent)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 
-func everySecond(q *queue, rt <-chan *runningTask, at *runningTask, agent config) *runningTask {
+func everySecond(q *queue, rt <-chan *runningTask, at *runningTask, agent config) (*runningTask, error) {
 	if at == nil && len(rt) != 0 {
 		at = <-rt
 	}
 
-	// TODO: better handle errors
 	at, body, err := genBody(at)
-	log.Println(err)
+	if err != nil {
+		return at, err
+	}
 
 	got, err := connect(body, agent.AgentPath)
-	log.Println(err)
+	if err != nil {
+		return at, err
+	}
 
-	err = json.Unmarshal(got, &q)
-	log.Println(err)
+	if err = json.Unmarshal(got, &q); err != nil {
+		return at, err
+	}
 
-	return at
+	return at, nil
 }
 
 func genBody(rt *runningTask) (*runningTask, []byte, error) {

@@ -75,7 +75,7 @@ type runningTask struct {
 	mu       *sync.Mutex
 }
 
-// Log returns the current log output.
+// GetLog returns the current log output
 func (r *runningTask) GetLog() []string {
 	var d []string
 	r.mu.Lock()
@@ -84,6 +84,7 @@ func (r *runningTask) GetLog() []string {
 	return d
 }
 
+// Log adds a line to the log.
 func (r *runningTask) Log(log string) {
 	r.mu.Lock()
 	r.log = append(r.log, log)
@@ -117,7 +118,6 @@ func (r *runningTask) Finish(exitCode int, state int) {
 func newRunningTask(t task) *runningTask {
 	rt := &runningTask{
 		mu: &sync.Mutex{},
-		//Log: make(chan string, 1024),
 	}
 	rt.task = t
 

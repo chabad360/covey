@@ -71,6 +71,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Add and refactor tests (Aim for 80% Coverage)
 * [ ] Complete the web UI
 * [ ] Add a Makefile (?)
+* [x] Refactor agent
 
 ---
 
