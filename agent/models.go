@@ -134,9 +134,3 @@ type task struct {
 	Command string `json:"command"`
 	ID      string `json:"id"`
 }
-
-type config struct {
-	AgentID   string
-	LogLevel  string
-	AgentPath string
-}

@@ -2,37 +2,24 @@ package main
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
-	"os"
+	"github.com/caarlos0/env/v6"
+	"log"
 )
 
-func settings(file string) (*config, error) { // TODO: Revamp config system (probably using configuration)
-	var exists bool
+type config struct {
+	ID        string `env:"AGENT_ID"`
+	LogLevel  string `env:"LOG_LEVEL"`
+	Port      int    `env:"AGENT_PORT" envDefault:"8080"`
+	Host      string `env:"AGENT_HOST"`
+	AgentPath string
+}
 
-	if err := godotenv.Load(file); err != nil {
-		return nil, err
-	}
-
+func settings() (*config, error) {
 	conf := config{}
-	if conf.AgentID, exists = os.LookupEnv("AGENT_ID"); !exists || conf.AgentID == "" {
-		return nil, fmt.Errorf("missing AGENT_ID")
+	if err := env.Parse(&conf); err != nil {
+		log.Println(err)
 	}
 
-	if conf.LogLevel, exists = os.LookupEnv("LOG_LEVEL"); !exists || conf.LogLevel == "" {
-		conf.LogLevel = "INFO"
-	}
-
-	var host string
-	if host, exists = os.LookupEnv("AGENT_HOST"); !exists || host == "" {
-		return nil, fmt.Errorf("missing AGENT_HOST")
-	}
-
-	var port string
-	if port, exists = os.LookupEnv("AGENT_HOST_POST"); !exists || port == "" {
-		port = "8080"
-	}
-
-	conf.AgentPath = fmt.Sprintf("http://%s:%s/agent/%s", host, port, conf.AgentID)
-
+	conf.AgentPath = fmt.Sprintf("http://%s:%d/agent/%s", conf.Host, conf.Port, conf.ID)
 	return &conf, nil
 }

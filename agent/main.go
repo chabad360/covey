@@ -24,12 +24,12 @@ func main() {
 	rt := make(chan *runningTask, 1)
 	q.Init()
 
-	agent, err = settings("/etc/covey/agent.conf")
+	agent, err = settings()
 	if err != nil {
 		log.Fatal(err)
 	}
 	// ignoring log level for now
-	log.Println("Agent ID:", agent.AgentID)
+	log.Println("Agent ID:", agent.ID)
 	log.Println("Path:", agent.AgentPath)
 
 	log.Println("Covey Agent started!")
