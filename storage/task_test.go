@@ -49,10 +49,10 @@ func TestSaveTask(t *testing.T) {
 		want2  bool
 		want3  models.TaskState
 	}{
-		{"start", task.ID, TaskInfo{nil, 257, task.ID}, nil, false, models.StateRunning},
-		{"log", task.ID, TaskInfo{[]string{"hello"}, 257, task.ID}, []string{"hello"}, false, models.StateRunning},
-		{"logError", task.ID, TaskInfo{[]string{"world"}, 1, task.ID}, []string{"hello", "world"}, false, models.StateError},
-		{"success", task.ID, TaskInfo{nil, 0, task.ID}, []string{"hello", "world"}, false, models.StateDone},
+		{"start", task.ID, TaskInfo{nil, 257, models.StateRunning, task.ID}, nil, false, models.StateRunning},
+		{"log", task.ID, TaskInfo{[]string{"hello"}, 257, models.StateRunning, task.ID}, []string{"hello"}, false, models.StateRunning},
+		{"logError", task.ID, TaskInfo{[]string{"world"}, 1, models.StateError, task.ID}, []string{"hello", "world"}, false, models.StateError},
+		{"success", task.ID, TaskInfo{nil, 0, models.StateDone, task.ID}, []string{"hello", "world"}, false, models.StateDone},
 		{"fail", "3", TaskInfo{}, nil, true, 0},
 	}
 	//revive:enable:line-length-limit

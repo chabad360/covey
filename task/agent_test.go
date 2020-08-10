@@ -45,9 +45,9 @@ func Test_agentPost(t *testing.T) {
 `},
 		{"empty", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `null`, `null
 `},
-		{"send", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `{"id":"` + t1.ID + `", "log":["test"], "exit_code":0}`, `null
+		{"send", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `{"id":"` + t1.ID + `", "log":["test"], "state":0 "exit_code":0}`, `null
 `},
-		{"sendFail", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `{"id":"test2", "log":["test"], "exit_code":0}`, `null
+		{"sendFail", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", `{"id":"test2", "log":["test"], "state":0, "exit_code":0}`, `null
 `},
 		{"fail", "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e", ``, `null
 `},
