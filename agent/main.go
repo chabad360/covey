@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,22 +13,20 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-var (
-	agent      *config
-	q          = queue{}
-	activeTask *runningTask
-)
-
 func main() {
-	var err error
+	var (
+		activeTask *runningTask
+		agent      config
+		q          = &queue{}
+	)
+
 	t := time.NewTicker(time.Second)
 	rt := make(chan *runningTask, 1)
-	q.Init()
 
-	agent, err = settings()
-	if err != nil {
+	if err := settings(&agent); err != nil {
 		log.Fatal(err)
 	}
+
 	// ignoring log level for now
 	log.Println("Agent ID:", agent.ID)
 	log.Println("Path:", agent.AgentPath)
@@ -41,23 +40,24 @@ func main() {
 	ft.Finish(0, 0)
 	rt <- ft
 
-	go taskManager(&q, rt)
+	go taskManager(q, rt)
 
 	for {
 		<-t.C
-		activeTask = everySecond(&q, rt, activeTask)
+		activeTask = everySecond(q, rt, activeTask, agent)
 	}
 }
 
-func everySecond(q *queue, rt <-chan *runningTask, at *runningTask) *runningTask {
+func everySecond(q *queue, rt <-chan *runningTask, at *runningTask, agent config) *runningTask {
 	if at == nil && len(rt) != 0 {
 		at = <-rt
 	}
 
+	// TODO: better handle errors
 	at, body, err := genBody(at)
 	log.Println(err)
 
-	got, err := connect(body)
+	got, err := connect(body, agent.AgentPath)
 	log.Println(err)
 
 	err = json.Unmarshal(got, &q)
@@ -72,19 +72,11 @@ func genBody(rt *runningTask) (*runningTask, []byte, error) {
 	if rt == nil {
 		goto done
 	}
-	t = &returnTask{}
 
-log:
-	for {
-		select {
-		case l := <-rt.Log:
-			t.Log = append(t.Log, l)
-		default:
-			break log
-		}
+	t = &returnTask{
+		ID:  rt.ID,
+		Log: rt.GetLog(),
 	}
-
-	t.ID = rt.ID
 
 	select {
 	case <-rt.Done():
@@ -101,11 +93,11 @@ done:
 	return rt, b, err
 }
 
-func connect(body []byte) ([]byte, error) {
+func connect(body []byte, path string) ([]byte, error) {
 	var err error
 	var r *http.Response
 	for {
-		r, err = http.Post(agent.AgentPath, "application/json", bytes.NewReader(body)) //nolint:gosec
+		r, err = http.Post(path, "application/json", bytes.NewReader(body)) //nolint:gosec
 		if err == nil {
 			break
 		}
@@ -122,7 +114,6 @@ func connect(body []byte) ([]byte, error) {
 func taskManager(q *queue, rt chan<- *runningTask) {
 	for {
 		qt := q.Get()
-		log.Printf("new task %v", qt.ID)
 		t := newRunningTask(qt)
 		go run(t)
 		rt <- t
@@ -135,22 +126,24 @@ func run(t *runningTask) {
 	var ec int
 	var s int
 
-	cmd := exec.Command("/bin/bash", "-c", t.Cmd) //nolint:gosec
+	cmd := exec.Command("/bin/bash", "-c", t.Command) //nolint:gosec
+
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		s = 11
+		t.Log(fmt.Sprintf("agent error: %v", err))
 		goto done
 	}
 
-	err = cmd.Start()
-	if err != nil {
+	if err = cmd.Start(); err != nil {
 		s = 11
+		t.Log(fmt.Sprintf("agent error: %v", err))
 		goto done
 	}
 
 	bb = bufio.NewScanner(stdout)
 	for bb.Scan() {
-		t.Log <- bb.Text()
+		t.Log(bb.Text())
 	}
 
 	if err = cmd.Wait(); err != nil {

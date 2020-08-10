@@ -14,12 +14,11 @@ type config struct {
 	AgentPath string
 }
 
-func settings() (*config, error) {
-	conf := config{}
-	if err := env.Parse(&conf); err != nil {
+func settings(conf *config) error {
+	if err := env.Parse(conf); err != nil {
 		log.Println(err)
 	}
 
 	conf.AgentPath = fmt.Sprintf("http://%s:%d/agent/%s", conf.Host, conf.Port, conf.ID)
-	return &conf, nil
+	return nil
 }

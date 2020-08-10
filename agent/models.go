@@ -12,80 +12,82 @@ func init() {
 }
 
 type queue struct {
+	sync.Mutex
 	list     []task
-	mu       *sync.Mutex
 	nonEmpty chan bool
-	init     bool
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (q *queue) UnmarshalJSON(b []byte) error {
-	q.lazyInit()
 	var m map[int]task
 	if err := json.Unmarshal(b, &m); err != nil {
 		return err
 	}
 
-	q.mu.Lock()
+	q.Lock()
 	for i := 0; i < len(m); i++ {
 		q.list = append(q.list, m[i])
 	}
-	q.mu.Unlock()
+	q.Unlock()
+
 	q.full()
 	return nil
 }
 
-// Init initializes the queue.
-func (q *queue) Init() {
-	q.mu = &sync.Mutex{}
-	q.mu.Lock()
-	q.list = []task{}
-	q.nonEmpty = make(chan bool, 1)
-	q.init = true
-	q.mu.Unlock()
-}
-
 // Get retrieves the first item in the queue. If the queue is empty, Get blocks until its not.
 func (q *queue) Get() task {
-	q.lazyInit()
-	<-q.nonEmpty
+	<-q.nE()
 
-	q.mu.Lock()
+	q.Lock()
 	var t task
 	t, q.list = q.list[0], q.list[1:]
-	q.mu.Unlock()
+	q.Unlock()
 	q.full()
 
 	return t
 }
 
-func (q *queue) lazyInit() {
-	q.mu.Lock()
-	if !q.init {
-		q.mu.Unlock()
-		q.Init()
-	} else {
-		q.mu.Unlock()
+func (q *queue) nE() <-chan bool {
+	q.Lock()
+	if q.nonEmpty == nil {
+		q.nonEmpty = make(chan bool, 1)
 	}
+	d := q.nonEmpty
+	q.Unlock()
+	return d
 }
 
 func (q *queue) full() {
-	q.lazyInit()
-	q.mu.Lock()
+	q.nE()
+	q.Lock()
 	if len(q.list) > 0 && len(q.nonEmpty) == 0 {
 		q.nonEmpty <- true
 	}
-	q.mu.Unlock()
+	q.Unlock()
 }
 
 type runningTask struct {
-	Log      chan string
+	task
+	log      []string
 	ExitCode int
 	State    int
-	ID       string
-	Cmd      string
 	done     chan struct{}
 	mu       *sync.Mutex
+}
+
+// Log returns the current log output.
+func (r *runningTask) GetLog() []string {
+	var d []string
+	r.mu.Lock()
+	d, r.log = r.log, []string{}
+	r.mu.Unlock()
+	return d
+}
+
+func (r *runningTask) Log(log string) {
+	r.mu.Lock()
+	r.log = append(r.log, log)
+	r.mu.Unlock()
 }
 
 // Done returns a channel that will be closed when the task completes.
@@ -114,11 +116,10 @@ func (r *runningTask) Finish(exitCode int, state int) {
 
 func newRunningTask(t task) *runningTask {
 	rt := &runningTask{
-		mu:  &sync.Mutex{},
-		Log: make(chan string, 1024),
-		ID:  t.ID,
-		Cmd: t.Command,
+		mu: &sync.Mutex{},
+		//Log: make(chan string, 1024),
 	}
+	rt.task = t
 
 	return rt
 }
