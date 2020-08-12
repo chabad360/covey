@@ -24,7 +24,7 @@ func main() {
 	t := time.NewTicker(time.Second)
 	rt := make(chan *runningTask, 1)
 
-	if err := settings(&agent); err != nil {
+	if err = settings(&agent); err != nil {
 		log.Fatal(err)
 	}
 
@@ -134,7 +134,7 @@ func run(t *runningTask) {
 	var ec int
 	var s int
 
-	cmd := exec.Command("/bin/bash", "-c", t.Command) //nolint:gosec
+	cmd := exec.Command("/bin/sh", "-c", t.Command) //nolint:gosec
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

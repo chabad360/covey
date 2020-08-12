@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/caarlos0/env/v6"
-	"log"
 )
 
 type config struct {
@@ -16,7 +15,7 @@ type config struct {
 
 func settings(conf *config) error {
 	if err := env.Parse(conf); err != nil {
-		log.Println(err)
+		return err
 	}
 
 	conf.AgentPath = fmt.Sprintf("http://%s:%d/agent/%s", conf.Host, conf.Port, conf.ID)

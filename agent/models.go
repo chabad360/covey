@@ -75,7 +75,7 @@ type runningTask struct {
 	mu       *sync.Mutex
 }
 
-// GetLog returns the current log output
+// GetLog returns the current log output.
 func (r *runningTask) GetLog() []string {
 	var d []string
 	r.mu.Lock()

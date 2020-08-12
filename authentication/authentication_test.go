@@ -77,8 +77,8 @@ func TestParseToken(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseToken() error = %v, wantErr %v, got = %v, sent = %v", err, tt.wantErr, got, tt.args)
 			}
-			if !tt.wantErr && !cmp.Equal(got, tt.want) {
-				t.Errorf("parseToken() = %v, want %v", got, tt.want)
+			if !tt.wantErr && !cmp.Equal(*got, *tt.want) {
+				t.Errorf("parseToken() = %v, want %v, error %v", got, tt.want, err)
 			}
 		})
 	}
