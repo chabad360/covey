@@ -16,7 +16,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
-        go-version: ^1.13
+        go-version: ^1.15
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
@@ -57,7 +57,7 @@ jobs:
       run: go build -ldflags="-s -w" -trimpath -v -buildmode=plugin -o plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
     
     - name: Test
-      run: go test -trimpath -v -coverprofile=coverage.txt -covermode count ./...
+      run: go test -trimpath -v -coverprofile=coverage.txt -covermode count go test `go list ./... | grep -v test`
       
     - name: Upload coverage
       if: success() || failure()
