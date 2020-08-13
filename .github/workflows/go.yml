@@ -57,7 +57,7 @@ jobs:
       run: go build -ldflags="-s -w" -trimpath -v -buildmode=plugin -o plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
     
     - name: Test
-      run: go test -trimpath -v -coverprofile=coverage.txt -covermode count go test `go list ./... | grep -v test`
+      run: go test -trimpath -v -coverprofile=coverage.txt -covermode count `go list ./... | grep -v test`
       
     - name: Upload coverage
       if: success() || failure()
