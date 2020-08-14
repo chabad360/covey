@@ -19,7 +19,7 @@ func TestLogin(t *testing.T) {
 	http.HandlerFunc(login).ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
-		t.Errorf("login status = %v, want %v", rr.Code, http.StatusInternalServerError)
+		t.Errorf("login status = %v, want %v", rr.Code, http.StatusOK)
 	}
 }
 

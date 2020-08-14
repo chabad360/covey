@@ -11,7 +11,7 @@ Here goes:
 
 * [ ] Support HTTPS
 * [ ] Become [CII compliant](https://bestpractices.coreinfrastructure.org/en/projects/4095#project_disabled_reminders) (work in progress)
-* [ ] Fully manage Netdata (config and all)
+* [ ] Fully manage Netdata (config, installation, etc.)
 * [ ] Add Netdata metrics for Covey
 * [ ] Increase Covey's bus factor
 * [ ] Do some performance profiling
@@ -27,8 +27,9 @@ Here goes:
 * [ ] Vendor dependencies (maybe, I don't know how necessary it really is)
 * [ ] Proper logging
 * [ ] Postgres might not be the best place to store keys
-* [ ] Figure out how to test nodes
+* [ ] Figure out how to test nodes (50%)
 * [ ] Input validation
-* [ ] Proper error pages for the UI
-* [ ] Fix a few things with the asset manager (likely gonna fork)
+* [ ] Proper error pages for the UI (v0.6)
+* [ ] Fix a few things with the asset manager (might switch away to vfsgen)
 * [ ] Use server-side processing for dataTables
+* [ ] Reduce JS dependency

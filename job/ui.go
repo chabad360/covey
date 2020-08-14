@@ -38,7 +38,7 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 	job, ok := storage.GetJobWithFullHistory(vars.URLParam("job"))
 	common.ErrorWriter404(w, vars.URLParam("job"), ok)
 
-	if r.URL.Query().Get("run") == "true" {
+	if r.URL.Query().Get("run") == "true" { // TODO: ?
 		j, _ := storage.GetJob(vars.URLParam("job"))
 		_, err := run(j)
 		common.ErrorWriter(w, err)
