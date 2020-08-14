@@ -1,8 +1,8 @@
 engines:
   duplication:
-    enabled: false
+    enabled: true
     exclude_paths:
-      - '**_test.go'
+      - '**'
   remark-int:
     enabled: true
     exclude_paths:
