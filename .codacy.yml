@@ -1,6 +1,6 @@
 engines:
   duplication:
-    enabled: true
+    enabled: false
     exclude_paths:
       - '**_test.go'
   remark-int:
@@ -9,10 +9,6 @@ engines:
       - 'Readme.md'
       - 'GOALS.md'
       - '**_test.go'
-  jacksonlinter:
-    enabled: true
-    exclude_paths:
-      - '.vscode/**'
 
 exclude_paths:
   - 'asset/asset.go'
@@ -20,3 +16,6 @@ exclude_paths:
   - 'assets/src/**'
   - 'Readme.md'
   - 'GOALS.md'
+  - '.idea/**'
+  - '.vscode/**'
+  - '.github/**'
