@@ -1,7 +1,6 @@
 package node
 
 import (
-	"encoding/hex"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
@@ -17,22 +16,8 @@ import (
 
 var (
 	// revive:disable:line-length-limit
-	n = &models.Node{
-		Name:       "node",
-		ID:         "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-		PrivateKey: []byte("-----BEGIN RSA PRIVATE KEY-----\nMIIBOAIBAAJAc3MzlPc5PMH9Xc82hmxOBZXV7q6XnP+rr8GKzeaUkk4Q3jSJrTt8\nELVbZH2OPV3wo0sFnNCsSD3izlgp8eidVQIDAQABAkBCZCVtrR5FSmmh4N/CPdZA\ncAIu2EhoCL96uxpPfiJCX8qcUc6zu6ZY84wy6iN8I2iiBHCWsXyU/VHdbysOYIOh\nAiEAxoMoORbc0Dy+qi9khliIG/8UFtEcKUBXlyWctT3GdLsCIQCU4in24yM1R3rC\njXemM12Ks3Mt3T4+aJ0NQc22CcAdLwIgXL4F2rYdr4PRp/zAQCu4WywOnKJRP8x5\nn3nI/ru/reUCIAOa8m8zEuAwae2aJWKV7db0/34F1IMIX305sbSNyeQrAiAkhE+Z\nLe0VcQNyzkRTu+piHtcReomihMNOAs5KII5cMw==\n-----END RSA PRIVATE KEY-----"),
-		PublicKey:  []byte("ssh-rsa MFswDQYJKoZIhvcNAQEBBQADSgAwRwJAc3MzlPc5PMH9Xc82hmxOBZXV7q6XnP+r\nr8GKzeaUkk4Q3jSJrTt8ELVbZH2OPV3wo0sFnNCsSD3izlgp8eidVQIDAQAB"),
-		Username:   "user",
-		IP:         "127.0.0.1",
-	}
-	n2 = &models.Node{
-		Name:       "n",
-		ID:         "3773ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-		PrivateKey: []byte("-----BEGIN RSA PRIVATE KEY-----\nMIIBOAIBAAJAc3MzlPc5PMH9Xc82hmxOBZXV7q6XnP+rr8GKzeaUkk4Q3jSJrTt8\nELVbZH2OPV3wo0sFnNCsSD3izlgp8eidVQIDAQABAkBCZCVtrR5FSmmh4N/CPdZA\ncAIu2EhoCL96uxpPfiJCX8qcUc6zu6ZY84wy6iN8I2iiBHCWsXyU/VHdbysOYIOh\nAiEAxoMoORbc0Dy+qi9khliIG/8UFtEcKUBXlyWctT3GdLsCIQCU4in24yM1R3rC\njXemM12Ks3Mt3T4+aJ0NQc22CcAdLwIgXL4F2rYdr4PRp/zAQCu4WywOnKJRP8x5\nn3nI/ru/reUCIAOa8m8zEuAwae2aJWKV7db0/34F1IMIX305sbSNyeQrAiAkhE+Z\nLe0VcQNyzkRTu+piHtcReomihMNOAs5KII5cMw==\n-----END RSA PRIVATE KEY-----"),
-		PublicKey:  []byte("ssh-rsa MFswDQYJKoZIhvcNAQEBBQADSgAwRwJAc3MzlPc5PMH9Xc82hmxOBZXV7q6XnP+r\nr8GKzeaUkk4Q3jSJrTt8ELVbZH2OPV3wo0sFnNCsSD3izlgp8eidVQIDAQAB"),
-		Username:   "user",
-		IP:         "127.0.0.2",
-	}
+	n  = test.N1
+	n2 = test.N2
 	// revive:enable:line-length-limit
 	resource *dockertest.Resource
 )
@@ -79,8 +64,8 @@ func TestNodeNew(t *testing.T) {
 
 func TestNodesGet(t *testing.T) {
 	storage.DB.Delete(&models.Node{}, "id != ''")
-	storage.AddNode(n)
-	storage.AddNode(n2)
+	storage.AddNode(&n)
+	storage.AddNode(&n2)
 	js, _ := json.Marshal(n2)
 
 	var tests = []struct {
@@ -236,9 +221,7 @@ func TestMain(m *testing.M) {
 	time.Sleep(time.Second * 5)
 
 	// revive:disable:line-length-limit
-	n.HostKey, err = hex.DecodeString("0000001365636473612d736861322d6e69737470323536000000086e6973747032353600000041044032b5eed25ed08ec4361d9f7e6a7e27f725d563bc033f777fe2b12bdd61c86c160476c6d080b1361ea4ab9e89ec104051762ecb0a4595f53a16a06c959a0704")
-	n2.HostKey, err = hex.DecodeString("0000001365636473612d736861322d6e69737470323536000000086e697374703235360000004104d7a16df1c77e969f989b46a515f7cd2f4d1848d5e121ed9081edd9d8a76555bf61e203b56f84ecb61a3ebf63a5c26e4c9755ebcaae942949088536b98064f286") // revive:enable:line-length-limit
-	storage.AddNode(n)
+	storage.AddNode(&n)
 
 	code := m.Run()
 

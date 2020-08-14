@@ -23,7 +23,7 @@ func Test_uiNodes(t *testing.T) {
 
 func Test_uiNodeSingle(t *testing.T) {
 	storage.DB.Delete(&models.Node{}, "id != ''")
-	storage.AddNode(n2)
+	storage.AddNode(&n2)
 
 	//revive:disable:line-length-limit
 	var tests = []struct {

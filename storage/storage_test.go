@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"encoding/hex"
 	"github.com/chabad360/covey/config"
 	"gorm.io/gorm"
 	"log"
@@ -35,13 +34,8 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not setup config")
 	}
 
-	// revive:disable:line-length-limit
-	n.HostKey, _ = hex.DecodeString("0000001365636473612d736861322d6e69737470323536000000086e6973747032353600000041044032b5eed25ed08ec4361d9f7e6a7e27f725d563bc033f777fe2b12bdd61c86c160476c6d080b1361ea4ab9e89ec104051762ecb0a4595f53a16a06c959a0704")
-	// revive:enable:line-length-limit
-
-	DB.Create(task)
-	//DB.Create(j)
-	DB.Create(j2)
+	DB.Create(&task)
+	DB.Create(&j2)
 
 	code := m.Run()
 

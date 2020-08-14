@@ -2,20 +2,15 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/test"
 	"github.com/google/go-cmp/cmp"
 	"testing"
 )
 
-var task = &models.Task{
-	ID:       "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-	State:    models.StateQueued,
-	Plugin:   "test",
-	Details:  map[string]string{"test": "test"},
-	ExitCode: 258,
-}
+var task = test.T1
 
 func TestAddTask(t *testing.T) {
-	testError := AddTask(task)
+	testError := AddTask(&task)
 
 	//revive:disable:line-length-limit
 	var tests = []struct {
@@ -23,7 +18,7 @@ func TestAddTask(t *testing.T) {
 		id   string
 		want *models.Task
 	}{
-		{"success", task.ID, task},
+		{"success", task.ID, &task},
 		{"fail", "3", &models.Task{}},
 	}
 	//revive:enable:line-length-limit
@@ -88,7 +83,7 @@ func TestGetTask(t *testing.T) {
 		id   string
 		want models.Task
 	}{
-		{"success", task.ID, *task},
+		{"success", task.ID, task},
 		{"fail", "3", models.Task{}},
 	}
 	//revive:enable:line-length-limit

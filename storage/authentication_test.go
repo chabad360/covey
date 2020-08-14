@@ -2,24 +2,14 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/test"
 	"testing"
 )
 
 var (
-	u = &models.User{
-		Username: "user",
-		Password: "password",
-	}
-
-	uu = &models.User{
-		Username: "user",
-		Password: "pass",
-	}
-
-	u2 = &models.User{
-		Username: "user2",
-		Password: "password",
-	}
+	u  = test.U1
+	uu = test.U2
+	u2 = test.U3
 )
 
 func TestAddUser(t *testing.T) {
@@ -28,8 +18,8 @@ func TestAddUser(t *testing.T) {
 		user models.User
 		want string
 	}{
-		{"1", *u, "1"},
-		{"2", *u2, "2"},
+		{"1", u, "1"},
+		{"2", u2, "2"},
 	}
 
 	for _, tt := range tests {
@@ -49,17 +39,17 @@ func TestAddUser(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	DB.Delete(&models.User{}, "id > 0")
-	AddUser(*u)
+	AddUser(u)
 
 	var tests = []struct {
 		id   string
 		user *models.User
 		want string
 	}{
-		{"1", u, ""},
-		{"2", uu, "1"},
+		{"1", &u, ""},
+		{"2", &uu, "1"},
 	}
-	testError := UpdateUser(*uu, *u)
+	testError := UpdateUser(uu, u)
 
 	for _, tt := range tests {
 		testname := tt.id
@@ -76,16 +66,16 @@ func TestUpdateUser(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 	DB.Delete(&models.User{}, "id > 0")
-	AddUser(*uu)
-	AddUser(*u2)
+	AddUser(uu)
+	AddUser(u2)
 	var tests = []struct {
 		id   string
 		user *models.User
 		want string
 	}{
-		{"1", u, ""},
-		{"2", uu, "1"},
-		{"3", u2, "2"},
+		{"1", &u, ""},
+		{"2", &uu, "1"},
+		{"3", &u2, "2"},
 	}
 
 	for _, tt := range tests {

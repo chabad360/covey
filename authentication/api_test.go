@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	"log"
 	"net/http"
@@ -13,20 +12,8 @@ import (
 )
 
 var (
-	u = &models.User{
-		Username: "user",
-		Password: "password",
-	}
-
-	uu = &models.User{
-		Username: "user",
-		Password: "pass",
-	}
-
-	u2 = &models.User{
-		Username: "user2",
-		Password: "password",
-	}
+	uu = test.U2
+	u2 = test.U3
 )
 
 //revive:disable:cognitive-complexity
@@ -73,8 +60,8 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}
 
-	storage.AddUser(*uu)
-	storage.AddUser(*u2)
+	storage.AddUser(uu)
+	storage.AddUser(u2)
 
 	code := m.Run()
 

@@ -10,8 +10,8 @@ import (
 
 func TestQueryParams_Query(t *testing.T) {
 	DB.Delete(&models.Job{}, "id != ''")
-	AddJob(j)
-	AddJob(j2)
+	AddJob(&j)
+	AddJob(&j2)
 	type fields struct {
 		Limit  int
 		Offset int

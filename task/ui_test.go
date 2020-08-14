@@ -23,7 +23,7 @@ func Test_uiTasks(t *testing.T) {
 
 func Test_uiTaskSingle(t *testing.T) {
 	storage.DB.Delete(&models.Task{}, "id != ''")
-	storage.AddTask(t2)
+	storage.AddTask(&t2)
 
 	//revive:disable:line-length-limit
 	var tests = []struct {

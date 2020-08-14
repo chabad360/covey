@@ -1,7 +1,6 @@
 package task
 
 import (
-	"encoding/hex"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	"github.com/google/go-cmp/cmp"
@@ -53,8 +52,8 @@ func TestTaskNew(t *testing.T) {
 
 func TestTasksGet(t *testing.T) {
 	storage.DB.Delete(&models.Task{}, "id != ''")
-	storage.AddTask(t1)
-	storage.AddTask(t2)
+	storage.AddTask(&t1)
+	storage.AddTask(&t2)
 	js, _ := json.Marshal(t2)
 
 	var tests = []struct {
@@ -131,10 +130,8 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}
 
-	node1.HostKey, err = hex.DecodeString("0000001365636473612d736861322d6e69737470323536000000086e6973747032353600000041044032b5eed25ed08ec4361d9f7e6a7e27f725d563bc033f777fe2b12bdd61c86c160476c6d080b1361ea4ab9e89ec104051762ecb0a4595f53a16a06c959a0704")
-
-	storage.AddTask(t1)
-	storage.AddNode(node1)
+	storage.AddTask(&t1)
+	storage.AddNode(&node1)
 
 	code := m.Run()
 

@@ -23,7 +23,7 @@ func Test_uiJobs(t *testing.T) {
 
 func Test_uiJobSingle(t *testing.T) {
 	storage.DB.Delete(&models.Job{}, "id != ''")
-	storage.AddJob(j2)
+	storage.AddJob(&j2)
 
 	//revive:disable:line-length-limit
 	var tests = []struct {

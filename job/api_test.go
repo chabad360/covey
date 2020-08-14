@@ -14,28 +14,8 @@ import (
 )
 
 var (
-	j = &models.Job{
-		Name:  "update",
-		ID:    "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-		Nodes: []string{"node1"},
-		Tasks: map[string]models.JobTask{
-			"update": {
-				Plugin:  "shell",
-				Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
-			},
-		},
-	}
-	j2 = &models.Job{
-		Name:  "add",
-		ID:    "3748ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-		Nodes: []string{"node1"},
-		Tasks: map[string]models.JobTask{
-			"update": {
-				Plugin:  "shell",
-				Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
-			},
-		},
-	}
+	j  = test.J1
+	j2 = test.J2
 )
 
 func TestJobNew(t *testing.T) {
@@ -80,8 +60,8 @@ func TestJobNew(t *testing.T) {
 
 func TestJobsGet(t *testing.T) {
 	storage.DB.Delete(&models.Job{}, "id != ''")
-	storage.AddJob(j)
-	storage.AddJob(j2)
+	storage.AddJob(&j)
+	storage.AddJob(&j2)
 	js, _ := json.Marshal(j2)
 
 	var tests = []struct {
@@ -121,7 +101,7 @@ func TestJobsGet(t *testing.T) {
 
 func TestJobGet(t *testing.T) {
 	storage.DB.Delete(&models.Job{}, "id != ''")
-	storage.AddJob(j2)
+	storage.AddJob(&j2)
 	var tests = []struct {
 		name string
 		id   string
@@ -156,7 +136,7 @@ func TestJobGet(t *testing.T) {
 
 func TestJobUpdate(t *testing.T) {
 	storage.DB.Delete(&models.Job{}, "id != ''")
-	storage.AddJob(j2)
+	storage.AddJob(&j2)
 	var tests = []struct {
 		name string
 		id   string
@@ -195,7 +175,7 @@ func TestJobUpdate(t *testing.T) {
 
 func TestJobDelete(t *testing.T) {
 	storage.DB.Delete(&models.Job{}, "id != ''")
-	storage.AddJob(j2)
+	storage.AddJob(&j2)
 	var tests = []struct {
 		name string
 		id   string
@@ -232,7 +212,7 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not setup DB connection: %s", err)
 	}
 
-	storage.AddJob(j2)
+	storage.AddJob(&j2)
 
 	code := m.Run()
 

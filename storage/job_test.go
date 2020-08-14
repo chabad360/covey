@@ -2,33 +2,14 @@ package storage
 
 import (
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/test"
 	"github.com/google/go-cmp/cmp"
 	"testing"
 )
 
 var (
-	j = &models.Job{
-		Name:  "update",
-		ID:    "3778ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-		Nodes: []string{"node1"},
-		Tasks: map[string]models.JobTask{
-			"update": {
-				Plugin:  "shell",
-				Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
-			},
-		},
-	}
-	j2 = &models.Job{
-		Name:  "add",
-		ID:    "3748ffc302b6920c2589795ed6a7cad067eb8f8cb31b079725d0a20bfe6c3b6e",
-		Nodes: []string{"node1"},
-		Tasks: map[string]models.JobTask{
-			"update": {
-				Plugin:  "shell",
-				Details: map[string]string{"command": "sudo apt update && sudo apt upgrade -y"},
-			},
-		},
-	}
+	j  = test.J1
+	j2 = test.J2
 )
 
 func TestAddJob(t *testing.T) {
@@ -37,12 +18,12 @@ func TestAddJob(t *testing.T) {
 		id   string
 		want *models.Job
 	}{
-		{"update", j},
+		{"update", &j},
 		{"3", &models.Job{}},
 	}
 	//revive:enable:line-length-limit
 
-	testError := AddJob(j)
+	testError := AddJob(&j)
 
 	for _, tt := range tests {
 		testname := tt.id
@@ -57,7 +38,7 @@ func TestAddJob(t *testing.T) {
 
 func TestGetJob(t *testing.T) {
 	DB.Delete(&models.Job{}, "id != ''")
-	AddJob(j)
+	AddJob(&j)
 
 	//revive:disable:line-length-limit
 	var tests = []struct {
@@ -66,7 +47,7 @@ func TestGetJob(t *testing.T) {
 		want  *models.Job
 		want2 bool
 	}{
-		{"success", "update", j, true},
+		{"success", "update", &j, true},
 		{"fail", "3", nil, false},
 	}
 	//revive:enable:line-length-limit
@@ -87,20 +68,20 @@ func TestGetJob(t *testing.T) {
 
 func TestUpdateJob(t *testing.T) {
 	DB.Delete(&models.Job{}, "id != ''")
-	AddJob(j)
+	AddJob(&j)
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		name string
 		id   string
 		want *models.Job
 	}{
-		{"success", "update", j},
+		{"success", "update", &j},
 		{"fail", "3", &models.Job{}},
 	}
 	//revive:enable:line-length-limit
 
 	j.Cron = "5 * * * *"
-	testError := UpdateJob(j)
+	testError := UpdateJob(&j)
 
 	for _, tt := range tests {
 		testname := tt.name
@@ -116,15 +97,15 @@ func TestUpdateJob(t *testing.T) {
 func TestGetJobWithFullHistory(t *testing.T) {
 	DB.Delete(&models.Job{}, "id != ''")
 	DB.Delete(&models.Task{}, "id != ''")
-	z := *task
+	z := task
 	ta := &z
 	AddTask(ta)
-	AddJob(j)
+	AddJob(&j)
 	ta.IDShort = ""
 	ta.Details = nil
 	ta.Log = nil
 	j.TaskHistory = append(j.TaskHistory, ta.ID)
-	UpdateJob(j)
+	UpdateJob(&j)
 
 	jw := &models.JobWithTasks{}
 	jw.ID = j.ID
