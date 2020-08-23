@@ -32,10 +32,10 @@ func ErrorWriterCustom(w http.ResponseWriter, err error, code int) {
 		Error string `json:"error"`
 	}{err.Error()})
 	if jErr != nil {
-		panic(fmt.Errorf("error writing response: %w", jErr))
+		panic(fmt.Errorf("%w: %v", ErrWriting, jErr))
 	}
 
-	panic(fmt.Errorf("%w: %v", WriterError, err))
+	panic(fmt.Errorf("%w: %v", ErrWritten, err))
 }
 
 // Write writes the interface as a JSON to the ResponseWriter.

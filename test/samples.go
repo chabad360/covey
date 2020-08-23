@@ -5,6 +5,8 @@ import (
 )
 
 var (
+	//revive:disable:exported
+	//revive:disable:line-length-limit
 	U1 = models.User{
 		Username: "user",
 		Password: "password",

@@ -31,6 +31,7 @@ func GetNode(id string) (*models.Node, bool) {
 	return &n, true
 }
 
+// DeleteNode deletes a node from the database.
 func DeleteNode(node *models.Node) error {
 	return DB.Delete(node).Error
 }

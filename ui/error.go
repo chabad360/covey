@@ -37,8 +37,8 @@ func ErrorWriterCustom(w http.ResponseWriter, err error, code int, title string)
 	t := GetTemplate("ec")
 	wErr := t.ExecuteTemplate(w, "ec", p)
 	if wErr != nil {
-		panic(fmt.Errorf("error writing response: %w", wErr))
+		panic(fmt.Errorf("%w: %v", common.ErrWriting, wErr))
 	}
 
-	panic(fmt.Errorf("%w: %v", common.WriterError, err))
+	panic(fmt.Errorf("%w: %v", common.ErrWritten, err))
 }
