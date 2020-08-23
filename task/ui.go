@@ -17,7 +17,7 @@ func uiTasks(w http.ResponseWriter, r *http.Request) {
 
 	var tasks []models.Task
 	result := storage.DB.Find(&tasks)
-	common.ErrorWriter(w, result.Error)
+	ui.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
 		Title:   "Tasks",
@@ -27,7 +27,7 @@ func uiTasks(w http.ResponseWriter, r *http.Request) {
 
 	t := ui.GetTemplate("tasksAll")
 	err := t.ExecuteTemplate(w, "base", p)
-	common.ErrorWriter(w, err)
+	ui.ErrorWriter(w, err)
 }
 
 func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +36,7 @@ func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 	vars := pure.RequestVars(r)
 
 	task, ok := storage.GetTask(vars.URLParam("task"))
-	common.ErrorWriter404(w, vars.URLParam("task"), ok)
+	ui.ErrorWriter404(w, vars.URLParam("task"), ok)
 
 	p := &ui.Page{
 		Title:   fmt.Sprintf("Task %s", vars.URLParam("task")),
@@ -46,7 +46,7 @@ func uiTaskSingle(w http.ResponseWriter, r *http.Request) {
 
 	t := ui.GetTemplate("tasksSingle")
 	err := t.ExecuteTemplate(w, "base", p)
-	common.ErrorWriter(w, err)
+	ui.ErrorWriter(w, err)
 }
 
 // UITaskNew returns the form for creating a new task.
@@ -67,7 +67,7 @@ func UITaskNew(w http.ResponseWriter, r *http.Request) {
 
 	t := ui.GetTemplate("tasksNew")
 	err := t.ExecuteTemplate(w, "base", p)
-	common.ErrorWriter(w, err)
+	ui.ErrorWriter(w, err)
 }
 
 // RegisterUIHandlers registers the HTTP handlers for the task UI.

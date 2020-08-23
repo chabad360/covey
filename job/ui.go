@@ -17,7 +17,7 @@ func uiJobs(w http.ResponseWriter, r *http.Request) {
 
 	var jobs []models.Job
 	result := storage.DB.Find(&jobs)
-	common.ErrorWriter(w, result.Error)
+	ui.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
 		Title:   "Jobs",
@@ -27,7 +27,7 @@ func uiJobs(w http.ResponseWriter, r *http.Request) {
 
 	t := ui.GetTemplate("jobsAll")
 	err := t.ExecuteTemplate(w, "base", p)
-	common.ErrorWriter(w, err)
+	ui.ErrorWriter(w, err)
 }
 
 func uiJobSingle(w http.ResponseWriter, r *http.Request) {
@@ -36,12 +36,12 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 	vars := pure.RequestVars(r)
 
 	job, ok := storage.GetJobWithFullHistory(vars.URLParam("job"))
-	common.ErrorWriter404(w, vars.URLParam("job"), ok)
+	ui.ErrorWriter404(w, vars.URLParam("job"), ok)
 
 	if r.URL.Query().Get("run") == "true" { // TODO: ?
 		j, _ := storage.GetJob(vars.URLParam("job"))
 		_, err := run(j)
-		common.ErrorWriter(w, err)
+		ui.ErrorWriter(w, err)
 
 		job, _ = storage.GetJobWithFullHistory(vars.URLParam("job"))
 	}
@@ -54,7 +54,7 @@ func uiJobSingle(w http.ResponseWriter, r *http.Request) {
 
 	t := ui.GetTemplate("jobsSingle")
 	err := t.ExecuteTemplate(w, "base", p)
-	common.ErrorWriter(w, err)
+	ui.ErrorWriter(w, err)
 }
 
 // UIJobNew returns the form for creating a new task.
@@ -63,7 +63,7 @@ func UIJobNew(w http.ResponseWriter, r *http.Request) {
 
 	var nodes []string
 	result := storage.DB.Table("nodes").Select("name").Scan(&nodes)
-	common.ErrorWriter(w, result.Error)
+	ui.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
 		Title: "New Job",
@@ -76,7 +76,7 @@ func UIJobNew(w http.ResponseWriter, r *http.Request) {
 
 	t := ui.GetTemplate("jobsNew")
 	err := t.ExecuteTemplate(w, "base", p)
-	common.ErrorWriter(w, err)
+	ui.ErrorWriter(w, err)
 }
 
 // RegisterUIHandlers registers the HTTP handlers for the jobs UI.

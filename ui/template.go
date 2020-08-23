@@ -61,6 +61,10 @@ var (
 			b = template.Must(b.Parse(fsMust("/nodes/new.html")))
 			return b
 		},
+		"ec": func() *template.Template {
+			t := template.Must(template.New("ec").Parse(fsMust("/single/errorCode.html")))
+			return t
+		},
 	}
 )
 

@@ -15,7 +15,7 @@ func dashboard(w http.ResponseWriter, r *http.Request) {
 
 	base := GetTemplate("dashboard")
 	err := base.ExecuteTemplate(w, "base", &Page{Title: "Dashboard", URL: strings.Split(r.URL.Path, "/")})
-	common.ErrorWriter(w, err)
+	ErrorWriter(w, err)
 }
 
 func fsMust(f string) string {
@@ -29,4 +29,5 @@ func fsMust(f string) string {
 // RegisterHandlers registers the handlers for the ui module.
 func RegisterHandlers(r pure.IRouteGroup) {
 	r.Get("/dashboard", dashboard)
+	r.Get("/", dashboard)
 }

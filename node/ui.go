@@ -18,7 +18,7 @@ func uiNodes(w http.ResponseWriter, r *http.Request) {
 
 	var nodes []models.Node
 	result := storage.DB.Find(&nodes)
-	common.ErrorWriter(w, result.Error)
+	ui.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
 		Title:   "Nodes",
@@ -27,7 +27,7 @@ func uiNodes(w http.ResponseWriter, r *http.Request) {
 	}
 	t := ui.GetTemplate("nodesAll")
 	err := t.ExecuteTemplate(w, "base", p)
-	common.ErrorWriter(w, err)
+	ui.ErrorWriter(w, err)
 }
 
 func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
@@ -35,11 +35,11 @@ func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
 
 	vars := pure.RequestVars(r)
 	node, ok := storage.GetNode(vars.URLParam("node"))
-	common.ErrorWriter404(w, vars.URLParam("node"), ok)
+	ui.ErrorWriter404(w, vars.URLParam("node"), ok)
 
 	var tasks []models.Task
 	result := storage.DB.Table("tasks").Where("node = ?", node.ID).Or("node = ?", node.Name).Find(&tasks)
-	common.ErrorWriter(w, result.Error)
+	ui.ErrorWriter(w, result.Error)
 
 	p := &ui.Page{
 		Title: fmt.Sprintf("Node %s", vars.URLParam("node")),
@@ -53,7 +53,7 @@ func uiNodeSingle(w http.ResponseWriter, r *http.Request) {
 
 	t := ui.GetTemplate("nodesSingle")
 	err := t.ExecuteTemplate(w, "base", p)
-	common.ErrorWriter(w, err)
+	ui.ErrorWriter(w, err)
 }
 
 // UINodeNew returns the form for creating a new task.
@@ -67,7 +67,7 @@ func UINodeNew(w http.ResponseWriter, r *http.Request) {
 
 	t := ui.GetTemplate("nodesNew")
 	err := t.ExecuteTemplate(w, "base", p)
-	common.ErrorWriter(w, err)
+	ui.ErrorWriter(w, err)
 }
 
 // RegisterUIHandlers registers the HTTP handlers for the nodes UI.

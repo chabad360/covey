@@ -11,7 +11,7 @@ var (
 	Config = struct {
 		// revive:disable:line-length-limit
 		Daemon struct {
-			Host          string `default:"" flag:"host||Resolvable address for this machine (If empty covey will listen on every address)." env:"COVEY_HOST" validate:"omitempty,ip_addr"`
+			Host          string `default:"0.0.0.0" flag:"host||Resolvable address for this machine. (default '0.0.0.0')" env:"COVEY_HOST" validate:"omitempty,ip_addr"`
 			Port          string `default:"8080" flag:"port||Port to expose the covey daemon on. (default '8080')" env:"COVEY_PORT" validate:"number,required"`
 			PluginsFolder string `default:"/usr/lib64/covey/plugins" flag:"plugins-dir||Directory where plugins are located. (default '/usr/lib64/covey/plugins')" env:"COVEY_PLUGINS_DIRECTORY" validate:"dir,required"`
 		}

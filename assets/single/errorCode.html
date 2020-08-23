@@ -1,0 +1,42 @@
+{{ define "ec"}}
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <title>{{ .Title }}</title>
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- CoreUI CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@coreui/coreui@3.2.2/dist/css/coreui.min.css"
+              integrity="sha256-/P8LmtiR69iltAGOmSzYmMnwMClahS46O0bagquJfTo=" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
+              integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous"/>
+    </head>
+    <body class="c-app flex-row align-items-center vsc-initialized">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="clearfix">
+                    <h1 class="float-left display-3 mr-4">{{ .Details.Code }}</h1>
+                    <h4 class="pt-3">{{ .Title }}</h4>
+                    <p class="text-muted">{{ .Details.Text }}</p>
+                </div>
+                <div class="input-prepend input-group">
+                    <a class="btn btn-primary" style="margin-right: 1em;" href="javascript:window.history.back()">Go
+                        Back</a>
+                    <a class="btn btn-primary" href="/dashboard">Go Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+            integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@coreui/coreui@3.2.2/dist/js/coreui.bundle.min.js"
+            integrity="sha256-ST3VQD7BW7DPVKIGivUeCmsqN3WjoEA7n529Rf9rekk=" crossorigin="anonymous"></script>
+
+    </body>
+    </html>
+{{ end }}
