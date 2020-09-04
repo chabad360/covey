@@ -2,9 +2,12 @@ package authentication
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/common"
+	"log"
 	"net/http"
 	"strings"
+
+	"github.com/chabad360/covey/common"
+	"github.com/gbrlsnchs/jwt/v3"
 )
 
 // AuthUserMiddleware handles authentication for users.
@@ -21,8 +24,9 @@ func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		_, err = parseToken(c.Value, "user", "all")
+		j, err := parseToken(c.Value, "user", "all")
 		if err != nil {
+			log.Println(j, err)
 			// if it's a bad cookie, we log them out, effectively deleting the cookie.
 			http.Redirect(w, r, "/logout", http.StatusFound)
 			return
@@ -36,6 +40,8 @@ func AuthUserMiddleware(next http.HandlerFunc) http.HandlerFunc {
 func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer common.Recover()
+		var claim *jwt.Payload
+		var err error
 
 		splitToken := strings.Split(r.Header.Get("Authorization"), "Bearer")
 		if len(splitToken) != 2 {
@@ -44,7 +50,7 @@ func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		tokenString := strings.TrimSpace(splitToken[1])
 
-		claim, err := parseToken(tokenString, "api", "all")
+		claim, err = parseToken(tokenString, "api", "all")
 		if err != nil {
 			// This is here in case a user is trying to generate a token or use the api directly.
 			claim, err = parseToken(tokenString, "user", "all")
@@ -53,6 +59,7 @@ func AuthAPIMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 
+		log.Println(claim.Subject)
 		r.Header.Add("X-User-ID", claim.Subject)
 		next(w, r)
 	}

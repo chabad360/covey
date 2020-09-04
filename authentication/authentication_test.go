@@ -1,17 +1,13 @@
 package authentication
 
 import (
+	"github.com/chabad360/covey/test"
 	"github.com/google/go-cmp/cmp"
 	"testing"
 	"time"
 
 	"github.com/gbrlsnchs/jwt/v3"
 )
-
-// revive:disable:line-length-limit
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3ZleS1hcGkiLCJzdWIiOiIzIiwiYXVkIjoiYWxsIiwiZXhwIjo0NDY5NTQyMzYzLCJpYXQiOjE1OTU1MzI3NjMsImp0aSI6InNseUM0QVd2N0NhU3RKWG9yeXF5QzFPOWZLUFJzdFZQIn0.AAU9I8yub7VmTCnT833F54W6uQbhGVFKR8DSsi9pDJI"
-
-// revive:enable:line-length-limit
 
 func TestCreateToken(t *testing.T) {
 	type args struct {
@@ -49,7 +45,7 @@ func TestParseToken(t *testing.T) {
 		t.Fatal(err)
 	}
 	timeD := jwt.NumericDate(time.Date(2020, 7, 23, 12, 32, 43, 0, losAngeles))
-	timeE := jwt.NumericDate(time.Date(2111, 8, 20, 11, 32, 43, 0, losAngeles))
+	timeE := jwt.NumericDate(time.Date(2111, 8, 20, 12, 32, 43, 0, losAngeles))
 
 	type args struct {
 		tokenString string
@@ -62,13 +58,10 @@ func TestParseToken(t *testing.T) {
 		wantErr bool
 	}{
 		//revive:disable:line-length-limit
-		{"Good", args{token, "api"}, &jwt.Payload{"covey-api", "3", []string{"all"}, timeE, nil, timeD, "slyC4AWv7CaStJXoryqyC1O9fKPRstVP"}, false},
-		{"Expired", args{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3ZleS1hcGkiLCJzdWIiOiIxIiwiYXVkIjoiYWxsIiwiZXhwIjowLCJpYXQiOjE1OTE5MTI5NzAsImp0aSI6InBIWWp4ZVVCclZmZHdVeldIUmloRkRQUkhCTXVFV21hIn0.XiNKXNDmsxXul8ceyQUgBWJBfrUmBsHWyLC34_Qy5qo",
-			"api"}, &jwt.Payload{Issuer: "covey-api"}, true},
-		{"Invalid", args{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3ZleS1hcGkiLCJzdWIiOiIxIiwiYXVkIjoiYWxsIiwiZXhwIjowLCJpYXQiOjE1OTE5MTI5NzAsImp0aSI6InBIWWp4ZVVCclZmZHdVeldIUmloRkRQUkhCTXVFV21hIna.XiNKXNDmsxXul8ceyQUgBWJBfrUmBsHWyLC34_Qy5qo",
-			"api"}, &jwt.Payload{Issuer: ""}, true},
-		{"NoType", args{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb3ZleS1hcGkiLCJzdWIiOiIxIiwiYXVkIjoiYWxsIiwiZXhwIjowLCJpYXQiOjE1OTE5MTI5NzAsImp0aSI6InBIWWp4ZVVCclZmZHdVeldIUmloRkRQUkhCTXVFV21hIna.XiNKXNDmsxXul8ceyQUgBWJBfrUmBsHWyLC34_Qy5qo",
-			"asd"}, &jwt.Payload{Issuer: ""}, true},
+		{"Good", args{test.JWT1, "api"}, &jwt.Payload{"covey-api", "3", []string{"all"}, timeE, nil, timeD, "slyC4AWv7CaStJXoryqyC1O9fKPRstVP"}, false},
+		{"Expired", args{test.JWT2, "api"}, &jwt.Payload{Issuer: "covey-api"}, true},
+		{"Invalid", args{test.JWT3, "api"}, &jwt.Payload{Issuer: ""}, true},
+		{"NoType", args{test.JWT4, "asd"}, &jwt.Payload{Issuer: ""}, true},
 		//revive:enable:line-length-limit
 	}
 	for _, tt := range tests {

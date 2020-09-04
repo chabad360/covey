@@ -2,11 +2,12 @@ package authentication
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/storage"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 
 	"github.com/chabad360/covey/common"
 	"github.com/gbrlsnchs/jwt/v3"

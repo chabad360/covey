@@ -8,13 +8,9 @@ import (
 	"github.com/go-playground/pure/v5"
 )
 
-var tokenUser, _, _ = createToken("1", "user", []string{"all"})
-
 //revive:disable:cognitive-complexity
 
 func TestAuthUserMiddleware(t *testing.T) {
-	tokenUser, _, _ = createToken("1", "user", []string{"all"})
-
 	//revive:disable:line-length-limit
 	var tests = []struct {
 		name       string
@@ -24,8 +20,8 @@ func TestAuthUserMiddleware(t *testing.T) {
 		wantStatus int
 	}{
 		{"redirect", "/test", "", "/login?url=/test", http.StatusFound},
-		{"ignored", "/test", tokenUser, "", http.StatusOK},
-		{"ignoredWithToken", "/login", tokenUser, "", http.StatusOK},
+		{"success", "/test", test.JWT5, "", http.StatusOK},
+		{"ignored", "/login", test.JWT5, "", http.StatusOK},
 		{"logout", "/test", "1", "/logout", http.StatusFound},
 		{"logout2", "/logout", "1", "", http.StatusOK},
 		{"login", "/login", "", "", http.StatusOK},
@@ -72,7 +68,7 @@ func TestAuthAPIMiddleware(t *testing.T) {
 `, http.StatusBadRequest},
 		{"fail", "123", `{"error":"jwt: malformed token"}
 `, http.StatusUnauthorized},
-		{"success", tokenUser, "1", http.StatusOK},
+		{"success", test.JWT1, "3", http.StatusOK},
 	}
 	//revive:enable:line-length-limit
 	p := pure.New()
