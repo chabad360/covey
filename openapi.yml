@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: Covey API
   version: v0.1
@@ -19,7 +19,7 @@ paths:
       summary: Add a new Node.
       description: >
         Running this will SSH into the specified server (`{ip}:{port}`), using
-        the specified credentials. Covey will then proceed to install  and start
+        the specified credentials. Covey will then proceed to install and start
         the agent onto the server.
       operationId: newNode
       requestBody:
@@ -73,19 +73,19 @@ paths:
           $ref: '#/components/responses/unauth'
       tags:
         - nodes
-  '/nodes/{nodeId}':
+  '/nodes/{nodeID}':
     summary: Get the information of an individual node.
+    parameters:
+      - in: path
+        name: nodeID
+        schema:
+          type: string
+        required: true
+        description: 'ID, short ID or name of the node to get.'
     get:
       summary: Get a node.
       description: ''
       operationId: getNode
-      parameters:
-        - in: path
-          name: nodeId
-          schema:
-            type: string
-          required: true
-          description: 'ID, short ID or name of the node to get.'
       responses:
         '200':
           description: Success
@@ -176,11 +176,11 @@ paths:
           $ref: '#/components/responses/unauth'
       tags:
         - tasks
-  '/tasks/{taskId}':
+  '/tasks/{taskID}':
     summary: Get the information of an individual task.
     parameters:
       - in: path
-        name: taskId
+        name: taskID
         schema:
           type: string
         required: true
@@ -256,11 +256,11 @@ paths:
                   $ref: '#/components/examples/getJobs'
       tags:
         - jobs
-  '/jobs/{jobId}':
+  '/jobs/{jobID}':
     summary: Get the information of an individual job.
     parameters:
       - in: path
-        name: jobId
+        name: jobID
         schema:
           type: string
         required: true
@@ -341,7 +341,103 @@ paths:
           description: No such job exists.
       tags:
         - jobs
-
+  /plugins:
+    description: All the plugins.
+    get:
+      summary: List of all plugins (name).
+      operationId: getPlugins
+      #      parameters:
+      #        - $ref: '#/components/parameters/limit'
+      #        - $ref: '#/components/parameters/offset'
+      #        - $ref: '#/components/parameters/sort'
+      #        - $ref: '#/components/parameters/sortby'
+      #        - $ref: '#/components/parameters/expand'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Array'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Plugin'
+              examples:
+                expandIsFalse:
+                  value:
+                    - shell
+                    - docker
+                expandIsTrue:
+                  $ref: '#/components/examples/getPlugins'
+        '401':
+          $ref: '#/components/responses/unauth'
+      tags:
+        - plugins
+  '/plugins/{pluginID}':
+    summary: Get the information of an individual plugin.
+    parameters:
+      - in: path
+        name: pluginID
+        schema:
+          type: string
+        required: true
+        description: 'GUID or name of the plugin.'
+    get:
+      summary: Get a plugin.
+      description: ''
+      operationId: getPlugin
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plugin'
+              examples:
+                getPlugin:
+                  $ref: '#/components/examples/getPlugin'
+        '401':
+          $ref: '#/components/responses/unauth'
+        '404':
+          description: No such plugin exists.
+      tags:
+        - plugins
+  '/plugins/{pluginID}/inputs':
+    summary: Get the inputs for a given plugin.
+    parameters:
+      - in: path
+        name: pluginID
+        schema:
+          type: string
+        required: true
+        description: 'GUID or name of the plugin.'
+      - in: query
+        name: node
+        schema:
+          type: string
+        description: The node to retrive the inputs for. If empty, it will return generalized inputs for use in a job task.
+    get:
+      summary: Get the plugin inputs.
+      operationId: getPluginInputs
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Input'
+              examples:
+                getInputs:
+                  $ref: '#/components/examples/getInputs'
+        '401':
+          $ref: '#/components/responses/unauth'
+        '404':
+          description: No such plugin exists.
+      tags:
+        - plugins
 
 components:
   examples:
@@ -356,7 +452,13 @@ components:
         updated_at: '2020-06-29T23:39:10.071485063-07:00'
     getNodes:
       value:
-        - $ref: '#/components/examples/getNode'
+        - name: node1
+          id: a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+          ip: 192.168.1.100
+          port: '22'
+          username: root
+          created_at: '2020-06-29T23:39:10.071485063-07:00'
+          updated_at: '2020-06-29T23:39:10.071485063-07:00'
         - name: node2
           id: e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb31
           ip: 192.168.1.101
@@ -379,7 +481,18 @@ components:
           command: echo hello world
     getTasks:
       value:
-        - $ref: '#/components/examples/getTask'
+        - id: a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+          state: 0
+          exit_code: 0
+          plugin: shell
+          node: node1
+          details:
+            command: echo hello && echo world
+          log:
+            - 'hello'
+            - 'world'
+          created_at: '2020-06-29T23:39:10.071485063-07:00'
+          updated_at: '2020-06-29T23:39:10.071485063-07:00'
         - id: e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
           state: 0
           exit_code: 0
@@ -459,7 +572,23 @@ components:
         updated_at: '2020-06-29T23:39:10.071485063-07:00'
     getJobs:
       value:
-        - $ref: '#/components/examples/getJob'
+        - id: a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+          name: update
+          nodes:
+            - node1
+            - node2
+          cron: '0 0 1 1 *'
+          tasks:
+            update:
+              plugin: shell
+              details:
+                command: apt-get update
+            upgrade:
+              plugin: shell
+              details:
+                command: apt-get upgrade -y
+          created_at: '2020-06-29T23:39:10.071485063-07:00'
+          updated_at: '2020-06-29T23:39:10.071485063-07:00'
         - id: e258d248fda94c63753607f7c4494ee0fcbe92f1a76bfdac795c9d84101eb317
           name: reboot
           nodes:
@@ -473,6 +602,38 @@ components:
                 command: reboot
           created_at: '2020-06-29T23:39:10.071485063-07:00'
           updated_at: '2020-06-29T23:39:10.071485063-07:00'
+    getPlugin:
+      value:
+        name: shell
+        pluginType: taskPlugin
+        filePath: /lib/covey/plugins/task/shell.go
+        UUID: bfca9ab4-66a6-48e4-9077-5f0cb2b5d248
+    getPlugins:
+      value:
+        - name: shell
+          pluginType: taskPlugin
+          filePath: /lib/covey/plugins/task/shell.go
+          UUID: bfca9ab4-66a6-48e4-9077-5f0cb2b5d248
+        - name: docker
+          pluginType: taskPlugin
+          filePath: /lib/covey/plugins/task/docker.go
+          UUID: 78ca70b4-19ff-4ca2-8c71-ff5bf9eb4590
+
+    getInputs:
+      value:
+        - name: command
+          label: Command
+          description: The command to run in the shell.
+          type: 0
+          required: true
+        - name: shell
+          label: Shell
+          description: The shell to run the command in.
+          type: 2
+          options:
+            - bash
+            - zsh
+          default: bash
 
   links:
     GetNodeByID:
@@ -717,6 +878,67 @@ components:
       type: array
       items:
         type: string
+    Plugin:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the plugin.
+          readOnly: true
+        pluginType:
+          type: string
+          description: |
+            The type of the plugin:
+            - taskPlugin
+          readOnly: true
+        filePath:
+          type: string
+          description: The path to the plugin file.
+          readOnly: true
+        UUID:
+          type: string
+          description: The UUID for the plugin.
+          readOnly: true
+          format: 'UUID'
+    Input:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name attribute for that input.
+          readOnly: true
+        label:
+          type: string
+          description: The label attached to that input.
+          readOnly: true
+        description:
+          type: string
+          description: The tooltip for the input.
+          readOnly: true
+        type:
+          type: integer
+          enum: [ 0, 1, 2, 3, 4 ]
+          description: |
+            The type of input:
+            - `0`: Text
+            - `1`: Number
+            - `2`: List
+            - `3`: Multiple
+            - `4`: Boolean
+          readOnly: true
+        default:
+          type: string
+          description: The default input value.
+          readOnly: true
+        required:
+          type: boolean
+          description: Whether or not the input is required.
+          readOnly: true
+        options:
+          description: The options for a `List` or a `Multiple` input.
+          type: array
+          items:
+            type: string
 
   responses:
     unauth:
@@ -778,3 +1000,5 @@ tags:
     description: Task creation and information.
   - name: jobs
     description: 'Job creation, management and more.'
+  - name: plugins
+    description: Plugin information.

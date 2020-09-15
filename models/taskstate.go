@@ -15,13 +15,12 @@ const (
 	// StateCancelled should be given if the queued task is canceled.
 	StateCancelled
 	// StateScheduled should be given if the task is scheduled to be executed.
-	// StateScheduled = 5
+	// StateScheduled
 	_
 	// StateQueued should be given while the task is waiting to be executed.
 	StateQueued
 	// StateOther should be avoided.
 	StateOther TaskState = 10
-	// StateInternalError should only be given if the task plugin fails.
-	// This will be used if err != nil, if this is given there is a bug in the plugin.
+	// StateInternalError should only be given if the task fails prior to execution.
 	StateInternalError TaskState = 11
 )
