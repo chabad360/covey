@@ -2,12 +2,10 @@ package task
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/plugin"
 	"github.com/chabad360/covey/storage"
 	json "github.com/json-iterator/go"
-	"path"
-	"plugin"
 )
 
 // NewTask creates a new task.
@@ -22,10 +20,12 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 		return nil, fmt.Errorf("%v is not a valid node", t.Node)
 	}
 
-	p, err := loadPlugin(t.Plugin)
+	pI, err := plugin.Host.GetPlugin(t.Plugin)
 	if err != nil {
 		return nil, err
 	}
+
+	p := pI.(plugin.TaskPluginInterface)
 
 	cmd, err := p.GetCommand(*t)
 	if err != nil {
@@ -45,25 +45,4 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 	}
 
 	return t, nil
-}
-
-func loadPlugin(pluginName string) (Plugin, error) {
-	p, err := plugin.Open(path.Join(config.Config.Daemon.PluginsFolder, "task", pluginName+".so"))
-	if err != nil {
-		return nil, err
-	}
-
-	n, err := p.Lookup("Plugin")
-	if err != nil {
-		return nil, err
-	}
-
-	var s Plugin
-
-	s, ok := n.(Plugin)
-	if !ok {
-		return nil, fmt.Errorf(pluginName, " does not provide a Plugin")
-	}
-
-	return s, nil
 }

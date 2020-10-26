@@ -3,6 +3,7 @@ package task
 import (
 	"fmt"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/plugin"
 	"net/http"
 	"strings"
 
@@ -62,7 +63,7 @@ func UITaskNew(w http.ResponseWriter, r *http.Request) {
 		Details: struct {
 			Plugins []string
 			Nodes   []string
-		}{[]string{"shell"}, nodes},
+		}{plugin.Host.GetPluginsForType("task"), nodes},
 	}
 
 	t := ui.GetTemplate("tasksNew")

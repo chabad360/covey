@@ -63,7 +63,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 #### V0.6 Alpha
 
-* [ ] Fix the plugin system
+* [ ] Fix the plugin system (in progress, checkout [github.com/chabad360/plugins](https://github.com/chabad360/plugins))
 * [x] Provide configuration system
 * [x] Deal with packed files (`.gitignore` and then include it on build?)
 * [ ] CI/CD

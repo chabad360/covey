@@ -893,13 +893,8 @@ components:
           readOnly: true
         filePath:
           type: string
-          description: The path to the plugin file.
+          description: The path to the plugin zip file.
           readOnly: true
-        UUID:
-          type: string
-          description: The UUID for the plugin.
-          readOnly: true
-          format: 'UUID'
     Input:
       type: object
       properties:

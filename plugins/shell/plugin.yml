@@ -1,0 +1,5 @@
+name: shell
+description: Runs a shell command on a node.
+import: github.com/chabad360/covey/plugins/shell
+type: task
+local: true

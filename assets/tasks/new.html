@@ -10,7 +10,7 @@
                             <div class="form-group col-md-6">
                                 <label for="plugin">Plugin</label>
                                 <select class="form-control" id="plugin" name="plugin" required>
-                                    <option value="">Please select</option>
+                                    <option value="">Select one</option>
                                     {{ range .Details.Plugins }}
                                         <option value="{{ . }}">{{ . }}</option>
                                     {{ end }}
@@ -19,23 +19,19 @@
                             <div class="form-group col-md-6">
                                 <label for="node">Node</label>
                                 <select class="form-control" id="node" name="node" required>
-                                    <option value="">Please select</option>
+                                    <option value="">Select one</option>
                                     {{ range .Details.Nodes }}
                                         <option value="{{ . }}">{{ . }}</option>
                                     {{ end }}
                                 </select>
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <label for="command">Command</label>
-                                <input type="text" class="form-control" id="command" name="details[command]"
-                                       placeholder="apt-get update ..." required>
-                            </div>
+                        <div id="task-form">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <button class="btn btn-success" type="submit"><i class="fa fa-play"></i> Start Task
+                                <button id="submit" class="btn btn-success" type="submit" disabled><i
+                                            class="fa fa-play"></i> Start Task
                                 </button>
                             </div>
                         </div>
@@ -64,6 +60,17 @@
                     }
                 });
             });
+        });
+
+        $("#plugin").change(function () {
+            $.ajax({
+                type: "GET",
+                url: "/internal/plugins/" + $("#plugin option:selected").text() + "/form",
+                success: function (data) {
+                    $("#task-form").html(data);
+                }
+            });
+            $("#submit").removeAttr("disabled");
         });
     </script>
 {{ end }}

@@ -1,0 +1,31 @@
+{{ define "form" }}
+    {{ range .Inputs }}
+        <div class="form-row">
+            <div class="form-group">
+                <label for="{{.Name}}">{{.Label}}</label>
+                <{{ if eq .Type 0 -}}
+                input
+            {{- else if eq .Type 1 -}}
+                input type="number"
+            {{- else if or (eq .Type 2) (eq .Type 3) -}}
+                select
+            {{- else if eq .Type 4 -}}
+                input type="checkbox"
+            {{- end -}}
+                class="form-control" id="{{.Name}}" name="details[{{.Name}}]"
+                {{- if nq .Default "" -}}
+                    placeholder="{{.Default}}" value="{{ .Default}}"
+                {{- end -}}
+                {{- if eq .Type 3-}}
+                multiple
+                {{- end -}}>
+                {{- if (eq .Type 2) (eq .Type 3) }}
+                    {{ range .Options }}
+                        <option value="{{.}}">{{.}}</option>
+                    {{ end }}
+                    </select>
+                {{ end }}
+            </div>
+        </div>
+    {{ end }}
+{{ end }}

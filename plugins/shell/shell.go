@@ -1,4 +1,4 @@
-package main
+package shell
 
 import (
 	"fmt"
@@ -6,8 +6,6 @@ import (
 	"github.com/chabad360/covey/ui"
 	json "github.com/json-iterator/go"
 )
-
-const UUID = "e88f7bfc-dee7-439c-b65d-a8594e80ad39"
 
 // Plugin is exposed to the module.
 var Plugin plugin
@@ -23,7 +21,7 @@ func (p *plugin) GetCommand(task models.Task) (string, error) {
 }
 
 // GetInputs returns the input for the Shell plugin.
-func (p *plugin) GetInputs(_ []byte) ([]byte, error) {
+func (p *plugin) GetInputs() ([]byte, error) {
 	f := ui.Form{
 		Inputs: []ui.Input{
 			{
@@ -56,6 +54,3 @@ func (p *plugin) GetFetchCommand() (string, func([]string) ([]byte, error)) {
 		})
 	}
 }
-
-// GetUUID returns the UUID for the plugin.
-func (p *plugin) GetUUID() string { return UUID }

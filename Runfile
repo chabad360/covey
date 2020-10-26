@@ -10,7 +10,7 @@ build:
     LD=""
     "${RUN}" -r "${RUNFILE}" agent --release
     [[ "${LIVE}" ]] || "${RUN}" -r "${RUNFILE}" pack
-    "${RUN}" -r "${RUNFILE}" plugins --live=${LIVE:-0} --release=${RELEASE:-0}
+#    "${RUN}" -r "${RUNFILE}" plugins --live=${LIVE:-0} --release=${RELEASE:-0}
     [[ "${LIVE}" ]] && TAGS=-tags=live && echo "Building Covey without assets"
     [[ "${RELEASE}" ]] && echo "Building Covey without symbols"
     echo "Building Covey"

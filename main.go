@@ -1,4 +1,4 @@
-package main
+package Covey
 
 // Make sure to run resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*
 // TODO: refactor
@@ -12,6 +12,7 @@ import (
 	"github.com/chabad360/covey/job"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/node"
+	"github.com/chabad360/covey/plugin"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task"
 	"github.com/chabad360/covey/ui"
@@ -22,7 +23,7 @@ import (
 )
 
 const (
-	version = "v0.6"
+	version = "v0.06"
 )
 
 func loadHandlers(r *pure.Mux) {
@@ -81,6 +82,10 @@ func initialize() {
 
 	if _, err := asset.FS.Open("/base/base.html"); err != nil {
 		log.Fatalf("Failed to open filesystem: %v", err)
+	}
+
+	if err := plugin.Init(); err != nil {
+		log.Fatalf("Failed to initialize plugins: %v", err)
 	}
 }
 

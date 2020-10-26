@@ -3,6 +3,7 @@ package task
 import (
 	"fmt"
 	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/plugin"
 	"github.com/chabad360/covey/storage"
 	"github.com/go-playground/pure/v5"
 	json "github.com/json-iterator/go"
@@ -70,7 +71,7 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 
 func initQueues(tasks []models.Task) error {
 	for _, t := range tasks {
-		p, err := loadPlugin(t.Plugin)
+		p, err := plugin.GetTaskPlugin(t.Plugin)
 		if err != nil {
 			return err
 		}

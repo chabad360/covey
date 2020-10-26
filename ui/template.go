@@ -65,6 +65,10 @@ var (
 			t := template.Must(template.New("ec").Parse(fsMust("/single/errorCode.html")))
 			return t
 		},
+		"pluginForm": func() *template.Template {
+			t := template.Must(template.New("form").Parse(fsMust("/single/formGen.html")))
+			return t
+		},
 	}
 )
 
