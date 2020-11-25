@@ -10,7 +10,6 @@ build:
     LD=""
     "${RUN}" -r "${RUNFILE}" agent --release
     [[ "${LIVE}" ]] || "${RUN}" -r "${RUNFILE}" pack
-#    "${RUN}" -r "${RUNFILE}" plugins --live=${LIVE:-0} --release=${RELEASE:-0}
     [[ "${LIVE}" ]] && TAGS=-tags=live && echo "Building Covey without assets"
     [[ "${RELEASE}" ]] && echo "Building Covey without symbols"
     echo "Building Covey"
@@ -36,21 +35,6 @@ agent:
 pack:
     echo "Bundling covey resources"
     resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ assets/*
-
-##
-# Build Covey plugins
-# OPTION LIVE -l, --live Build Covey without bundling any assets.
-# OPTION RELEASE -r, --release Strip symbols and compress Covey binary.
-plugins:
-    TAGS=""
-    LD=""
-    [[ "${LIVE}" ]] && TAGS=-tags=live && echo "Building plugins without assets"
-    echo "Building plugins"
-    [[ "${RELEASE}" ]] \
-        && echo "Building plugins without symbols"\
-        && go build -o plugins/task/shell.so -ldflags="-s -w" -trimpath -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/task/shell \
-        || go build -trimpath -o plugins/task/shell.so -buildmode=plugin ${TAGS} github.com/chabad360/covey/plugins/task/shell
-
 
 
 ## Build and run Covey with -tag live

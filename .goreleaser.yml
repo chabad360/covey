@@ -9,6 +9,13 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
+    flags:
+      - '-trimpath'
+    ldflags:
+      - -s
+      - -w
+#    hooks:
+#      post: upx {{ .Path }}
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -21,8 +28,8 @@ changelog:
       - '^test:'
 release:
   github:
-    user: chabad360
-    repo: covey
+    owner: chabad360
+    name: covey
   draft: true
 signs:
   - artifacts: all
