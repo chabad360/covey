@@ -65,7 +65,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 * [ ] Fix the plugin system (in progress, checkout [github.com/chabad360/plugins](https://github.com/chabad360/plugins))
 * [x] Provide configuration system
-* [x] Deal with packed files (`.gitignore` and then include it on build?)
+* [x] Deal with packed files (~`.gitignore` and then include it on build?~ Switch to `//go:embed`)
 * [ ] CI/CD
 * [x] Big Refactor
 * [ ] Add and refactor tests (Aim for 80% Coverage)

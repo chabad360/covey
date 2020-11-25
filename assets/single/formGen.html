@@ -20,6 +20,9 @@
                 multiple
                 {{- end -}}>
                 {{- if (eq .Type 2) (eq .Type 3) }}
+                    {{- if eq .Type 2 -}}
+                        <option value="nil">Select One</option>
+                    {{- end -}}
                     {{ range .Options }}
                         <option value="{{.}}">{{.}}</option>
                     {{ end }}

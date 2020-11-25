@@ -1,0 +1,30 @@
+project_name: Covey
+before:
+  hooks:
+    - go mod download
+    - go get github.com/omeid/go-resources/cmd/resources
+    - resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+release:
+  github:
+    user: chabad360
+    repo: covey
+  draft: true
+signs:
+  - artifacts: all
+    args: [ "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
+
