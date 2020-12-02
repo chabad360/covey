@@ -43,20 +43,9 @@ jobs:
 
     - name: Pack assets
       run: resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ ./assets/*
-
-    - name: Build
-      run: go build -ldflags="-s -w" -trimpath -v github.com/chabad360/covey
-    
-    - name: UPX covey
-      uses: crazy-max/ghaction-upx@v1
-      with:
-        version: latest
-        file: covey
-      
-    - name: Build Shell Plugin
-      run: go build -ldflags="-s -w" -trimpath -v -buildmode=plugin -o plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
     
     - name: Test
+      if: success() || failure()
       run: go test -trimpath -v -coverprofile=coverage.txt -covermode count `go list ./... | grep -v test`
       
     - name: Upload coverage
