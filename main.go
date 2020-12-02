@@ -1,4 +1,4 @@
-package Covey
+package main
 
 // Make sure to run resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*
 // TODO: refactor

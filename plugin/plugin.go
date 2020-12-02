@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"fmt"
 	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/plugins"
@@ -29,9 +30,9 @@ func Init() error {
 }
 
 func GetTaskPlugin(pluginName string) (TaskPluginInterface, error) {
-	p, err := Host.GetPlugin(pluginName)
-	if err != nil {
-		return nil, err
+	p, ok := Host.GetPlugin(pluginName)
+	if !ok {
+		return nil, fmt.Errorf("Failed to load plugin: %v", pluginName)
 	}
 
 	return p.(TaskPluginInterface), nil

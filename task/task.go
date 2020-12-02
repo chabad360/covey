@@ -20,12 +20,10 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 		return nil, fmt.Errorf("%v is not a valid node", t.Node)
 	}
 
-	pI, err := plugin.Host.GetPlugin(t.Plugin)
+	p, err := plugin.GetTaskPlugin(t.Plugin)
 	if err != nil {
 		return nil, err
 	}
-
-	p := pI.(plugin.TaskPluginInterface)
 
 	cmd, err := p.GetCommand(*t)
 	if err != nil {
