@@ -1,4 +1,4 @@
-package ui
+package safe
 
 type InputType int
 

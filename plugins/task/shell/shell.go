@@ -1,19 +1,16 @@
 package shell
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/ui"
-	json "github.com/json-iterator/go"
+	"github.com/chabad360/covey/models/safe"
 )
 
-// Plugin is exposed to the module.
-var Plugin plugin
-
-type plugin struct{}
+// Plugin is exposed to the module
+type Plugin struct{}
 
 // GetCommand returns the command to run on the node.
-func (p *plugin) GetCommand(task models.Task) (string, error) {
+func (p *Plugin) GetCommand(task safe.Task) (string, error) {
 	if task.Details["command"] == "" {
 		return "", fmt.Errorf("shellPlugin: missing command")
 	}
@@ -21,23 +18,21 @@ func (p *plugin) GetCommand(task models.Task) (string, error) {
 }
 
 // GetInputs returns the input for the Shell plugin.
-func (p *plugin) GetInputs() ([]byte, error) {
-	f := ui.Form{
-		Inputs: []ui.Input{
+func (p *Plugin) GetInputs() safe.Form {
+	return safe.Form{
+		Inputs: []safe.Input{
 			{
 				Name:     "command",
 				Label:    "Command",
-				Type:     ui.Text,
+				Type:     safe.Text,
 				Required: true,
 			},
 		},
 	}
-
-	return json.Marshal(f)
 }
 
 // GetFetchCommand returns the command and callback to get basic info about the node.
-func (p *plugin) GetFetchCommand() (string, func([]string) ([]byte, error)) {
+func (p *Plugin) GetFetchCommand() (string, func([]string) ([]byte, error)) {
 	return "uname -s && uname -n && uname -r && uname -m && uname -o", func(output []string) ([]byte, error) {
 		return json.Marshal(struct {
 			KernelName      string `json:"kernel-name"`

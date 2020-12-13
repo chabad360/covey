@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/hex"
 	"github.com/chabad360/covey/common"
+	"github.com/chabad360/covey/models/safe"
 	json "github.com/json-iterator/go"
 	"gorm.io/gorm"
 	"time"
@@ -30,7 +31,7 @@ func (a StringArray) Value() (driver.Value, error) {
 	return json.Marshal(a)
 }
 
-// Scan unmarshals a stored value into a StringArray
+// Scan un-marshals a stored value into a StringArray
 func (a *StringArray) Scan(value interface{}) error {
 	return json.Unmarshal(value.([]byte), &a)
 }
@@ -60,4 +61,13 @@ func (t *Task) BeforeCreate(_ *gorm.DB) (err error) {
 	t.ID = common.GenerateID(t)
 	t.IDShort = t.GetIDShort()
 	return nil
+}
+
+// ToSafe converts a Task into a plugin-safe safe.Task wrapper.
+func (t *Task) ToSafe() safe.Task {
+	return safe.Task{
+		Plugin:  t.Plugin,
+		Node:    t.Node,
+		Details: t.Details,
+	}
 }

@@ -25,7 +25,7 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 		return nil, err
 	}
 
-	cmd, err := p.GetCommand(*t)
+	cmd, err := p.GetCommand(t.ToSafe())
 	if err != nil {
 		return nil, err
 	}

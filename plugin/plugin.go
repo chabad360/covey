@@ -3,20 +3,21 @@ package plugin
 import (
 	"fmt"
 	"github.com/chabad360/covey/config"
-	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/models/safe"
 	"github.com/chabad360/plugins"
 )
 
+// TaskPluginInterface defines the interface used by task plugins.
 type TaskPluginInterface interface {
 	// GetCommand returns the command to run the server.
-	GetCommand(task models.Task) (string, error)
+	GetCommand(task safe.Task) (string, error)
 
 	// GetFetchCommand returns a command to run which will be used to fetch relevant information about the node, and a callback that returns JSON metadata to send the output too.
 	// GetFetchCommand() (string, func([]string) ([]byte, error)) TODO: add support for metadata
 
-	// GetInputs takes the JSON metadata and returns a JSON that can be converted to a ui.Form object.
+	// GetInputs returns the inputs that the plugin takes.
 	// GetInputs([]byte) ([]byte, error) TODO: add support for customizing inputs based on metadata
-	GetInputs() ([]byte, error)
+	GetInputs() safe.Form
 }
 
 var (
