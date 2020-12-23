@@ -76,6 +76,7 @@ func newRunningTask(t task) runningTask {
 		mutex:    &sync.Mutex{},
 		ExitCode: make(chan int, 1),
 		State:    make(chan int, 1),
+		log:      &[]string{},
 	}
 }
 
@@ -85,14 +86,14 @@ type runningTask struct {
 	State    chan int
 	context  *baseContext
 	mutex    *sync.Mutex
-	log      []string
+	log      *[]string
 }
 
 // GetLog returns the current log output.
 func (r *runningTask) GetLog() (log []string) {
 	r.mutex.Lock()
-	fmt.Println(r.log)
-	log, r.log = r.log, []string{}
+	fmt.Println(*r.log)
+	log, *r.log = *r.log, []string{}
 	r.mutex.Unlock()
 	fmt.Println(log)
 	return
@@ -101,7 +102,7 @@ func (r *runningTask) GetLog() (log []string) {
 // Log adds a line to the log.
 func (r *runningTask) Log(log string) {
 	r.mutex.Lock()
-	r.log = append(r.log, log)
+	*r.log = append(*r.log, log)
 	r.mutex.Unlock()
 }
 

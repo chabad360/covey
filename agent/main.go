@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"sync"
 	"time"
@@ -15,11 +16,12 @@ import (
 )
 
 var (
+	mu         sync.Mutex
 	activeTask runningTask
 	agent      config
 	q          = &Queue{mutex: &sync.Mutex{}}
 	timer      = time.NewTicker(time.Second)
-	nextTask   baseContext
+	nextTask   = baseContext{}
 )
 
 func main() {
@@ -43,20 +45,24 @@ func main() {
 
 	go taskManager(q)
 
-	for {
+	for i := 0; i < 5; i++ {
 		<-timer.C
 		if err := everySecond(q, agent); err != nil {
 			log.Println(err)
 		}
 	}
+
+	os.Exit(1)
 }
 
 func everySecond(q *Queue, agent config) error {
 	defer fmt.Println("sec")
+	mu.Lock()
 	body, err := genBody(activeTask)
 	if err != nil {
 		return err
 	}
+	mu.Unlock()
 
 	got, err := connect(body, agent.AgentPath)
 	if err != nil {
@@ -67,18 +73,19 @@ func everySecond(q *Queue, agent config) error {
 }
 
 func genBody(rt runningTask) ([]byte, error) {
-	t := returnTask{
+	t := &returnTask{
 		ID:  rt.ID,
 		Log: rt.GetLog(),
 	}
 
 	select {
 	case <-nextTask.Done():
-		t = returnTask{}
+		t = nil
 		return json.Marshal(t)
 	case <-rt.context.Done():
 		t.ExitCode = <-rt.ExitCode
 		t.State = <-rt.State
+		rt.context.done = nil
 		nextTask.Close()
 	default:
 		t.ExitCode = 257
@@ -112,8 +119,10 @@ func taskManager(q *Queue) {
 		t := newRunningTask(qt)  // Create a runningTask
 		go run(t)                // Start the task
 		nextTask = baseContext{} // Prevent the next task from running until this one is processed
-		activeTask = t           // Set this task as the activeTask
-		<-nextTask.Done()        // Wait for this task to finish processing before moving on
+		mu.Lock()
+		activeTask = t // Set this task as the activeTask
+		mu.Unlock()
+		<-nextTask.Done() // Wait for this task to finish processing before moving on
 		//activeTask = runningTask{}
 	}
 }
