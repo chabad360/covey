@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	json "github.com/json-iterator/go"
 	"sync"
 )
@@ -69,8 +68,8 @@ func (q *Queue) checkIfEmpty() {
 	q.mutex.Unlock()
 }
 
-func newRunningTask(t task) runningTask {
-	return runningTask{
+func newRunningTask(t task) *runningTask {
+	return &runningTask{
 		task:     t,
 		context:  &baseContext{},
 		mutex:    &sync.Mutex{},
@@ -92,10 +91,8 @@ type runningTask struct {
 // GetLog returns the current log output.
 func (r *runningTask) GetLog() (log []string) {
 	r.mutex.Lock()
-	fmt.Println(*r.log)
 	log, *r.log = *r.log, []string{}
 	r.mutex.Unlock()
-	fmt.Println(log)
 	return
 }
 

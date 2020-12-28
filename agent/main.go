@@ -7,17 +7,17 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"sync"
 	"time"
 
 	json "github.com/json-iterator/go"
+	_ "net/http/pprof"
 )
 
 var (
 	mu         sync.Mutex
-	activeTask runningTask
+	activeTask *runningTask
 	agent      config
 	q          = &Queue{mutex: &sync.Mutex{}}
 	timer      = time.NewTicker(time.Second)
@@ -28,6 +28,10 @@ func main() {
 	if err := settings(&agent); err != nil {
 		log.Fatal(err)
 	}
+
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
 
 	// ignoring log level for now
 	log.Println("Agent ID:", agent.ID)
@@ -45,21 +49,19 @@ func main() {
 
 	go taskManager(q)
 
-	for i := 0; i < 5; i++ {
+	for {
 		<-timer.C
 		if err := everySecond(q, agent); err != nil {
 			log.Println(err)
 		}
 	}
-
-	os.Exit(1)
 }
 
 func everySecond(q *Queue, agent config) error {
-	defer fmt.Println("sec")
 	mu.Lock()
 	body, err := genBody(activeTask)
 	if err != nil {
+		mu.Unlock()
 		return err
 	}
 	mu.Unlock()
@@ -72,7 +74,7 @@ func everySecond(q *Queue, agent config) error {
 	return json.Unmarshal(got, &q)
 }
 
-func genBody(rt runningTask) ([]byte, error) {
+func genBody(rt *runningTask) ([]byte, error) {
 	t := &returnTask{
 		ID:  rt.ID,
 		Log: rt.GetLog(),
@@ -115,19 +117,18 @@ func connect(body []byte, path string) ([]byte, error) {
 
 func taskManager(q *Queue) {
 	for {
-		qt := q.GetNext()        // GetNext the next task in the Queue
-		t := newRunningTask(qt)  // Create a runningTask
-		go run(t)                // Start the task
-		nextTask = baseContext{} // Prevent the next task from running until this one is processed
+		qt := q.GetNext()       // GetNext the next task in the Queue
+		t := newRunningTask(qt) // Create a runningTask
+		go run(t)               // Start the task
 		mu.Lock()
-		activeTask = t // Set this task as the activeTask
+		nextTask = baseContext{} // Prevent the next task from running until this one is processed
+		activeTask = t           // Set this task as the activeTask
 		mu.Unlock()
 		<-nextTask.Done() // Wait for this task to finish processing before moving on
-		//activeTask = runningTask{}
 	}
 }
 
-func run(t runningTask) {
+func run(t *runningTask) {
 	cmd := exec.Command("/bin/sh", "-c", t.Command) //nolint:gosec
 
 	stdout, err := cmd.StdoutPipe()
