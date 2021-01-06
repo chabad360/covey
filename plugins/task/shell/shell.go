@@ -6,11 +6,15 @@ import (
 	"github.com/chabad360/covey/models/safe"
 )
 
+func GetPlugin() safe.TaskPluginInterface {
+	return Plugin{}
+}
+
 // Plugin is exposed to the module
 type Plugin struct{}
 
 // GetCommand returns the command to run on the node.
-func (p *Plugin) GetCommand(task safe.Task) (string, error) {
+func (p Plugin) GetCommand(task safe.Task) (string, error) {
 	if task.Details["command"] == "" {
 		return "", fmt.Errorf("shellPlugin: missing command")
 	}
@@ -18,7 +22,7 @@ func (p *Plugin) GetCommand(task safe.Task) (string, error) {
 }
 
 // GetInputs returns the input for the Shell plugin.
-func (p *Plugin) GetInputs() safe.Form {
+func (p Plugin) GetInputs() safe.Form {
 	return safe.Form{
 		Inputs: []safe.Input{
 			{
@@ -32,7 +36,7 @@ func (p *Plugin) GetInputs() safe.Form {
 }
 
 // GetFetchCommand returns the command and callback to get basic info about the node.
-func (p *Plugin) GetFetchCommand() (string, func([]string) ([]byte, error)) {
+func (p Plugin) GetFetchCommand() (string, func([]string) ([]byte, error)) {
 	return "uname -s && uname -n && uname -r && uname -m && uname -o", func(output []string) ([]byte, error) {
 		return json.Marshal(struct {
 			KernelName      string `json:"kernel-name"`
