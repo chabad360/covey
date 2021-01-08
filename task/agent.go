@@ -76,7 +76,7 @@ func initQueues(tasks []models.Task) error {
 			return err
 		}
 
-		cmd, err := p.GetCommand(t)
+		cmd, err := p.GetCommand(t.ToSafe())
 		if err != nil {
 			return err
 		}

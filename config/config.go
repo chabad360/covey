@@ -22,8 +22,8 @@ var (
 			Database string `default:"covey" flag:"postgres-database||The database. (default 'covey')" env:"COVEY_POSTGRES_DATABASE" validate:"required"`
 		}
 		Plugins struct {
-			PluginsFolder      string `default:"/usr/lib64/covey/plugins/" flag:"plugins-dir||Directory where plugins are located. (default '/usr/lib64/covey/plugins')" env:"COVEY_PLUGINS_DIRECTORY" validate:"dir,required"`
-			PluginsCacheFolder string `default:"/var/cache/covey/plugins/" flag:"plugins-cache-dir||Directory where extracted plugins are located. (default '/var/cache/covey/plugins')" env:"COVEY_PLUGINS_CACHE_DIRECTORY" validate:"dir,required"`
+			PluginsFolder      string `default:"/usr/lib64/covey/plugins/" flag:"plugins-dir||Directory where plugins are located. (default '/usr/lib64/covey/plugins/')" env:"COVEY_PLUGINS_DIRECTORY" validate:"dir,required"`
+			PluginsCacheFolder string `default:"/var/cache/covey/plugins/" flag:"plugins-cache-dir||Directory where extracted plugins are located. (default '/var/cache/covey/plugins/')" env:"COVEY_PLUGINS_CACHE_DIRECTORY" validate:"dir,required"`
 		}
 		// revive:enable:line-length-limit
 	}{}

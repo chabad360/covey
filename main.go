@@ -41,6 +41,7 @@ func loadHandlers(r *pure.Mux) {
 	// TODO: Clean up
 	r.RegisterAutomaticOPTIONS(options)
 	ui.RegisterHandlers(r)
+	r.Get("/internal/plugins/:plugin/form", plugin.GetPlugin)
 	authentication.RegisterUIHandlers(r)
 
 	job.RegisterUIHandlers(r.Group("/jobs"))
