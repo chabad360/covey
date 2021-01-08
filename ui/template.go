@@ -65,8 +65,8 @@ var (
 			t := template.Must(template.New("ec").Parse(fsMust("/single/errorCode.html")))
 			return t
 		},
-		"pluginForm": func() *template.Template {
-			t := template.Must(template.New("form").Parse(fsMust("/single/formGen.html")))
+		"form": func() *template.Template {
+			t := template.Must(template.New("form").Funcs(funcMap).Parse(fsMust("/single/formGen.html")))
 			return t
 		},
 	}
@@ -88,6 +88,11 @@ type Page struct {
 	Details interface{}
 }
 
+func noescape(str string) template.HTML {
+	return template.HTML(str)
+}
+
 var funcMap = template.FuncMap{
-	"title": strings.Title,
+	"title":    strings.Title,
+	"noescape": noescape,
 }
