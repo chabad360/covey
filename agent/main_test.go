@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/google/go-cmp/cmp"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -22,7 +21,7 @@ func Test_genBody(t *testing.T) {
 	t3.Finish(0, 0)
 
 	type args struct {
-		rt runningTask
+		rt *runningTask
 	}
 	tests := []struct {
 		name    string
@@ -54,7 +53,7 @@ func Test_run(t *testing.T) {
 	t3 := newRunningTask(task{"exit 1", "test"})
 
 	type args struct {
-		t runningTask
+		t *runningTask
 	}
 	tests := []struct {
 		name         string
