@@ -2,8 +2,9 @@ project_name: Covey
 before:
   hooks:
     - go mod download
-    - go get github.com/omeid/go-resources/cmd/resources
+    - go get github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
     - resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*
+    - go generate github.com/chabad360/covey/plugin
 builds:
   - env:
       - CGO_ENABLED=0

@@ -1,3 +1,5 @@
+//go:generate yaegi extract -license ../LICENSE -name plugin github.com/chabad360/covey/models/safe
+
 package plugin
 
 import (
