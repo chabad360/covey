@@ -114,7 +114,6 @@ linters:
     - godot
     - godox
     - gofmt
-    - goimports
     - golint
     - gomnd
     - goprintffuncname
