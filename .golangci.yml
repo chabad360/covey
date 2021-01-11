@@ -1,5 +1,5 @@
 run:
-  tags:
+  build-tags:
     - live
   skip-dirs:
     - assets
