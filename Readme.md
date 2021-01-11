@@ -66,12 +66,12 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 * [ ] Fix the plugin system (in progress, checkout [github.com/chabad360/plugins](https://github.com/chabad360/plugins)
   for more details)
 * [x] Provide configuration system
-* [x] Deal with packed files (~`.gitignore` and then include it on build?~ Switch to `//go:embed`)
+* [x] Switch to `//go:embed` (this might need to wait)
 * [ ] CI/CD
 * [x] Big Refactor
 * [ ] Add and refactor tests (Aim for 80% Coverage)
 * [ ] Complete the web UI
-* ~~[ ] Add a Makefile (?)~~
+* [x] ~~Add a Makefile (?)~~
 * [x] Refactor agent
 
 ---
@@ -84,7 +84,7 @@ up the CI/CD process.
 
 ### Installation Instructions
 
-```shell
+```console
 $ git clone https://github.com/chabad360/covey
 $ cd covey
 $ goreleser build --snapshot --rm-dist
