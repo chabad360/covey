@@ -10,6 +10,12 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"net"
+	"net/http"
+
+	"github.com/go-playground/pure/v5"
+
 	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/authentication"
 	"github.com/chabad360/covey/config"
@@ -20,10 +26,6 @@ import (
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task"
 	"github.com/chabad360/covey/ui"
-	"github.com/go-playground/pure/v5"
-	"log"
-	"net"
-	"net/http"
 )
 
 const (

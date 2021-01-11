@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/storage"
+	"github.com/gbrlsnchs/jwt/v3"
 
 	"github.com/chabad360/covey/common"
-	"github.com/gbrlsnchs/jwt/v3"
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 )
 
 var (

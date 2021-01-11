@@ -1,9 +1,10 @@
 package config
 
 import (
+	"log"
+
 	"github.com/BoRuDar/configuration/v3"
 	"github.com/go-playground/validator/v10"
-	"log"
 )
 
 var (

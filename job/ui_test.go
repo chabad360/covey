@@ -1,11 +1,12 @@
 package job
 
 import (
+	"net/http"
+	"testing"
+
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
-	"net/http"
-	"testing"
 )
 
 func Test_uiJobs(t *testing.T) {

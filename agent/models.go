@@ -1,8 +1,9 @@
 package main
 
 import (
-	json "github.com/json-iterator/go"
 	"sync"
+
+	json "github.com/json-iterator/go"
 )
 
 var closedChan = make(chan struct{})

@@ -5,17 +5,17 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/chabad360/covey/config"
-	"github.com/chabad360/covey/models"
-	"log"
-
 	"fmt"
+	"log"
 	"net"
 
 	"github.com/bramvdbogaerde/go-scp"
+	"golang.org/x/crypto/ssh"
+
 	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/common"
-	"golang.org/x/crypto/ssh"
+	"github.com/chabad360/covey/config"
+	"github.com/chabad360/covey/models"
 )
 
 func generateAndAddKeys(n *models.Node) error {

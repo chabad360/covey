@@ -2,10 +2,12 @@ package task
 
 import (
 	"fmt"
+
+	json "github.com/json-iterator/go"
+
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/plugin"
 	"github.com/chabad360/covey/storage"
-	json "github.com/json-iterator/go"
 )
 
 // NewTask creates a new task.

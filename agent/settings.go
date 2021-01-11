@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/caarlos0/env/v6"
 )
 

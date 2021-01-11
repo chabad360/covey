@@ -4,10 +4,12 @@ package plugin
 
 import (
 	"fmt"
+	"reflect"
+
+	"github.com/chabad360/plugins"
+
 	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/models/safe"
-	"github.com/chabad360/plugins"
-	"reflect"
 )
 
 var (

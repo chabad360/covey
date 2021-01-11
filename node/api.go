@@ -2,15 +2,16 @@ package node
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/storage"
 	"io/ioutil"
 	"log"
 	"net/http"
 
-	"github.com/chabad360/covey/common"
 	"github.com/go-playground/pure/v5"
 	json "github.com/json-iterator/go"
+
+	"github.com/chabad360/covey/common"
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 )
 
 // nodeNew adds a new node.

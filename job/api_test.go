@@ -2,14 +2,15 @@ package job
 
 import (
 	"encoding/json"
-	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/storage"
-	"github.com/google/go-cmp/cmp"
 	"log"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
 )
 

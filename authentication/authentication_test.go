@@ -1,12 +1,13 @@
 package authentication
 
 import (
-	"github.com/chabad360/covey/test"
-	"github.com/google/go-cmp/cmp"
 	"testing"
 	"time"
 
 	"github.com/gbrlsnchs/jwt/v3"
+	"github.com/google/go-cmp/cmp"
+
+	"github.com/chabad360/covey/test"
 )
 
 func TestCreateToken(t *testing.T) {

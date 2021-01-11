@@ -2,15 +2,16 @@ package task
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/plugin"
 	"net/http"
 	"strings"
 
+	"github.com/go-playground/pure/v5"
+
 	"github.com/chabad360/covey/common"
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/plugin"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/ui"
-	"github.com/go-playground/pure/v5"
 )
 
 func uiTasks(w http.ResponseWriter, r *http.Request) {

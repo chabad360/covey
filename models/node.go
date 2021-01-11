@@ -2,10 +2,10 @@ package models
 
 import (
 	"encoding/hex"
-	"gorm.io/gorm"
 	"time"
 
 	"golang.org/x/crypto/ssh"
+	"gorm.io/gorm"
 )
 
 // Node contains information about a node.

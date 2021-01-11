@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-playground/pure/v5"
+
 	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/common"
-	"github.com/go-playground/pure/v5"
 )
 
 func dashboard(w http.ResponseWriter, r *http.Request) {

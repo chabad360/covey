@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/google/go-cmp/cmp"
 	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func BenchmarkRun(b *testing.B) {

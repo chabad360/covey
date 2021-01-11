@@ -10,6 +10,7 @@ require (
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
 	github.com/chabad360/plugins v0.1.2
 	github.com/containerd/continuity v0.0.0-20201119173150-04c754faca46 // indirect
+	github.com/daixiang0/gci v0.2.8 // indirect
 	github.com/gbrlsnchs/jwt/v3 v3.0.0
 	github.com/go-playground/pkg/v5 v5.2.0
 	github.com/go-playground/pure/v5 v5.2.0

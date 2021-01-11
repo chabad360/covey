@@ -2,8 +2,9 @@ package ui
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/common"
 	"net/http"
+
+	"github.com/chabad360/covey/common"
 )
 
 // ErrorWriter writes an UI error with the 500 status code.
