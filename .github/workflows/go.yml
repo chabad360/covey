@@ -45,7 +45,7 @@ jobs:
             report --language Go --force-language -r coverage.xml
 
   golangci:
-    name: golangci
+    name: GolangCI
     runs-on: ubuntu-latest
 
     steps:
@@ -66,11 +66,10 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.35
-          skip-go-installation: true
           only-new-issues: true
 
   fossa:
-    name: Fossa Upload
+    name: Fossa
     runs-on: ubuntu-latest
 
     steps:
