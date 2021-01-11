@@ -11,38 +11,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.15
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.15
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
 
-    - name: Get dependencies
-      run: |
-        go get github.com/t-yuki/gocover-cobertura github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
-        go mod download
+      - name: Get dependencies
+        run: |
+          go get github.com/t-yuki/gocover-cobertura github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
+          go mod download
 
-    - name: Pack assets
-      run: resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ ./assets/*
+      - name: Pack assets
+        run: resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ ./assets/*
 
-    - name: Test
-      if: always()
-      run: go test -trimpath -v -tags=insecure -coverprofile=coverage.txt -json  -covermode count `go list ./... | grep -v test` > test.json
+      - name: Test
+        if: always()
+        run: go test -trimpath -v -tags=insecure -coverprofile=coverage.txt -json  -covermode count `go list ./... | grep -v test` > test.json
 
-    - name: Provide annotations from test
-      if: always()
-      uses: guyarb/golang-test-annotations@v0.3.0
+      - name: Provide annotations from test
+        if: always()
+        uses: guyarb/golang-test-annotations@v0.3.0
 
-    - name: Upload coverage
-      if: always()
-      env:
-        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-      run: |
-        gocover-cobertura < coverage.txt > coverage.xml
-        bash <(curl -Ls https://coverage.codacy.com/get.sh) \
-          report --language Go --force-language -r coverage.xml
+      - name: Upload coverage
+        if: always()
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          gocover-cobertura < coverage.txt > coverage.xml
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) \
+            report --language Go --force-language -r coverage.xml
 
   golangci:
     name: golangci
@@ -79,15 +79,15 @@ jobs:
         with:
           go-version: ^1.15
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
 
-    - name: Get dependencies
-      run: |
-        go get github.com/t-yuki/gocover-cobertura github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
-        go mod download
-      
-    - name: Fossa Action
-      uses: fossa-contrib/fossa-action@v1.1.3
-      with:
-        fossa-api-key: ${{ secrets.FOSSA_CLI_TOKEN }}
+      - name: Get dependencies
+        run: |
+          go get github.com/t-yuki/gocover-cobertura github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
+          go mod download
+
+      - name: Fossa Action
+        uses: fossa-contrib/fossa-action@v1.1.3
+        with:
+          fossa-api-key: ${{ secrets.FOSSA_CLI_TOKEN }}
