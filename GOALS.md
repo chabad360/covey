@@ -24,7 +24,7 @@ Here goes:
 * [ ] Dark Theme
 * [ ] CLI tool
 * [ ] Postgres might not be the best way to store logs
-* ~~[ ] Vendor dependencies (maybe, I don't know how necessary it really is)~~
+* [x] ~~Vendor dependencies (maybe, I don't know how necessary it really is)~~
 * [ ] Proper logging
 * [ ] Postgres might not be the best place to store keys
 * [ ] Figure out how to test nodes (50%)
@@ -34,4 +34,5 @@ Here goes:
 * [ ] Use server-side processing for dataTables
 * [ ] Reduce JS dependency
 * [ ] Add Task Runner Plugins
-* [ ] Bring back node plugins 
+* [ ] Bring back node plugins
+* [ ] Write agent in language with smaller footprint
