@@ -1,4 +1,6 @@
 run:
+  tags:
+    - live
   skip-dirs:
     - assets
 
