@@ -3,10 +3,12 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/hex"
-	"github.com/chabad360/covey/common"
+	"time"
+
 	json "github.com/json-iterator/go"
 	"gorm.io/gorm"
-	"time"
+
+	"github.com/chabad360/covey/common"
 )
 
 // TaskMap provides SQL scanner bindings for a map of JobTasks.

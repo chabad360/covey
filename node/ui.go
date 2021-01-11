@@ -2,15 +2,16 @@ package node
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/config"
-	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/storage"
 	"net/http"
 	"strings"
 
-	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/ui"
 	"github.com/go-playground/pure/v5"
+
+	"github.com/chabad360/covey/common"
+	"github.com/chabad360/covey/config"
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
+	"github.com/chabad360/covey/ui"
 )
 
 func uiNodes(w http.ResponseWriter, r *http.Request) {

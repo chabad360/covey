@@ -2,10 +2,10 @@ package common_test
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/common"
 	"net/http"
 	"testing"
 
+	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/test"
 )
 

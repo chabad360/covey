@@ -1,9 +1,11 @@
 package storage
 
 import (
-	"github.com/chabad360/covey/models"
-	"gorm.io/gorm"
 	"log"
+
+	"gorm.io/gorm"
+
+	"github.com/chabad360/covey/models"
 )
 
 // AddUser adds a User to the database.

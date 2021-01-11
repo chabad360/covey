@@ -1,13 +1,13 @@
 package authentication
 
 import (
-	"github.com/chabad360/covey/storage"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
 )
 

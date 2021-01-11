@@ -3,11 +3,13 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/hex"
-	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/models/safe"
+	"time"
+
 	json "github.com/json-iterator/go"
 	"gorm.io/gorm"
-	"time"
+
+	"github.com/chabad360/covey/common"
+	"github.com/chabad360/covey/models/safe"
 )
 
 // StringMap provides SQL scanner bindings for a map of strings.

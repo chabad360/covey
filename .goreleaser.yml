@@ -2,20 +2,23 @@ project_name: Covey
 before:
   hooks:
     - go mod download
-    - go get github.com/omeid/go-resources/cmd/resources
-    - resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*
+    - go get github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
+    - go generate
 builds:
   - env:
       - CGO_ENABLED=0
     goos:
       - linux
     flags:
-      - '-trimpath'
+      - -trimpath
     ldflags:
-      - -s
-      - -w
-#    hooks:
-#      post: upx {{ .Path }}
+      - -s -w
+      - -X github.com/chabad360/covey.Version={{.Version}}
+      - -X github.com/chabad360/covey.ReleaseTag={{.Tag}}
+      - -X github.com/chabad360/covey.CommitID={{.FullCommit}}
+      - -X github.com/chabad360/covey.ShortCommitID={{.ShortCommit}}
+    hooks:
+      post: upx {{ .Path }}
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -24,14 +27,23 @@ changelog:
   sort: asc
   filters:
     exclude:
+      - '^chore:'
+      - '^ci:'
       - '^docs:'
-      - '^test:'
+      - '^tests:'
 release:
   github:
     owner: chabad360
     name: covey
   draft: true
-signs:
-  - artifacts: all
-    args: [ "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
+  prerelease: auto
+#archives:
+#  - format_overrides:
+#      - goos: windows
+#        format: zip
+#    replacements:
+#      darwin: mac
+#signs:
+#  - artifacts: all
+#    args: [ "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
 

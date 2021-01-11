@@ -2,10 +2,12 @@ package storage
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/config"
+	"time"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"time"
+
+	"github.com/chabad360/covey/config"
 )
 
 var (

@@ -1,10 +1,12 @@
 package storage
 
 import (
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/test"
-	"github.com/google/go-cmp/cmp"
-	"testing"
 )
 
 var (

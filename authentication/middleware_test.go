@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/chabad360/covey/test"
 	"github.com/go-playground/pure/v5"
+
+	"github.com/chabad360/covey/test"
 )
 
 //revive:disable:cognitive-complexity

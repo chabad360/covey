@@ -1,17 +1,19 @@
 package node
 
 import (
-	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/storage"
-	"github.com/chabad360/covey/test"
-	"github.com/google/go-cmp/cmp"
-	json "github.com/json-iterator/go"
-	"github.com/ory/dockertest/v3"
 	"log"
 	"os"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
+	json "github.com/json-iterator/go"
+	"github.com/ory/dockertest/v3"
+
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
+	"github.com/chabad360/covey/test"
 )
 
 var (

@@ -1,0 +1,177 @@
+run:
+  build-tags:
+    - live
+  skip-dirs:
+    - assets
+
+  skip-files:
+    - "asset/assets.go"
+
+  modules-download-mode: readonly
+
+
+output:
+  sort-results: true
+
+
+# all available settings of specific linters
+linters-settings:
+  dogsled:
+    max-blank-identifiers: 2
+  dupl:
+    threshold: 150
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  exhaustive:
+    check-generated: false
+    default-signifies-exhaustive: false
+  funlen:
+    lines: 60
+    statements: 40
+  gci:
+    local-prefixes: github.com/chabad360/covey
+  gocognit:
+    min-complexity: 15
+  nestif:
+    min-complexity: 4
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  gocritic:
+    disabled-tags:
+      - experimental
+  gocyclo:
+    min-complexity: 10
+  godot:
+    scope: all
+    capital: True
+  godox:
+    keywords:
+      - NOTE
+      - OPTIMIZE
+      - TODO
+      - BUG
+      - FIXME
+  gofmt:
+    simplify: true
+    template-path: LICENSE
+  golint:
+    min-confidence: 0.8
+  gomnd:
+    settings:
+      mnd:
+        checks:
+          - argument
+          - case
+          - condition
+          - operation
+          - return
+          - assign
+  govet:
+    check-shadowing: true
+    # enable or disable analyzers by name
+    enable:
+      - atomic
+    enable-all: false
+    disable-all: false
+  lll:
+    line-length: 140
+  maligned:
+    suggest-new: true
+  misspell:
+    locale: US
+  nakedret:
+    max-func-lines: 30
+  nolintlint:
+    allow-leading-space: false
+    allow-no-explanation: [ ]
+    require-explanation: true
+    require-specific: true
+  unused:
+    check-exported: true
+  errorlint:
+    errorf: true
+
+linters:
+  # please, do not use `enable-all`: it's deprecated and will be removed soon.
+  # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
+  disable-all: true
+  enable:
+    - bodyclose
+    - deadcode
+    - dogsled
+    - dupl
+    - errcheck
+    - errorlint
+    - exhaustive
+    - funlen
+    - gci
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - godox
+    - gofmt
+    - golint
+    - gomnd
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - interfacer
+    - lll
+    - maligned
+    - misspell
+    - nakedret
+    - nestif
+    - noctx
+    - nolintlint
+    - prealloc
+    - rowserrcheck
+    - scopelint
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    #    - unused
+    - varcheck
+    - whitespace
+
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+
+    - path: internal/hmac/
+      text: "weak cryptographic primitive"
+      linters:
+        - gosec
+
+    - linters:
+        - lll
+      source: "^//go:generate "
+
+#  # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
+#  max-issues-per-linter: 0
+#
+#  # Maximum count of issues with the same text. Set to 0 to disable. Default is 3.
+#  max-same-issues: 0
+
+
+severity:
+  default-severity: warning
+
+  rules:
+    - linters:
+        - prealloc
+      severity: info

@@ -1,13 +1,15 @@
 package task
 
 import (
-	"github.com/chabad360/covey/common"
-	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/storage"
-	"github.com/go-playground/pure/v5"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/go-playground/pure/v5"
+
+	"github.com/chabad360/covey/common"
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 )
 
 // TaskNew creates and starts a new task.

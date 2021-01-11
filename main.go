@@ -1,11 +1,21 @@
 package main
 
-// Make sure to run resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*
+//go:generate go build -ldflags "-s -w" -trimpath -o assets/agent/agent github.com/chabad360/covey/agent
+//go:generate upx assets/agent/agent
+//go:generate resources -declare -package=asset -output=asset/asset.go -tag "!live" -trim assets/ assets/*
+//go:generate go generate github.com/chabad360/covey/plugin
+
 // TODO: refactor
 
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"net"
+	"net/http"
+
+	"github.com/go-playground/pure/v5"
+
 	"github.com/chabad360/covey/asset"
 	"github.com/chabad360/covey/authentication"
 	"github.com/chabad360/covey/config"
@@ -16,14 +26,10 @@ import (
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task"
 	"github.com/chabad360/covey/ui"
-	"github.com/go-playground/pure/v5"
-	"log"
-	"net"
-	"net/http"
 )
 
 const (
-	version = "v0.06"
+	version = "v0.6"
 )
 
 func loadHandlers(r *pure.Mux) {
@@ -41,16 +47,17 @@ func loadHandlers(r *pure.Mux) {
 	// TODO: Clean up
 	r.RegisterAutomaticOPTIONS(options)
 	ui.RegisterHandlers(r)
+	r.Get("/internal/plugins/:plugin/form", plugin.GetPlugin)
 	authentication.RegisterUIHandlers(r)
 
 	job.RegisterUIHandlers(r.Group("/jobs"))
-	r.Get("/new/job", job.UIJobNew) // BAD
+	r.Get("/new/job", job.UIJobNew) // FIXME
 
 	node.RegisterUIHandlers(r.Group("/nodes"))
-	r.Get("/new/node", node.UINodeNew) // BAD
+	r.Get("/new/node", node.UINodeNew) // FIXME
 
 	task.RegisterUIHandlers(r.Group("/tasks"))
-	r.Get("/new/task", task.UITaskNew) // BAD
+	r.Get("/new/task", task.UITaskNew) // FIXME
 
 	agent := r.GroupWithNone("/agent")
 	agent.Use(loggingMiddleware)
@@ -80,7 +87,7 @@ func initialize() {
 		'resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*'`)
 	}
 
-	if _, err := asset.FS.Open("/base/base.html"); err != nil {
+	if _, err := asset.FS.Open("/base/base.gohtml"); err != nil {
 		log.Fatalf("Failed to open filesystem: %v", err)
 	}
 

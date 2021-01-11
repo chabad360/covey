@@ -1,13 +1,14 @@
 package storage
 
 import (
-	"github.com/chabad360/covey/config"
-	"gorm.io/gorm"
 	"log"
 	"os"
 	"reflect"
 	"testing"
 
+	"gorm.io/gorm"
+
+	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/test"
 )
 

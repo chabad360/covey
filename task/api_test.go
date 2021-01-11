@@ -1,15 +1,16 @@
 package task
 
 import (
-	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/storage"
-	"github.com/google/go-cmp/cmp"
-	json "github.com/json-iterator/go"
 	"log"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	json "github.com/json-iterator/go"
+
+	"github.com/chabad360/covey/models"
+	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/test"
 )
 

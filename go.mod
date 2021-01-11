@@ -8,8 +8,9 @@ require (
 	github.com/bramvdbogaerde/go-scp v0.0.0-20200820121624-ded9ee94aef5
 	github.com/caarlos0/env/v6 v6.4.0
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
-	github.com/chabad360/plugins v0.0.0-20201008055332-adb8ce58f512
+	github.com/chabad360/plugins v0.1.2
 	github.com/containerd/continuity v0.0.0-20201119173150-04c754faca46 // indirect
+	github.com/daixiang0/gci v0.2.8 // indirect
 	github.com/gbrlsnchs/jwt/v3 v3.0.0
 	github.com/go-playground/pkg/v5 v5.2.0
 	github.com/go-playground/pure/v5 v5.2.0
@@ -24,7 +25,7 @@ require (
 	github.com/ory/dockertest/v3 v3.6.2
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.7.0 // indirect
-	github.com/traefik/yaegi v0.9.8 // indirect
+	github.com/traefik/yaegi v0.9.9 // indirect
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
 	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 // indirect

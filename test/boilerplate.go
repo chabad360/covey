@@ -2,18 +2,18 @@ package test
 
 import (
 	"fmt"
-	"github.com/chabad360/covey/models"
-	"gorm.io/gorm/logger"
 	"io"
-	"time"
-
 	"net/http"
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-playground/pure/v5"
 	"github.com/ory/dockertest/v3"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+
+	"github.com/chabad360/covey/models"
 )
 
 //revive:disable:function-result-limit

@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/chabad360/covey/common"
 	"github.com/gbrlsnchs/jwt/v3"
+
+	"github.com/chabad360/covey/common"
 )
 
 // AuthUserMiddleware handles authentication for users.

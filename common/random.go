@@ -1,11 +1,10 @@
 package common
 
 import (
-	"fmt"
-
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"math/big"
 )
 

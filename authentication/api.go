@@ -3,8 +3,9 @@ package authentication
 import (
 	"net/http"
 
-	"github.com/chabad360/covey/common"
 	"github.com/go-playground/pure/v5"
+
+	"github.com/chabad360/covey/common"
 )
 
 func tokenGetAPI(w http.ResponseWriter, r *http.Request) {

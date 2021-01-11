@@ -2,8 +2,10 @@ package task
 
 import (
 	"container/list"
-	"github.com/chabad360/covey/models"
+
 	json "github.com/json-iterator/go"
+
+	"github.com/chabad360/covey/models"
 )
 
 // AgentTask contains the information about a task that is sent to an agent.

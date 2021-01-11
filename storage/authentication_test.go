@@ -1,9 +1,10 @@
 package storage
 
 import (
+	"testing"
+
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/test"
-	"testing"
 )
 
 var (

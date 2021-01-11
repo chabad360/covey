@@ -1,8 +1,9 @@
 package common_test
 
 import (
-	"github.com/chabad360/covey/common"
 	"testing"
+
+	"github.com/chabad360/covey/common"
 )
 
 func TestRandomString(t *testing.T) {

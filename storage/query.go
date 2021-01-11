@@ -2,10 +2,10 @@ package storage
 
 import (
 	"fmt"
-	httpext "github.com/go-playground/pkg/v5/net/http"
-	"github.com/go-playground/pure/v5"
 	"net/http"
 
+	httpext "github.com/go-playground/pkg/v5/net/http"
+	"github.com/go-playground/pure/v5"
 	"github.com/go-playground/validator/v10"
 )
 

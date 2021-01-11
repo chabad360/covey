@@ -1,10 +1,12 @@
 package task
 
 import (
-	"github.com/chabad360/covey/test"
-	"github.com/google/go-cmp/cmp"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+
+	"github.com/chabad360/covey/test"
 )
 
 func Test_queueTask(t *testing.T) {
