@@ -7,12 +7,12 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os/exec"
 	"sync"
 	"time"
 
 	json "github.com/json-iterator/go"
-	_ "net/http/pprof"
 )
 
 var (
