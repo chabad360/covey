@@ -32,7 +32,7 @@ release:
     owner: chabad360
     name: covey
   draft: true
-signs:
-  - artifacts: all
-    args: [ "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
+#signs:
+#  - artifacts: all
+#    args: [ "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
 
