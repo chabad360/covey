@@ -1,12 +1,11 @@
 # Generated Binaries
 covey
-*.so
+dist/*
+
 assets/agent/agent
 asset/asset.go
 
 # Generated Config
-/.idea/*
-/go_build_github_com_chabad360_covey
-
-
-/.scannerwork/
+.idea/*
+.scannerwork/*
+.vscode/*
