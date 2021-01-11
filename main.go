@@ -85,7 +85,7 @@ func initialize() {
 		'resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*'`)
 	}
 
-	if _, err := asset.FS.Open("/base/base.html"); err != nil {
+	if _, err := asset.FS.Open("/base/base.gohtml"); err != nil {
 		log.Fatalf("Failed to open filesystem: %v", err)
 	}
 
