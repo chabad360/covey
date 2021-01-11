@@ -63,63 +63,45 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
 
 #### V0.6 Alpha
 
-* [ ] Fix the plugin system (in progress, checkout [github.com/chabad360/plugins](https://github.com/chabad360/plugins))
+* [ ] Fix the plugin system (in progress, checkout [github.com/chabad360/plugins](https://github.com/chabad360/plugins)
+  for more details)
 * [x] Provide configuration system
 * [x] Deal with packed files (~`.gitignore` and then include it on build?~ Switch to `//go:embed`)
 * [ ] CI/CD
 * [x] Big Refactor
 * [ ] Add and refactor tests (Aim for 80% Coverage)
 * [ ] Complete the web UI
-* [ ] Add a Makefile (?)
+* ~~[ ] Add a Makefile (?)~~
 * [x] Refactor agent
 
 ---
 
 ## State of the Project
 
-Covey is in active development, it's written in Go, and uses Postgres as the database.
-If you are interested in helping with development, open a PR with your changes.
-At the moment, I've been finishing off most of my tests, and fixing bugs.
+Covey is in active development, it's written in Go, and uses Postgres as the database. If you are interested in helping
+with development, open a PR with your changes. At the moment, I'm currently polishing off the plugin system and fixing
+up the CI/CD process.
 
 ### Installation Instructions
 
-```bash
-git clone https://github.com/chabad360/covey
-cd covey
-
-go mod download
-go get github.com/omeid/go-resources/cmd/resources
-
-go build -ldflags="-s -w" -trimpath -v -o assets/agent github.com/chabad360/covey/agent
-upx assets/agent/agent
-
-resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ ./assets/*
-
-go build -trimpath -buildmode=plugin -o plugins/task/shell.so github.com/chabad360/covey/plugins/task/shell
-go build -trimpath github.com/chabad360/covey
-
-createdb covey
-
-./covey # This will crash, it's meant to (will be fixed)
-psql -U postgres covey <<EOF
+```shell
+$ git clone https://github.com/chabad360/covey
+$ cd covey
+$ goreleser build --snapshot --rm-dist
+$ createdb covey
+$ ./dist/Covey_linux_amd64/Covey # This will crash, it's meant to (will be fixed)
+$ psql -U postgres covey <<EOF
 INSERT INTO users(username, password_hash) VALUES(<username>, crypt(<password>, gen_salt('bf')));
 EOF
-
-./covey -plugins-folder=./plugins
+$ ./dist/Covey_linux_amd64/Covey -plugins-folder=./plugins
 ```
 
 Use the following command to build covey with live file system changes support:
 
-```bash
-go build -tags live -trimpath github.com/chabad360/covey
+```shell
+$ goreleaser build --snapshot --rm-dist
+$ go build -tags=live -trimpath github.com/chabad360/covey
 ```
-
-Use the following for a fancy release build:
-
-```bash
-go build -trimpath -ldflags="-s -w" github.com/chabad360/covey && upx covey
-```
-
 --- 
 
 ### Fossa

@@ -16,7 +16,7 @@ Here goes:
 * [ ] Increase Covey's bus factor
 * [ ] Do some performance profiling
 * [ ] Get a proper code review/audit (the codebase has quite a bit of cruft, maybe it can be periodic)
-* [ ] Plugins, fix them (v0.6).
+* [x] Plugins, fix them (v0.6).
 * [ ] Add an SSH terminal to the node view
 * [ ] Determine the best way to store node credentials/keys
 * [ ] Support SSO and friends (perhaps as a paid plugin)
@@ -24,13 +24,14 @@ Here goes:
 * [ ] Dark Theme
 * [ ] CLI tool
 * [ ] Postgres might not be the best way to store logs
-* [ ] Vendor dependencies (maybe, I don't know how necessary it really is)
+* ~~[ ] Vendor dependencies (maybe, I don't know how necessary it really is)~~
 * [ ] Proper logging
 * [ ] Postgres might not be the best place to store keys
 * [ ] Figure out how to test nodes (50%)
 * [ ] Input validation
 * [x] Proper error pages for the UI (v0.6)
-* [ ] Fix a few things with the asset manager (might switch away to vfsgen)
+* [ ] Move to `embed.fs` (probably on schedule for v0.6)
 * [ ] Use server-side processing for dataTables
 * [ ] Reduce JS dependency
 * [ ] Add Task Runner Plugins
+* [ ] Bring back node plugins 
