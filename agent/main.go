@@ -19,7 +19,7 @@ var (
 	mu         sync.Mutex
 	activeTask *runningTask
 	agent      config
-	q          = &Queue{mutex: &sync.Mutex{}}
+	q          = &Queue{}
 	timer      = time.NewTicker(time.Second)
 	nextTask   = baseContext{}
 )
@@ -28,10 +28,6 @@ func main() {
 	if err := settings(&agent); err != nil {
 		log.Fatal(err)
 	}
-
-	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
 
 	// ignoring log level for now
 	log.Println("Agent ID:", agent.ID)

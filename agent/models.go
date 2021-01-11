@@ -13,7 +13,7 @@ func init() {
 
 // Queue is a basic concurrency-safe slice with extra checking to ensure that we don't pop an empty list.
 type Queue struct {
-	mutex    *sync.Mutex
+	mutex    sync.Mutex
 	list     []task
 	nonEmpty chan struct{}
 }
@@ -75,7 +75,7 @@ func newRunningTask(t task) *runningTask {
 		mutex:    &sync.Mutex{},
 		ExitCode: make(chan int, 1),
 		State:    make(chan int, 1),
-		log:      &[]string{},
+		log:      []string{},
 	}
 }
 
@@ -85,13 +85,13 @@ type runningTask struct {
 	State    chan int
 	context  *baseContext
 	mutex    *sync.Mutex
-	log      *[]string
+	log      []string
 }
 
 // GetLog returns the current log output.
 func (r *runningTask) GetLog() (log []string) {
 	r.mutex.Lock()
-	log, *r.log = *r.log, []string{}
+	log, r.log = r.log, []string{}
 	r.mutex.Unlock()
 	return
 }
@@ -99,7 +99,7 @@ func (r *runningTask) GetLog() (log []string) {
 // Log adds a line to the log.
 func (r *runningTask) Log(log string) {
 	r.mutex.Lock()
-	*r.log = append(*r.log, log)
+	r.log = append(r.log, log)
 	r.mutex.Unlock()
 }
 
