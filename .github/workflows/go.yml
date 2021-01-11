@@ -3,58 +3,14 @@ name: Go
 on:
   push:
     branches: [ master ]
+  pull_request:
 
 jobs:
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.15
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
-        go get github.com/t-yuki/gocover-cobertura github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
-        go mod download
-        
-    - name: Build agent
-      run: go build -ldflags="-s -w" -trimpath -v -o assets/agent github.com/chabad360/covey/agent
-    
-    - name: UPX agent
-      uses: crazy-max/ghaction-upx@v1
-      with:
-        version: latest
-        file: assets/agent/agent
-        
-    - name: Pack assets
-      run: resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ ./assets/*
-      
-    - name: Build Covey
-      run: go build -trimpath -v -o covey github.com/chabad360/covey
-    
-    - name: UPX agent
-      uses: crazy-max/ghaction-upx@v1
-      with:
-        version: latest
-        file: covey
-    
   test:
     name: Test
     runs-on: ubuntu-latest
+
     steps:
-    
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
@@ -65,50 +21,69 @@ jobs:
 
     - name: Get dependencies
       run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
         go get github.com/t-yuki/gocover-cobertura github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
         go mod download
 
     - name: Pack assets
       run: resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ ./assets/*
-    
+
     - name: Test
-      if: success() || failure()
-      run: go test -trimpath -v -tags=insecure -coverprofile=coverage.txt -covermode count `go list ./... | grep -v test`
-      
+      if: always()
+      run: go test -trimpath -v -tags=insecure -coverprofile=coverage.txt -json  -covermode count `go list ./... | grep -v test` > test.json
+
+    - name: Provide annotations from test
+      if: always()
+      uses: guyarb/golang-test-annotations@v0.3.0
+
     - name: Upload coverage
-      if: success() || failure()
+      if: always()
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
       run: |
         gocover-cobertura < coverage.txt > coverage.xml
         bash <(curl -Ls https://coverage.codacy.com/get.sh) \
           report --language Go --force-language -r coverage.xml
-        
+
+  golangci:
+    name: golangci
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.15
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Get dependencies
+        run: |
+          go get github.com/t-yuki/gocover-cobertura github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
+          go mod download
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.35
+          skip-go-installation: true
+          only-new-issues: true
+
   fossa:
     name: Fossa Upload
     runs-on: ubuntu-latest
+
     steps:
-    
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.15
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.15
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
     - name: Get dependencies
       run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
         go get github.com/t-yuki/gocover-cobertura github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
         go mod download
       

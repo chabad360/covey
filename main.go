@@ -1,6 +1,10 @@
 package main
 
-// Make sure to run resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*
+//go:generate go build -ldflags "-s -w" -trimpath -o assets/agent/agent github.com/chabad360/covey/agent
+//go:generate upx assets/agent/agent
+//go:generate resources -declare -package=asset -output=asset/asset.go -tag "!live" -trim assets/ assets/*
+//go:generate go generate github.com/chabad360/covey/plugin
+
 // TODO: refactor
 
 import (
@@ -23,7 +27,7 @@ import (
 )
 
 const (
-	version = "v0.06"
+	version = "v0.6"
 )
 
 func loadHandlers(r *pure.Mux) {
