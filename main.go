@@ -49,13 +49,13 @@ func loadHandlers(r *pure.Mux) {
 	authentication.RegisterUIHandlers(r)
 
 	job.RegisterUIHandlers(r.Group("/jobs"))
-	r.Get("/new/job", job.UIJobNew) // BAD
+	r.Get("/new/job", job.UIJobNew) // FIXME
 
 	node.RegisterUIHandlers(r.Group("/nodes"))
-	r.Get("/new/node", node.UINodeNew) // BAD
+	r.Get("/new/node", node.UINodeNew) // FIXME
 
 	task.RegisterUIHandlers(r.Group("/tasks"))
-	r.Get("/new/task", task.UITaskNew) // BAD
+	r.Get("/new/task", task.UITaskNew) // FIXME
 
 	agent := r.GroupWithNone("/agent")
 	agent.Use(loggingMiddleware)

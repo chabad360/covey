@@ -72,10 +72,8 @@ linters-settings:
     check-shadowing: true
     # enable or disable analyzers by name
     enable:
-      - atomicalign
+      - atomic
     enable-all: false
-    disable:
-      - shadow
     disable-all: false
   lll:
     line-length: 140
@@ -141,7 +139,7 @@ linters:
     - typecheck
     - unconvert
     - unparam
-    - unused
+    #    - unused
     - varcheck
     - whitespace
 
