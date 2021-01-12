@@ -29,8 +29,8 @@ changelog:
     exclude:
       - '^chore:'
       - '^ci:'
-      - '^docs:'
-      - '^tests:'
+      - '^docs?:'
+      - '^tests?:'
 release:
   github:
     owner: chabad360
@@ -43,7 +43,7 @@ release:
 #        format: zip
 #    replacements:
 #      darwin: mac
-#signs:
-#  - artifacts: all
-#    args: [ "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
+signs:
+  - artifacts: all
+    args: [ "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
 
