@@ -9,6 +9,8 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
+    goarch:
+      - amd64
     flags:
       - -trimpath
     ldflags:
@@ -17,6 +19,7 @@ builds:
       - -X github.com/chabad360/covey.ReleaseTag={{.Tag}}
       - -X github.com/chabad360/covey.CommitID={{.FullCommit}}
       - -X github.com/chabad360/covey.ShortCommitID={{.ShortCommit}}
+    mod_timestamp: '{{ .CommitTimestamp }}'
     hooks:
       post: upx {{ .Path }}
 checksum:
