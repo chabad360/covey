@@ -67,7 +67,7 @@ Covey has, and will gain (in the coming weeks/months) a variety of features, inc
   for more details)
 * [x] Provide configuration system
 * [x] Switch to `//go:embed` (this might need to wait)
-* [ ] CI/CD
+* [x] CI/CD
 * [x] Big Refactor
 * [ ] Add and refactor tests (Aim for 80% Coverage)
 * [ ] Complete the web UI
