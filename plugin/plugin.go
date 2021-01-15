@@ -3,6 +3,7 @@
 package plugin
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -10,6 +11,7 @@ import (
 
 	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/models/safe"
+	"github.com/chabad360/covey/plugins/task/shell"
 )
 
 var (
@@ -18,9 +20,20 @@ var (
 )
 
 func Init() error {
-	Host = plugins.NewPluginHost(config.Config.Plugins.PluginsFolder, config.Config.Plugins.PluginsCacheFolder, Symbols)
+	Host, _ = plugins.NewPluginHost(config.Config.Plugins.PluginsFolder, config.Config.Plugins.PluginsCacheFolder, Symbols)
 	Host.AddPluginType("task", (*safe.TaskPluginInterface)(nil))
-	return Host.LoadPlugins()
+
+	Host.AddInternalPlugin(reflect.ValueOf(shell.GetPlugin()), plugins.PluginConfig{
+		Name:        "Shell",
+		Description: "Runs a shell command on a node.",
+		PluginType:  "task",
+	})
+
+	if err := Host.LoadPlugins(); err != nil && !errors.Is(err, plugins.ErrNoDirectorySpecified) {
+		return err
+	}
+
+	return nil
 }
 
 func GetTaskPlugin(pluginName string) (safe.TaskPluginInterface, error) {

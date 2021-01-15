@@ -8,9 +8,10 @@ import (
 )
 
 var (
-	// Config is a struct  that provides all covey configuration details.
+	// Config is a struct that provides all covey configuration details.
+	//revive:disable:line-length-limit
+	//nolint:lll
 	Config = struct {
-		// revive:disable:line-length-limit
 		Daemon struct {
 			Host string `default:"0.0.0.0" flag:"host||Resolvable address for this machine. (default '0.0.0.0')" env:"COVEY_HOST" validate:"omitempty,ip_addr"` // TODO: Use hostname by default
 			Port string `default:"8080" flag:"port||Port to expose the covey daemon on. (default '8080')" env:"COVEY_PORT" validate:"number,required"`
@@ -23,11 +24,11 @@ var (
 			Database string `default:"covey" flag:"postgres-database||The database. (default 'covey')" env:"COVEY_POSTGRES_DATABASE" validate:"required"`
 		}
 		Plugins struct {
-			PluginsFolder      string `default:"/usr/lib64/covey/plugins/" flag:"plugins-dir||Directory where plugins are located. (default '/usr/lib64/covey/plugins/')" env:"COVEY_PLUGINS_DIRECTORY" validate:"dir,required"`
-			PluginsCacheFolder string `default:"/var/cache/covey/plugins/" flag:"plugins-cache-dir||Directory where extracted plugins are located. (default '/var/cache/covey/plugins/')" env:"COVEY_PLUGINS_CACHE_DIRECTORY" validate:"dir,required"`
+			PluginsFolder      string `default:"" flag:"plugins-dir||Directory where plugins are located." env:"COVEY_PLUGINS_DIRECTORY" validate:"required_with=PluginsCacheFolder,dir|isdefault"`
+			PluginsCacheFolder string `default:"" flag:"plugins-cache-dir||Directory where extracted plugins are located." env:"COVEY_PLUGINS_CACHE_DIRECTORY" validate:"required_with=PluginsFolder,dir|isdefault"`
 		}
-		// revive:enable:line-length-limit
 	}{}
+	//revive:enable:line-length-limit
 )
 
 // InitConfig initializes the configuration values.
