@@ -27,10 +27,11 @@ func (p Plugin) GetInputs() safe.Form {
 	return safe.Form{
 		Inputs: []safe.Input{
 			{
-				Name:     "command",
-				Label:    "Command",
-				Type:     safe.Text,
-				Required: true,
+				Name:        "command",
+				Label:       "Command",
+				Type:        safe.Text,
+				Required:    true,
+				Description: "The command to run on the node.",
 			},
 		},
 	}
