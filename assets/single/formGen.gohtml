@@ -9,9 +9,10 @@
                 {{- if eq .Type 1 }} type="number"
                 {{- else if eq .Type 4 }} type="checkbox"
                 {{- end }} class="form-control" id="{{.Name}}" name="details[{{.Name}}]"
-                {{- if ne .Default "" -}}
-                    placeholder="{{.Default}}" value="{{ .Default}}"
-                {{ end -}}
+                {{- if ne .Default "" }} value="{{ .Default }}"
+                {{- end -}}
+                {{- if ne .Description "" }} placeholder="{{ .Description }}"
+                {{- end -}}
                 {{- if eq .Type 3 }} multiple
                 {{- end }} />
                 {{- if or ( eq .Type 2 ) ( eq .Type 3 ) }}
