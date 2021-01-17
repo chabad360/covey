@@ -19,10 +19,8 @@ github.com/cenkalti/backoff/v3 v3.0.0 h1:ske+9nBpD9qZsTBoF41nW5L+AIuFBKMeze18XQ3
 github.com/cenkalti/backoff/v3 v3.0.0/go.mod h1:cIeZDE3IrqwwJl6VUwCN6trj1oXrTS4rc0ij+ULvLYs=
 github.com/cenkalti/backoff/v3 v3.2.2 h1:cfUAAO3yvKMYKPrvhDuHSwQnhZNk/RMHKdZqKTxfm6M=
 github.com/cenkalti/backoff/v3 v3.2.2/go.mod h1:cIeZDE3IrqwwJl6VUwCN6trj1oXrTS4rc0ij+ULvLYs=
-github.com/chabad360/plugins v0.1.3 h1:JSW19HPlVaemm2PagcQanUWEtV/gwJG1awYoMrXjtyw=
-github.com/chabad360/plugins v0.1.3/go.mod h1:/iQJDPYM6zF2PQ74ad1tZJ1EPrYpWEN5xdrKXjL7rCA=
-github.com/chabad360/plugins v0.1.4 h1:7XSfrrv9D495/on0j84BcskMDTZIFJJTE/gFaL18mDg=
-github.com/chabad360/plugins v0.1.4/go.mod h1:/iQJDPYM6zF2PQ74ad1tZJ1EPrYpWEN5xdrKXjL7rCA=
+github.com/chabad360/plugins v0.1.5 h1:EsXSRpGp6X9V1UWlkNsCIqUarklyirc/5yyiASf1QZc=
+github.com/chabad360/plugins v0.1.5/go.mod h1:/iQJDPYM6zF2PQ74ad1tZJ1EPrYpWEN5xdrKXjL7rCA=
 github.com/cockroachdb/apd v1.1.0 h1:3LFP3629v+1aKXU5Q37mxmRxX/pIu1nijXydLShEq5I=
 github.com/cockroachdb/apd v1.1.0/go.mod h1:8Sl8LxpKi29FqWXR16WEFZRNSz3SoPzUzeMeY4+DwBQ=
 github.com/containerd/continuity v0.0.0-20190827140505-75bee3e2ccb6/go.mod h1:GL3xCUCBDV3CZiTSEKksMWbLE66hEyuu9qyDOOqM47Y=
@@ -184,8 +182,6 @@ github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 h1:Esafd1046DLD
 github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/modern-go/reflect2 v1.0.1 h1:9f412s+6RmYXLWZSEzVVgPGK7C2PphHj5RJrvfx9AWI=
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
-github.com/omeid/go-resources v0.0.0-20200113210624-eb442c910d63 h1:sIbUgIyD239CwuHE023p6knQeCA/Yx3q1MfNxhlxuU8=
-github.com/omeid/go-resources v0.0.0-20200113210624-eb442c910d63/go.mod h1:z/Qlkuf0oJETCM1bXoga55K0aHbyfwGzYrJVELbU7ck=
 github.com/opencontainers/go-digest v1.0.0-rc1 h1:WzifXhOVOEOuFYOJAW6aQqW0TooG2iki3E3Ii+WN7gQ=
 github.com/opencontainers/go-digest v1.0.0-rc1/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
