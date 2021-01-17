@@ -349,8 +349,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/offset'
-        - $ref: '#/components/parameters/sort'
-        - $ref: '#/components/parameters/sortby'
+        #        - $ref: '#/components/parameters/sort'
+        #        - $ref: '#/components/parameters/sortby'
         - $ref: '#/components/parameters/expand'
       responses:
         '200':
@@ -374,15 +374,15 @@ paths:
           $ref: '#/components/responses/unauth'
       tags:
         - plugins
-  '/plugins/{pluginID}':
+  '/plugins/{pluginName}':
     summary: Get the information of an individual plugin.
     parameters:
       - in: path
-        name: pluginID
+        name: pluginName
         schema:
           type: string
         required: true
-        description: 'GUID or name of the plugin.'
+        description: 'The name of the plugin.'
     get:
       summary: Get a plugin.
       description: ''
@@ -403,15 +403,15 @@ paths:
           description: No such plugin exists.
       tags:
         - plugins
-  '/plugins/{pluginID}/inputs':
+  '/plugins/{pluginName}/inputs':
     summary: Get the inputs for a given plugin.
     parameters:
       - in: path
-        name: pluginID
+        name: pluginName
         schema:
           type: string
         required: true
-        description: 'GUID or name of the plugin.'
+        description: 'Name of the plugin.'
       - in: query
         name: node
         schema:
@@ -608,22 +608,18 @@ components:
         plugin_properties:
           name: shell
           plugin_type: task
-          import_path: null
           local_plugin: false
           internal_plugin: true
           description: Runs a shell command on a node.
-          plugin_id: null
     getPlugins:
       value:
         - plugin_path: internal/shell
           plugin_properties:
             name: shell
             plugin_type: task
-            import_path: null
             local_plugin: false
             internal_plugin: true
             description: Runs a shell command on a node.
-            plugin_id: null
         - plugin_path: /var/cache/covey/plugins/docker
           plugin_properties:
             name: docker
@@ -740,7 +736,7 @@ components:
       required: false
       schema:
         type: boolean
-        default: 'false'
+        default: false
       description: Whether or not to expand the returned items (instead of just the ID).
 
   schemas:
@@ -792,15 +788,15 @@ components:
       properties:
         id:
           type: string
-          description: The ID of the plugin
+          description: The ID of the task.
           readOnly: true
         exit_code:
           type: integer
           description: >
             The exit code from the task.
-            * `0-256`: Ordinary exit code
-            * `257`: Task Running
-            * `258`: Task Queued
+              * `0-256`: Ordinary exit code
+              * `257`: Task Running
+              * `258`: Task Queued
           readOnly: true
           minimum: 0
           maximum: 258
@@ -912,7 +908,7 @@ components:
               type: string
               description: |
                 The type of the plugin:
-                - task
+                  - `task`
               readOnly: true
             name:
               type: string
