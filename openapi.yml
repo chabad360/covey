@@ -346,12 +346,12 @@ paths:
     get:
       summary: List of all plugins (name).
       operationId: getPlugins
-      #      parameters:
-      #        - $ref: '#/components/parameters/limit'
-      #        - $ref: '#/components/parameters/offset'
-      #        - $ref: '#/components/parameters/sort'
-      #        - $ref: '#/components/parameters/sortby'
-      #        - $ref: '#/components/parameters/expand'
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/sortby'
+        - $ref: '#/components/parameters/expand'
       responses:
         '200':
           description: Success
@@ -604,20 +604,35 @@ components:
           updated_at: '2020-06-29T23:39:10.071485063-07:00'
     getPlugin:
       value:
-        name: shell
-        pluginType: taskPlugin
-        filePath: /lib/covey/plugins/task/shell.go
-        UUID: bfca9ab4-66a6-48e4-9077-5f0cb2b5d248
+        plugin_path: internal/shell
+        plugin_properties:
+          name: shell
+          plugin_type: task
+          import_path: null
+          local_plugin: false
+          internal_plugin: true
+          description: Runs a shell command on a node.
+          plugin_id: null
     getPlugins:
       value:
-        - name: shell
-          pluginType: taskPlugin
-          filePath: /lib/covey/plugins/task/shell.go
-          UUID: bfca9ab4-66a6-48e4-9077-5f0cb2b5d248
-        - name: docker
-          pluginType: taskPlugin
-          filePath: /lib/covey/plugins/task/docker.go
-          UUID: 78ca70b4-19ff-4ca2-8c71-ff5bf9eb4590
+        - plugin_path: internal/shell
+          plugin_properties:
+            name: shell
+            plugin_type: task
+            import_path: null
+            local_plugin: false
+            internal_plugin: true
+            description: Runs a shell command on a node.
+            plugin_id: null
+        - plugin_path: /var/cache/covey/plugins/docker
+          plugin_properties:
+            name: docker
+            plugin_type: task
+            import_path: example.com/plugins/docker
+            local_plugin: false
+            internal_plugin: false
+            description: Runs docker commands on a node.
+            plugin_id: 00d151e7d392e68e2c756a6fc42640006ddc0a98d37dba3f90a7b73f63188bbd
 
     getInputs:
       value:
@@ -881,20 +896,44 @@ components:
     Plugin:
       type: object
       properties:
-        name:
-          type: string
-          description: The name of the plugin.
-          readOnly: true
-        pluginType:
-          type: string
-          description: |
-            The type of the plugin:
-            - taskPlugin
-          readOnly: true
-        filePath:
+        plugin_path:
           type: string
           description: The path to the plugin zip file.
           readOnly: true
+        plugin_properties:
+          type: object
+          readOnly: true
+          properties:
+            import_path:
+              type: string
+              description: The Go Module import path.
+              readOnly: true
+            plugin_type:
+              type: string
+              description: |
+                The type of the plugin:
+                - task
+              readOnly: true
+            name:
+              type: string
+              description: The name of the plugin.
+              readOnly: true
+            local_plugin:
+              type: boolean
+              description: Whether the plugin is localy developed or not.
+              readOnly: true
+            internal_plugin:
+              type: boolean
+              description: Whether the plugin is provided internally or not.
+              readOnly: true
+            description:
+              type: string
+              description: Describes the intended function of the plugin.
+              readOnly: true
+            plugin_id:
+              type: string
+              description: A hash based ID of the plugin, changes from version to version.
+
     Input:
       type: object
       properties:
