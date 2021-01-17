@@ -1,9 +1,8 @@
 package main
 
-//go:generate go build -ldflags "-s -w" -trimpath -o assets/agent/agent github.com/chabad360/covey/agent
-//go:generate upx assets/agent/agent
+//go:generate go generate github.com/chabad360/covey/agent
 //go:generate resources -declare -package=asset -output=asset/asset.go -tag "!live" -trim assets/ assets/*
-//go:generate go generate github.com/chabad360/covey/plugin
+//go:generate go generate github.com/chabad360/covey/plugins
 
 // TODO: refactor
 
@@ -22,7 +21,7 @@ import (
 	"github.com/chabad360/covey/job"
 	"github.com/chabad360/covey/models"
 	"github.com/chabad360/covey/node"
-	"github.com/chabad360/covey/plugin"
+	"github.com/chabad360/covey/plugins"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/task"
 	"github.com/chabad360/covey/ui"
@@ -47,7 +46,7 @@ func loadHandlers(r *pure.Mux) {
 	// TODO: Clean up
 	r.RegisterAutomaticOPTIONS(options)
 	ui.RegisterHandlers(r)
-	r.Get("/internal/plugins/:plugin/form", plugin.GetPlugin)
+	r.Get("/internal/plugins/:plugin/form", plugins.GetPlugin)
 	authentication.RegisterUIHandlers(r)
 
 	job.RegisterUIHandlers(r.Group("/jobs"))
@@ -91,7 +90,7 @@ func initialize() {
 		log.Fatalf("Failed to open filesystem: %v", err)
 	}
 
-	if err := plugin.Init(); err != nil {
+	if err := plugins.Init(); err != nil {
 		log.Fatalf("Failed to initialize plugins: %v", err)
 	}
 }

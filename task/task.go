@@ -6,7 +6,7 @@ import (
 	json "github.com/json-iterator/go"
 
 	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/plugin"
+	"github.com/chabad360/covey/plugins"
 	"github.com/chabad360/covey/storage"
 )
 
@@ -22,7 +22,7 @@ func NewTask(taskJSON []byte) (*models.Task, error) {
 		return nil, fmt.Errorf("%v is not a valid node", t.Node)
 	}
 
-	p, err := plugin.GetTaskPlugin(t.Plugin)
+	p, err := plugins.GetTaskPlugin(t.Plugin)
 	if err != nil {
 		return nil, err
 	}

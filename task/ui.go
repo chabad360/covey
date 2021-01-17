@@ -5,11 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-playground/pure/v5"
-
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/plugin"
+	"github.com/chabad360/covey/plugins"
 	"github.com/chabad360/covey/storage"
 	"github.com/chabad360/covey/ui"
 )
@@ -64,7 +62,7 @@ func UITaskNew(w http.ResponseWriter, r *http.Request) {
 		Details: struct {
 			Plugins []string
 			Nodes   []string
-		}{plugin.Host.GetPluginsForType("task"), nodes},
+		}{plugins.Host.GetPluginsForType("task"), nodes},
 	}
 
 	t := ui.GetTemplate("tasksNew")

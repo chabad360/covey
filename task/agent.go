@@ -6,12 +6,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-playground/pure/v5"
 	json "github.com/json-iterator/go"
 
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/models"
-	"github.com/chabad360/covey/plugin"
+	"github.com/chabad360/covey/plugins"
 	"github.com/chabad360/covey/storage"
 )
 
@@ -72,7 +71,7 @@ func agentPost(w http.ResponseWriter, r *http.Request) {
 
 func initQueues(tasks []models.Task) error {
 	for _, t := range tasks {
-		p, err := plugin.GetTaskPlugin(t.Plugin)
+		p, err := plugins.GetTaskPlugin(t.Plugin)
 		if err != nil {
 			return err
 		}

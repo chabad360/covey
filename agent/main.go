@@ -1,5 +1,8 @@
 package main
 
+//go:generate go build -ldflags "-s -w" -trimpath -o assets/agent/agent github.com/chabad360/covey/agent
+//go:generate upx assets/agent/agent
+
 import (
 	"bufio"
 	"bytes"
