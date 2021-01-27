@@ -87,19 +87,6 @@ jobs:
           codacyToken: ${{ secrets.CODACY_PROJECT_TOKEN }}
           commitId: ${{ github.sha }}
 
-  golangci:
-    name: GolangCI
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.35
-          only-new-issues: true
-
   fossa:
     name: Fossa
     runs-on: ubuntu-latest
