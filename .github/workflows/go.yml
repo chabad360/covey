@@ -80,7 +80,7 @@ jobs:
 #           bash <(curl -Ls https://coverage.codacy.com/get.sh) \
 #             report --language Go --force-language -r coverage.xml
       - name: Upload coverage
-        uses: brpaz/godacov-action@v1
+        uses: brpaz/godacov-action@v1.1.1
         with:
           reportPath: 'coverage.txt'
           codacyToken: ${{ secrets.CODACY_PROJECT_TOKEN }}
@@ -142,6 +142,11 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ^1.15
+          
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: 'go'
         
       - uses: actions/cache@v2
         with:
@@ -154,11 +159,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}-
             ${{ runner.os }}-go-
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
-        with:
-          languages: 'go'
         
       - name: Build 
         run: |
