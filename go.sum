@@ -182,6 +182,8 @@ github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 h1:Esafd1046DLD
 github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/modern-go/reflect2 v1.0.1 h1:9f412s+6RmYXLWZSEzVVgPGK7C2PphHj5RJrvfx9AWI=
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
+github.com/omeid/go-resources v0.0.0-20200113210624-eb442c910d63 h1:sIbUgIyD239CwuHE023p6knQeCA/Yx3q1MfNxhlxuU8=
+github.com/omeid/go-resources v0.0.0-20200113210624-eb442c910d63/go.mod h1:z/Qlkuf0oJETCM1bXoga55K0aHbyfwGzYrJVELbU7ck=
 github.com/opencontainers/go-digest v1.0.0-rc1 h1:WzifXhOVOEOuFYOJAW6aQqW0TooG2iki3E3Ii+WN7gQ=
 github.com/opencontainers/go-digest v1.0.0-rc1/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
@@ -232,6 +234,8 @@ github.com/traefik/yaegi v0.9.8 h1:sYGKV2d911B9olVsSO/nRmjIh+CQTffAUSzoyv4a4/4=
 github.com/traefik/yaegi v0.9.8/go.mod h1:FAYnRlZyuVlEkvnkHq3bvJ1lW5be6XuwgLdkYgYG6Lk=
 github.com/traefik/yaegi v0.9.9 h1:Qm8GUb5QapEiMlRQTKWSTN1yb8n1VWHJke2rjkLcY8g=
 github.com/traefik/yaegi v0.9.9/go.mod h1:FAYnRlZyuVlEkvnkHq3bvJ1lW5be6XuwgLdkYgYG6Lk=
+github.com/traefik/yaegi v0.9.11 h1:siRoKDUit/5wR/w0n0TClpl5H0mj1O/Qku66B5GqLDI=
+github.com/traefik/yaegi v0.9.11/go.mod h1:FAYnRlZyuVlEkvnkHq3bvJ1lW5be6XuwgLdkYgYG6Lk=
 github.com/xyproto/unzip v0.0.0-20150601123358-823950573952 h1:pCgYs8AOzRpEmdM55hrSnd+TZOr+1/m9Y9KkFIZPwiU=
 github.com/xyproto/unzip v0.0.0-20150601123358-823950573952/go.mod h1:ygEdojOpwX5uG71ECHji5sod2rpZ+9hqNeAZD50S84Q=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
