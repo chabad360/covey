@@ -19,7 +19,7 @@ jobs:
 
       - name: git describe
         id: describe
-        run: DESCRIBE=$(git describe) echo "::set-output name=describe::${DESCRIBE}"
+        run: DESCRIBE=$(git describe); echo "::set-output name=describe::${DESCRIBE}"
 
       - name: Is tagged release
         continue-on-error: true
