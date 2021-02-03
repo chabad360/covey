@@ -20,6 +20,7 @@ jobs:
         run: DESCRIBE=$(git describe) echo "::set-output name=describe::${DESCRIBE}"
 
       - name: Is tagged release
+        continue-on-error: true
         id: tagged
         run: git describe --exact-match; [ $? -eq 0 ] && TAGGED=1 || TAGGED=0; echo "::set-output name=tagged::${TAGGED}"
 
@@ -215,6 +216,7 @@ jobs:
           retention-days: 7
 
   release:
+    name: Release
     runs-on: ubuntu-latest
     needs: [ info, snapshot ]
     if: ${{ needs.info.outputs.tagged }} == 1
