@@ -10,24 +10,25 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os/exec"
+	"sync"
 	"time"
 
 	json "github.com/json-iterator/go"
 )
 
+var (
+	mu         sync.Mutex
+	activeTask *runningTask
+	agent      config
+	q          = &Queue{}
+	timer      = time.NewTicker(time.Second)
+	nextTask   = baseContext{}
+)
+
 func main() {
-	var (
-		err        error
-		activeTask *runningTask
-		agent      config
-		q          = &queue{}
-	)
-
-	t := time.NewTicker(time.Second)
-	rt := make(chan *runningTask, 1)
-
-	if err = settings(&agent); err != nil {
+	if err := settings(&agent); err != nil {
 		log.Fatal(err)
 	}
 
@@ -37,71 +38,62 @@ func main() {
 
 	log.Println("Covey Agent started!")
 
-	ft := newRunningTask(task{
+	helloTask := newRunningTask(task{
 		ID:      "hello",
 		Command: "hello",
 	})
-	ft.Finish(0, 0)
-	rt <- ft
+	helloTask.Log("hello")
+	helloTask.Finish(0, 0)
+	activeTask = helloTask
 
-	go taskManager(q, rt)
+	go taskManager(q)
 
 	for {
-		<-t.C
-		activeTask, err = everySecond(q, rt, activeTask, agent)
-		if err != nil {
+		<-timer.C
+		if err := everySecond(q, agent); err != nil {
 			log.Println(err)
 		}
 	}
 }
 
-func everySecond(q *queue, rt <-chan *runningTask, at *runningTask, agent config) (*runningTask, error) {
-	if at == nil && len(rt) != 0 {
-		at = <-rt
-	}
-
-	at, body, err := genBody(at)
+func everySecond(q *Queue, agent config) error {
+	mu.Lock()
+	body, err := genBody(activeTask)
 	if err != nil {
-		return at, err
+		mu.Unlock()
+		return err
 	}
+	mu.Unlock()
 
 	got, err := connect(body, agent.AgentPath)
 	if err != nil {
-		return at, err
+		return err
 	}
 
-	if err = json.Unmarshal(got, &q); err != nil {
-		return at, err
-	}
-
-	return at, nil
+	return json.Unmarshal(got, &q)
 }
 
-func genBody(rt *runningTask) (*runningTask, []byte, error) {
-	var t *returnTask
-
-	if rt == nil {
-		goto done
-	}
-
-	t = &returnTask{
+func genBody(rt *runningTask) ([]byte, error) {
+	t := &returnTask{
 		ID:  rt.ID,
 		Log: rt.GetLog(),
 	}
 
 	select {
-	case <-rt.Done():
-		t.ExitCode = rt.ExitCode
-		t.State = rt.State
-		rt = nil
+	case <-nextTask.Done():
+		t = nil
+		return json.Marshal(t)
+	case <-rt.context.Done():
+		t.ExitCode = <-rt.ExitCode
+		t.State = <-rt.State
+		rt.context.done = nil
+		nextTask.Close()
 	default:
 		t.ExitCode = 257
 		t.State = 2
 	}
 
-done:
-	b, err := json.Marshal(t)
-	return rt, b, err
+	return json.Marshal(t)
 }
 
 func connect(body []byte, path string) ([]byte, error) {
@@ -122,48 +114,47 @@ func connect(body []byte, path string) ([]byte, error) {
 	return ioutil.ReadAll(r.Body)
 }
 
-func taskManager(q *queue, rt chan<- *runningTask) {
+func taskManager(q *Queue) {
 	for {
-		qt := q.Get()
-		t := newRunningTask(qt)
-		go run(t)
-		rt <- t
-		<-t.Done()
+		qt := q.GetNext()       // GetNext the next task in the Queue
+		t := newRunningTask(qt) // Create a runningTask
+		go run(t)               // Start the task
+		mu.Lock()
+		nextTask = baseContext{} // Prevent the next task from running until this one is processed
+		activeTask = t           // Set this task as the activeTask
+		mu.Unlock()
+		<-nextTask.Done() // Wait for this task to finish processing before moving on
 	}
 }
 
 func run(t *runningTask) {
-	var bb *bufio.Scanner
-	var ec int
-	var s int
-
 	cmd := exec.Command("/bin/sh", "-c", t.Command) //nolint:gosec
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		s = 11
 		t.Log(fmt.Sprintf("agent error: %v", err))
-		goto done
+		t.Finish(0, 11)
+		return
 	}
 
-	if err = cmd.Start(); err != nil {
-		s = 11
+	err = cmd.Start()
+	if err != nil {
 		t.Log(fmt.Sprintf("agent error: %v", err))
-		goto done
+		t.Finish(0, 11)
+		return
 	}
 
-	bb = bufio.NewScanner(stdout)
+	bb := bufio.NewScanner(stdout)
 	for bb.Scan() {
 		t.Log(bb.Text())
 	}
 
-	if err = cmd.Wait(); err != nil {
+	err = cmd.Wait()
+	if err != nil {
 		if e, ok := err.(*exec.ExitError); ok {
-			ec = e.ExitCode()
-			s = 1
+			t.Finish(e.ExitCode(), 1)
+			return
 		}
 	}
-
-done:
-	t.Finish(ec, s)
+	t.Finish(0, 0)
 }

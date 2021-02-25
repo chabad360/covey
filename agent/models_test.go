@@ -20,12 +20,12 @@ func Test_queue_UnmarshalJSON(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var q queue
+			var q = &Queue{}
 
 			if err := q.UnmarshalJSON(tt.args.b); (err != nil) != tt.wantErr {
 				t.Errorf("UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if got := q.Get(); !cmp.Equal(got, tt.want) {
+			if got := q.GetNext(); !cmp.Equal(got, tt.want) {
 				t.Errorf("UnmarshalJSON() got = %v, want %v", got, tt.want)
 			}
 		})

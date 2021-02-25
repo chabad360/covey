@@ -12,117 +12,107 @@ func init() {
 	close(closedChan)
 }
 
-type queue struct {
-	sync.Mutex
+// Queue is a basic concurrency-safe slice with extra checking to ensure that we don't pop an empty list.
+type Queue struct {
+	mutex    sync.Mutex
 	list     []task
-	nonEmpty chan bool
+	nonEmpty chan struct{}
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
-func (q *queue) UnmarshalJSON(b []byte) error {
+func (q *Queue) UnmarshalJSON(b []byte) error {
 	var m map[int]task
 	if err := json.Unmarshal(b, &m); err != nil {
 		return err
 	}
 
-	q.Lock()
+	q.mutex.Lock()
 	for i := 0; i < len(m); i++ {
 		q.list = append(q.list, m[i])
 	}
-	q.Unlock()
+	q.mutex.Unlock()
 
-	q.full()
+	q.checkIfEmpty()
 	return nil
 }
 
-// Get retrieves the first item in the queue. If the queue is empty, Get blocks until its not.
-func (q *queue) Get() task {
-	<-q.nE()
+// GetNext retrieves the pops the next item in the Queue. If the Queue is empty, GetNext blocks until its not.
+func (q *Queue) GetNext() task {
+	<-q.notEmpty()
 
-	q.Lock()
+	q.mutex.Lock()
 	var t task
 	t, q.list = q.list[0], q.list[1:]
-	q.Unlock()
-	q.full()
+	q.mutex.Unlock()
+	q.checkIfEmpty()
 
 	return t
 }
 
-func (q *queue) nE() <-chan bool {
-	q.Lock()
+// notEmpty returns a buffered channel that gets filled every time there is a new item added to the queue.
+func (q *Queue) notEmpty() <-chan struct{} {
+	q.mutex.Lock()
 	if q.nonEmpty == nil {
-		q.nonEmpty = make(chan bool, 1)
+		q.nonEmpty = make(chan struct{}, 1)
 	}
-	d := q.nonEmpty
-	q.Unlock()
-	return d
+	q.mutex.Unlock()
+	return q.nonEmpty
 }
 
-func (q *queue) full() {
-	q.nE()
-	q.Lock()
+// checkIfEmpty fills the nonEmpty channel if there is something in the queue.
+func (q *Queue) checkIfEmpty() {
+	q.notEmpty()
+	q.mutex.Lock()
 	if len(q.list) > 0 && len(q.nonEmpty) == 0 {
-		q.nonEmpty <- true
+		q.nonEmpty <- struct{}{}
 	}
-	q.Unlock()
+	q.mutex.Unlock()
+}
+
+func newRunningTask(t task) *runningTask {
+	return &runningTask{
+		task:     t,
+		context:  &baseContext{},
+		mutex:    &sync.Mutex{},
+		ExitCode: make(chan int, 1),
+		State:    make(chan int, 1),
+		log:      []string{},
+	}
 }
 
 type runningTask struct {
 	task
+	ExitCode chan int
+	State    chan int
+	context  *baseContext
+	mutex    *sync.Mutex
 	log      []string
-	ExitCode int
-	State    int
-	done     chan struct{}
-	mu       *sync.Mutex
 }
 
 // GetLog returns the current log output.
-func (r *runningTask) GetLog() []string {
-	var d []string
-	r.mu.Lock()
-	d, r.log = r.log, []string{}
-	r.mu.Unlock()
-	return d
+func (r *runningTask) GetLog() (log []string) {
+	r.mutex.Lock()
+	log, r.log = r.log, []string{}
+	r.mutex.Unlock()
+	return
 }
 
 // Log adds a line to the log.
 func (r *runningTask) Log(log string) {
-	r.mu.Lock()
+	r.mutex.Lock()
 	r.log = append(r.log, log)
-	r.mu.Unlock()
-}
-
-// Done returns a channel that will be closed when the task completes.
-func (r *runningTask) Done() <-chan struct{} {
-	r.mu.Lock()
-	if r.done == nil {
-		r.done = make(chan struct{})
-	}
-	d := r.done
-	r.mu.Unlock()
-	return d
+	r.mutex.Unlock()
 }
 
 // Finish marks the task as completed.
 func (r *runningTask) Finish(exitCode int, state int) {
-	r.mu.Lock()
-	r.ExitCode = exitCode
-	r.State = state
-	if r.done == nil {
-		r.done = closedChan
-	} else {
-		close(r.done)
-	}
-	r.mu.Unlock()
-}
+	r.mutex.Lock()
 
-func newRunningTask(t task) *runningTask {
-	rt := &runningTask{
-		mu: &sync.Mutex{},
-	}
-	rt.task = t
+	r.ExitCode <- exitCode
+	r.State <- state
 
-	return rt
+	r.context.Close()
+	r.mutex.Unlock()
 }
 
 type returnTask struct {
@@ -135,4 +125,38 @@ type returnTask struct {
 type task struct {
 	Command string `json:"command"`
 	ID      string `json:"id"`
+}
+
+// baseContext is the base implementation of a context.Context (doesn't fit the interface tho).
+type baseContext struct {
+	init  sync.Once
+	mutex *sync.Mutex
+	done  chan struct{}
+}
+
+func (c *baseContext) initMutex() {
+	c.init.Do(func() { c.mutex = &sync.Mutex{} })
+}
+
+// Done returns a channel that will be closed once Close is run.
+func (c *baseContext) Done() <-chan struct{} {
+	c.initMutex()
+	c.mutex.Lock()
+	if c.done == nil {
+		c.done = make(chan struct{})
+	}
+	c.mutex.Unlock()
+	return c.done
+}
+
+// Close closes the channel returned by Done.
+func (c *baseContext) Close() {
+	c.initMutex()
+	c.mutex.Lock()
+	if c.done == nil {
+		c.done = closedChan
+	} else {
+		close(c.done)
+	}
+	c.mutex.Unlock()
 }
