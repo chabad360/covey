@@ -9,7 +9,6 @@ build:
     TAGS=""
     LD=""
     "${RUN}" -r "${RUNFILE}" agent --release
-    [[ "${LIVE}" ]] || "${RUN}" -r "${RUNFILE}" pack
     [[ "${LIVE}" ]] && TAGS=-tags=live && echo "Building Covey without assets"
     [[ "${RELEASE}" ]] && echo "Building Covey without symbols"
     echo "Building Covey"
@@ -29,12 +28,6 @@ agent:
         && go build -trimpath -ldflags="-s -w" -o assets/agent/agent github.com/chabad360/covey/agent \
         || go build -o assets/agent/agent github.com/chabad360/covey/agent
     [[ "${RELEASE}" ]] && echo "Compressing binary" && upx assets/agent/agent
-
-
-## Package Covey resources
-pack:
-    echo "Bundling covey resources"
-    resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ assets/*
 
 
 ## Build and run Covey with -tag live

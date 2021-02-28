@@ -2,12 +2,13 @@ package ui
 
 import (
 	"fmt"
+	"io/fs"
 	"net/http"
 	"strings"
 
 	"github.com/go-playground/pure/v5"
 
-	"github.com/chabad360/covey/asset"
+	"github.com/chabad360/covey/assets"
 	"github.com/chabad360/covey/common"
 )
 
@@ -20,11 +21,11 @@ func dashboard(w http.ResponseWriter, r *http.Request) {
 }
 
 func fsMust(f string) string {
-	str, ok := asset.FS.String(f)
-	if !ok {
-		panic(fmt.Errorf("fsMust: invalid file %v", f))
+	byt, err := fs.ReadFile(assets.Content, f)
+	if err != nil {
+		panic(fmt.Errorf("fsMust: %w", err))
 	}
-	return str
+	return string(byt)
 }
 
 // RegisterHandlers registers the handlers for the ui module.

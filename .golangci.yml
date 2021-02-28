@@ -5,7 +5,7 @@ run:
     - assets
 
   skip-files:
-    - "asset/assets.go"
+    - "assets/assets.go"
 
   modules-download-mode: readonly
 

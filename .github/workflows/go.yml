@@ -54,7 +54,7 @@ jobs:
             
       - name: Get dependencies
         run: |
-          go get github.com/t-yuki/gocover-cobertura github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
+          go get github.com/t-yuki/gocover-cobertura github.com/traefik/yaegi/cmd/yaegi
           go mod download
 
   test:
@@ -84,9 +84,6 @@ jobs:
             ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}-tests-
             ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}-
             ${{ runner.os }}-go-
-
-      - name: Pack assets
-        run: resources -declare -package=asset -output=asset/asset.go -tag="!live" -trim assets/ ./assets/*
 
       - name: Test
         if: always()
@@ -229,7 +226,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     needs: [ info, snapshot ]
-    if: ${{ needs.info.outputs.tagged }} == 1
+    if: ${{ needs.info.outputs.tagged }} == 1 && ${{ github.event_name }} == "push"
     steps:
       - name: Set up Go
         uses: actions/setup-go@v2

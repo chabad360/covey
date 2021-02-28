@@ -12,7 +12,7 @@ import (
 	"github.com/bramvdbogaerde/go-scp"
 	"golang.org/x/crypto/ssh"
 
-	"github.com/chabad360/covey/asset"
+	"github.com/chabad360/covey/assets"
 	"github.com/chabad360/covey/common"
 	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/models"
@@ -71,15 +71,15 @@ func installAgent(node string, id string, cfg *ssh.ClientConfig, sshClient *ssh.
 
 	client := scp.NewClient(node, cfg)
 
-	f, err := asset.FS.Open("/agent/agent")
+	f, err := assets.Content.Open("agent/agent")
 	if err != nil {
-		return fmt.Errorf("open /agent/agent: %v", err)
+		return fmt.Errorf("open agent/agent: %v", err)
 	}
 	defer f.Close()
 
-	f2, err := asset.FS.Open("/agent/covey-agent.service")
+	f2, err := assets.Content.Open("agent/covey-agent.service")
 	if err != nil {
-		return fmt.Errorf("open /agent/covey-agent.service: %v", err)
+		return fmt.Errorf("open agent/covey-agent.service: %v", err)
 	}
 	defer f2.Close()
 
@@ -88,7 +88,7 @@ func installAgent(node string, id string, cfg *ssh.ClientConfig, sshClient *ssh.
 	}
 	defer client.Close()
 	if err = client.CopyFile(f, "/tmp/agent", "0755"); err != nil {
-		return fmt.Errorf("copy /agent/agent: %v", err)
+		return fmt.Errorf("copy /tmp/agent: %v", err)
 	}
 
 	if err := client.Connect(); err != nil {
@@ -96,7 +96,7 @@ func installAgent(node string, id string, cfg *ssh.ClientConfig, sshClient *ssh.
 	}
 	defer client.Close()
 	if err = client.CopyFile(f2, "/tmp/covey-agent.service", "0644"); err != nil {
-		return fmt.Errorf("copy /agent/covey-agent.service: %v", err)
+		return fmt.Errorf("copy /tmp/covey-agent.service: %v", err)
 	}
 	log.Println("Copied files")
 

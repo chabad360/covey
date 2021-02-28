@@ -11,8 +11,8 @@ engines:
       - '**_test.go'
 
 exclude_paths:
-  - 'asset/asset.go'
-  - 'asset/live.go'
+  - 'assets/assets.go'
+  - 'assets/live.go'
   - 'assets/src/**'
   - 'Readme.md'
   - 'GOALS.md'

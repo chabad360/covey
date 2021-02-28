@@ -1,6 +1,6 @@
 module github.com/chabad360/covey
 
-go 1.15
+go 1.16
 
 require (
 	github.com/BoRuDar/configuration/v3 v3.0.1
@@ -25,7 +25,7 @@ require (
 	github.com/ory/dockertest/v3 v3.6.2
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.7.0 // indirect
-	github.com/traefik/yaegi v0.9.11 // indirect
+	github.com/traefik/yaegi v0.9.14 // indirect
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
 	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 // indirect

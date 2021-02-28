@@ -3,7 +3,6 @@ covey
 dist/*
 
 assets/agent/agent
-asset/asset.go
 
 # Generated Config
 .idea/*

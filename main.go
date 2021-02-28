@@ -1,7 +1,6 @@
 package main
 
 //go:generate go generate github.com/chabad360/covey/agent
-//go:generate resources -declare -package=asset -output=asset/asset.go -tag "!live" -trim assets/ assets/*
 //go:generate go generate github.com/chabad360/covey/plugins
 
 // TODO: refactor
@@ -9,13 +8,14 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
 
 	"github.com/go-playground/pure/v5"
 
-	"github.com/chabad360/covey/asset"
+	"github.com/chabad360/covey/assets"
 	"github.com/chabad360/covey/authentication"
 	"github.com/chabad360/covey/config"
 	"github.com/chabad360/covey/job"
@@ -39,7 +39,7 @@ func loadHandlers(r *pure.Mux) {
 	r.Get("/src/*", func() http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Cache-Control", "max-age=2592000")
-			http.FileServer(asset.FS).ServeHTTP(w, r)
+			http.FileServer(http.FS(assets.Content)).ServeHTTP(w, r)
 		}
 	}()) // Make static files cached
 
@@ -81,13 +81,7 @@ func initialize() {
 		log.Fatal(err)
 	}
 
-	// Ensure files are available
-	if asset.FS == nil {
-		log.Fatal(`Remember to run 
-		'resources -declare -package=asset -output=asset/asset.go -tag="\!live" -trim assets/ assets/*'`)
-	}
-
-	if _, err := asset.FS.Open("/base/base.gohtml"); err != nil {
+	if _, err := fs.ReadFile(assets.Content, "base/base.gohtml"); err != nil {
 		log.Fatalf("Failed to open filesystem: %v", err)
 	}
 

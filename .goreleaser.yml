@@ -2,7 +2,7 @@ project_name: Covey
 before:
   hooks:
     - go mod download
-    - go get github.com/omeid/go-resources/cmd/resources github.com/traefik/yaegi/cmd/yaegi
+    - go get github.com/traefik/yaegi/cmd/yaegi
     - go generate
 builds:
   - env:
